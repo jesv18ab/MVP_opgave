@@ -1,14 +1,39 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import SignInForm from "./Components/SignInForm";
+import CleaningOverview from "./Components/CleaningComponents/CleaningOverview";
+import {createBottomTabNavigator} from "react-navigation-tabs";
+import {createAppContainer} from "react-navigation";
+import { Entypo } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
+import * as firebase from 'firebase';
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+const fireBaseConfig = {
+  apiKey: "AIzaSyAhRw12K9lOP1p72bY_Pqpol5VjohVULAM",
+  authDomain: "reactnativedbtrial.firebaseapp.com",
+  databaseURL: "https://reactnativedbtrial.firebaseio.com",
+  projectId: "reactnativedbtrial",
+  storageBucket: "reactnativedbtrial.appspot.com",
+  messagingSenderId: "747875825609",
+  appId: "1:747875825609:web:6fb0e13809e67b47151a18",
+  measurementId: "G-DBNS46ZC4T"
+};
+// Vi kontrollerer at der ikke allerede er en initialiseret instans af firebase
+// Så undgår vi fejlen Firebase App named '[DEFAULT]' already exists (app/duplicate-app).
+if (!firebase.apps.length) {
+  firebase.initializeApp(fireBaseConfig);
+}
+
+
+
+export default class App extends React.Component  {
+  render(){
+    return(
+        <SignInForm/>
+    )
+  }
+
 }
 
 const styles = StyleSheet.create({
