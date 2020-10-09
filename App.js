@@ -1,12 +1,6 @@
-import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import SignInForm from "./Components/SignInForm";
-import CleaningOverview from "./Components/CleaningComponents/CleaningOverview";
-import {createBottomTabNavigator} from "react-navigation-tabs";
-import {createAppContainer} from "react-navigation";
-import { Entypo } from '@expo/vector-icons';
-import { Ionicons } from '@expo/vector-icons';
 import * as firebase from 'firebase';
 
 const fireBaseConfig = {

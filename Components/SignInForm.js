@@ -1,22 +1,36 @@
 import React, { Component } from 'react';
 import { Alert, Text, TouchableOpacity, TextInput, View, StyleSheet, Image } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';;
 import { MaterialIcons, FontAwesome, Entypo, Ionicons, Fontisto } from '@expo/vector-icons'
 import {Button} from  'react-native-paper'
 import * as firebase from 'firebase';
 import {createBottomTabNavigator} from "react-navigation-tabs";
-import CleaningOverview from "./CleaningComponents/CleaningOverview";
 import CalendarView from "./CalendarComponent/CalendarView"
 import WeShareView from "./EconomyComponents/WeShareView";
 import AddMemberView from "./MembershipComponents/AddMemberView";
 import ProfileView from "./ProfileComponents/ProfileView";
 import {createAppContainer} from "react-navigation";
+import {createDrawerNavigator} from "react-navigation-drawer";
+import CommonAreaCleaningView from "./CleaningComponents/CommonAreaCleaningView";
+import LaundryView from "./CleaningComponents/LaundryView";
+import GroceryShoppingView from "./CleaningComponents/GroceryShoppingView";
+
+const MyDrawerNavigator = createDrawerNavigator({
+    CommonAreas: {
+        screen: CommonAreaCleaningView,
+    },
+    Laundry:{
+        screen:LaundryView
+    },
+    Grocery: {
+        screen: GroceryShoppingView
+    }
+});
 
 
 const TabNavigator = createBottomTabNavigator(
     {
         CleaningOverview: {
-            screen: CleaningOverview, navigationOptions: {
+            screen: MyDrawerNavigator, navigationOptions: {
                 tabBarLabel:"Home Page", tabBarIcon: ({ tintColor }) => (
                     <Entypo name="home" size={24} color={tintColor} />
                 )
