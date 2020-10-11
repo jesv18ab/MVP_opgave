@@ -1,12 +1,12 @@
 import {StyleSheet, Text, View} from "react-native";
 import React from "react";
-import Header from "./Header";
+import HeaderClass from "./HeaderClass";
 
 export default class LandryView extends React.Component {
 render(){
     return(
         <View>
-            <Header navigation={this.props.navigation} title='Laundry'/>
+            <HeaderClass navigation={this.props.navigation} title='Laundry'/>
             <Text>Laundry View</Text>
         </View>
     )

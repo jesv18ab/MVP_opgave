@@ -1,13 +1,15 @@
-import {StyleSheet, Text, View} from "react-native";
+import {Image, StyleSheet, Text, View} from "react-native";
 import React from "react";
-import Header from "./Header";
+import HeaderClass from "./HeaderClass";
 
 export default class CommonAreaCleaningView extends React.Component {
     render(){
         return(
             <View>
-                <Header navigation={this.props.navigation} title='Common Areas'/>
-                <Text>Common Areas View</Text>
+                <HeaderClass navigation={this.props.navigation} title='Common Areas'/>
+                <View>
+                <Image style={styles.welcomePic} source={require('./assetsCleaningViews/OpgaveOversigt.png')}/>
+                </View>
             </View>
         )
     }

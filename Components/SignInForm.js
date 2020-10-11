@@ -15,13 +15,13 @@ import LaundryView from "./CleaningComponents/LaundryView";
 import GroceryShoppingView from "./CleaningComponents/GroceryShoppingView";
 
 const MyDrawerNavigator = createDrawerNavigator({
-    CommonAreas: {
-        screen: CommonAreaCleaningView,
+    Rengøring: {
+        screen: CommonAreaCleaningView, navigationOptions: {label: "Gå til vasketøj"}
     },
-    Laundry:{
+    Vasketøj:{
         screen:LaundryView
     },
-    Grocery: {
+    Indkøbsliste: {
         screen: GroceryShoppingView
     }
 });
@@ -118,7 +118,8 @@ export default class SignInForm extends Component {
         else {
             return (
                     <View style={styles.container}>
-                        <Text style={styles.titleText}>Velkommen til Kollektivet!</Text>
+                        <Text style={styles.titleText}>Velkommen til</Text>
+                        <Text style={{fontFamily: 'Baskerville', fontSize: 50}} >Kollektivet!</Text>
                         <Image style={styles.welcomePic} source={require('./assets/house.png')}/>
                         <TextInput
                             value={this.state.email}
@@ -138,7 +139,7 @@ export default class SignInForm extends Component {
                         />
                         <TouchableOpacity style={[styles.signInButtons, {width: 200, height: 55}]} onPress={this.loginUser} >
                             <Button color='black'>
-                                Sign in
+                                Login
                             </Button>
                         </TouchableOpacity>
                         <View style={{marginTop: 20}}>
@@ -149,7 +150,7 @@ export default class SignInForm extends Component {
                                                 source={require('./assets/facebook_2.png')}
                                                 style={{ width: 34, height: 34, tintColor: 'black' }}/>
                                         )}>
-                                    Sign in with Facebook
+                                    Login med Facebook
                                 </Button>
                             </TouchableOpacity>
                             <View style={{marginTop: 15}}>
@@ -158,7 +159,7 @@ export default class SignInForm extends Component {
                                             icon={() => (
                                                 <Image source={require('./assets/Google.png')} style={{ width: 38, height: 38, tintColor: 'black' }}/>)}
                                     >
-                                        Sign in with Google
+                                        Login med Google
                                     </Button>
                                 </TouchableOpacity>
                             </View>

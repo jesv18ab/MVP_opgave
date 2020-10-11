@@ -1,14 +1,17 @@
 import React from 'react';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {MaterialCommunityIcons} from "@expo/vector-icons";
-import HeaderNav from "../HeaderNav";
+import {Header} from "react-native-elements";
 
 export default class WeShareView extends React.Component{
     render(){
         return(
             <View style={styles.container}>
-          <HeaderNav title="WeShare" />
-                    <Image style={{height: '90%', width: '90%', marginTop: 10}} source={require('./EconomyAssets/Weshare.jpg')}/>
+                <Header statusBarProps={{ barStyle: 'light-content' }}
+                        centerComponent={ { text: this.props.title, style: { color: '#fff', fontSize: 25 }  }}
+                        containerStyle={{
+                            backgroundColor: '#3D6DCC',
+                            justifyContent: 'space-around',}}/>
             </View>
 
         )
