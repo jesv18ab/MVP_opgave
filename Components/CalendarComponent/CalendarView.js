@@ -29,7 +29,6 @@ export default class CalendarView extends Component {
         this.setState({
             selectedStartDate: date,
         });
-
     }
     //I render instantieres en CalenderPicker komponent, der fremviser en kalender
     //Kalender har en property, som kan registrere valg af datoer, som forekommer ved tryk på skærmen

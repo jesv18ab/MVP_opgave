@@ -14,7 +14,6 @@ export default class CommonAreaCleaningView extends React.Component {
         routename: null,
         checkList: [],
         identifiers: [],
-
     };
 
     //Når komponenten mounter, skal en array med alle lister hentes
