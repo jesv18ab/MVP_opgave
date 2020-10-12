@@ -13,9 +13,11 @@ import {createDrawerNavigator} from "react-navigation-drawer";
 import CommonAreaCleaningView from "./CleaningComponents/CommonAreaCleaningView";
 import LaundryView from "./CleaningComponents/LaundryView";
 import GroceryShoppingView from "./CleaningComponents/GroceryShoppingView";
+import ListClass from "./CleaningComponents/ListView";
 
+//Oprettelse af en drawernavigator, hvori vi placerer tilhørende screens
 const MyDrawerNavigator = createDrawerNavigator({
-    Rengøring: {
+    Oversigten: {
         screen: CommonAreaCleaningView, navigationOptions: {label: "Gå til vasketøj"}
     },
     Vasketøj:{
@@ -23,10 +25,15 @@ const MyDrawerNavigator = createDrawerNavigator({
     },
     Indkøbsliste: {
         screen: GroceryShoppingView
+    },
+    VisListe: {
+        screen: ListClass
     }
 });
 
-
+//Vi instantiere en bottomnavigator, som står for den overordnede navigering i appplikationen.
+//Der  instantieres komponenter i de relevante screens samt oprettes en forbindelse til den oprettede drawernavigator
+//Derudover er der benyttet ikoner
 const TabNavigator = createBottomTabNavigator(
     {
         CleaningOverview: {
@@ -71,7 +78,7 @@ const TabNavigator = createBottomTabNavigator(
             },
         },
     },
-    /*Generelle label indstillinger*/
+    /*Generelle label indstillinger. Blot en design metode*/
     {
         tabBarOptions: {
             showIcon: true,
@@ -84,31 +91,44 @@ const TabNavigator = createBottomTabNavigator(
         }, initialRouteName: "Profile"
     },
 );
+
+//Vi wrapper bottomnavigatoren ind i en appcontainer.
 const AppBottomNav = createAppContainer(TabNavigator);
 
 export default class SignInForm extends Component {
+   //Der oprettes relevante state variabler, heriblandt varibler til håndtering
+    //af credentials og en variabel, som skal tjekke, hvorvidt en person er logget ind.
     state = {
         email: '',
         password: '',
         isLoggedIn: false
     };
 
+    //login metode. Dette er et asynkront kald, som validerer, hvovidt email og password
+    //stemmer overens med de oplysninger, som er placeret i en firebase DB
     loginUser = async () => {
         const { email, password } = this.state;
+        //Vi laver en try/catch i tilfælde af at der går noget galt under det asynkrone kald.
         try {
             // Here the data is passed to the service and we wait for the result
             const output =  await firebase.auth().signInWithEmailAndPassword(email, password);
-            console.log(output);
+            //Hvis credentials passser, skal state variablen sætte true
+            //Der er ikke oprettet fejlhåndtering endnu
             this.setState({ isLoggedIn: true });
         } catch (error) {
            console.log(error.message);
             this.setState({ isLoggedIn: false });
         }
     };
+    //HVis komponenten mountes, skal dette registreres. Dette gøres ved brug af
+    //componentDidMount
     componentDidMount() {
     this.loginUser
     }
 
+    //I render tester vi status på isLoggedIn state variablen.
+    //er variablen true, skal vi instantiere vores AppBottomNav Komponent
+    //Ellers skal signIn siden fremvises
     render() {
         if(this.state.isLoggedIn){
             return(
@@ -157,8 +177,7 @@ export default class SignInForm extends Component {
                                 <TouchableOpacity style={[styles.signInButtons, {marginTop: 5, textAlign: 'left'}]} >
                                     <Button color='black'
                                             icon={() => (
-                                                <Image source={require('./assets/Google.png')} style={{ width: 38, height: 38, tintColor: 'black' }}/>)}
-                                    >
+                                                <Image source={require('./assets/Google.png')} style={{ width: 38, height: 38, tintColor: 'black' }}/>)}>
                                         Login med Google
                                     </Button>
                                 </TouchableOpacity>
@@ -170,6 +189,7 @@ export default class SignInForm extends Component {
         }
 }
 
+//Styling komponenter til design af siden
 const styles = StyleSheet.create({
     container: {
         flex: 1,

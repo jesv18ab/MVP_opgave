@@ -4,6 +4,8 @@ import {MaterialCommunityIcons} from "@expo/vector-icons";
 import HeaderNav from "../HeaderNav";
 
 export default class WeShareView extends React.Component{
+    //I denne klasse er det meningen at der skal være en konfiguration til weShare
+    //Derfor er der blot hentet et billede, som indgår i Image-komponentet.
     render(){
         return(
             <View style={styles.container}>

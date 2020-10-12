@@ -3,7 +3,9 @@ import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {MaterialCommunityIcons} from "@expo/vector-icons";
 import {Header} from "react-native-elements";
 
-export default class WeShareView extends React.Component{
+export default class HeaderNavClass extends React.Component{
+    // Klassen skal fungere som en konstant header i de fleste  klasser i bottomnavigatoren
+    //Denne header faciliteres af import fra react-native-elements
     render(){
         return(
             <View style={styles.container}>

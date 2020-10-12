@@ -2,12 +2,12 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import HeaderNav from "../HeaderNav";
 import firebase from "firebase";
-import {createKeyboardAwareNavigator} from "react-navigation";
 
 
 export default class ProfileView extends React.Component{
 
-
+//Denne metode henter den bruger, som er valideret under login
+    //Der er ikke blevet brugt tid på design eller anden funktionalitet i klassen
     getUser = () =>{
         var currentUser = null;
         try {

@@ -4,13 +4,16 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import {Header} from "react-native-elements";
 
 
-
-
+//Denne klasse skal være en konstant header i alle de komponenter,
+//Som er tilstede i drawernavigatoren.
 export default class HeaderClass extends Component {
 
+    //Åbner vores draweavigator, baseret på den screen, som brugeren befidner sig på.
     handleNavigation = () =>{
         this.props.navigation.openDrawer()
     };
+
+    //Der anvendes igen en Headerkomponent, som er hentet fra react-native-elements,
 
     render() {
         const {title}= this.props;

@@ -1,49 +1,57 @@
 import * as React from 'react';
-import { Text, View, StyleSheet, TextInput, TouchableOpacity, Button } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
+import { Text, View, StyleSheet, TextInput, TouchableOpacity, Button, Alert } from 'react-native';
 import HeaderClass from "./HeaderClass";
+import firebase from "firebase";
 
 
 export default class App extends React.Component{
+    //Her instantieres state variabler for klassen
     state = {
         listOfGroceries: [],
-        newItem: ''
-    }
-    componentDidMount() {
-        this.getData();
-        this.storeData();
-    }
+        newItem: '',
+        count: 0,
+        listname: 'Indkøbsliste',
+        checkList: [],
+        item: '',
+        inputError: '',
+    };
 
-    /*  const [itemList, setItemList] = React.useState([]);
-      const [newItem, setNewItem] = React.useState("");*/
-
-    getData = async () => {
+    //Metoden bruges til at hente den bruger, som er valideret ved login
+    getUser = () =>{
+        var currentUser = null;
         try {
-            const value = await AsyncStorage.getItem("ShoppingList")
-            if(value !== null) {
-                console.log("Dette er value:" + value);
-                console.log("Dette er list:" + this.state.listOfGroceries);
-            } else {
-                console.log("No data");
-            }
-        } catch(e) {
-            // error reading value
+            currentUser =  firebase.auth().currentUser;
+        }catch (e) {
+            console.log(e.message)
+        }
+        return currentUser
+    };
+
+    //Metoden står for at gemme data fra en array i min firebase DB
+    handleSave = () => {
+        const mail = this.getUser().email;
+        const list = this.state.listOfGroceries;
+       try {
+            const reference = firebase
+                .database()
+                .ref('/groceryLists')
+                .push({list, mail});
+            Alert.alert(`Saved`);
+            this.setState({
+               listOfGroceries: []
+            });
+        } catch (error) {
+            Alert.alert(`Error: ${error.message}`);
         }
     };
 
-    storeData = async () => {
-        const stringifiedList = JSON.stringify(this.state.listOfGroceries);
-        await AsyncStorage.setItem('ShoppingList', stringifiedList);
-        const value = await AsyncStorage.getItem("ShoppingList");
-        this.setState({listOfGroceries: []});
-        console.log(JSON.parse(value));
-        console.log("list:" + this.state.listOfGroceries);
-    };
 
+    //I render oprettes der et inputfelt, der  indeholder logik, som står for
+    //at gemme de data, som brugeren indskriver i feltet.
     render() {
         return (
             <View>
-                <HeaderClass navigation={this.props.navigation} title='Indkøbsliste'/>
+                <HeaderClass navigation={this.props.navigation} title='Indkøbsliste' data="Dette er en tes"/>
                 <View style={[styles.inputContainer, {marginTop: 50}]}>
                     <TextInput
                         style={[styles.input, {borderColor: 'black', borderWidth: 0.5}]}
@@ -52,12 +60,15 @@ export default class App extends React.Component{
                         placeholder="New Item..."
                         required
                     />
+
                     <TouchableOpacity
                         onPress={() => {
                             if (this.state.newItem.trim() === "") {
-                                this.setState(() => ({ nameError: "First name required." }));
+                                this.setState(() => ({ inputError: "Der skal være et data input, før der trykkes add" }));
                             } else {
                                 this.setState(prevState => {
+                                    //Her bliver en array opdateret med den nye vare, såfremt der er leveret data i inputfeltet.
+                                    //Nederst bliver newItem sat tilbage til udganspunktet., efter det er tilføjet til listen
                                     return{
                                         listOfGroceries: [...prevState.listOfGroceries, this.state.newItem]
                                     }
@@ -71,7 +82,11 @@ export default class App extends React.Component{
                 </View>
                 <View style={[styles.itemList, {marginLeft: '10%'}]}>
                     {this.state.listOfGroceries.map((item, index) => (
-                        <TouchableOpacity style={{marginLeft: '20%'}}
+                        //I denne metode, bliver der mappet en knap for hvert item i arrayet
+                        //Trykker man på knappen, vil varen blive slettet fra listen.
+                        //Der vil løbende blive opdateret en endelig liste
+                        //Den nederste button komponent vil aktivere handlesave og gemme listen i firebase DB
+                        <TouchableOpacity data="test" style={{marginLeft: '20%'}}
                             key={index}
                             onPress={() => {
                                 this.state.listOfGroceries.splice(index, 1);
@@ -83,7 +98,7 @@ export default class App extends React.Component{
                         </TouchableOpacity>
                     ))}
                 </View>
-                <Button title="Tryk for at gemme listen" onPress={this.storeData} />
+                <Button title="Tryk for at gemme listen" onPress={this.handleSave} />
             </View>
         );
     }
