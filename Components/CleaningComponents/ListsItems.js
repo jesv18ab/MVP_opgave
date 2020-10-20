@@ -5,6 +5,7 @@ import {View, Text, FlatList, StyleSheet, TouchableOpacity,} from 'react-native'
 
 
 export default class ListsItems extends React.Component {
+    //Oprettelse af boolean, der skal kontroller life cycle
     _isMounted = false;
 
     componentDidMount() {

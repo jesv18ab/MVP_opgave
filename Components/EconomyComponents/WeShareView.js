@@ -10,7 +10,7 @@ export default class WeShareView extends React.Component{
         return(
             <View style={styles.container}>
           <HeaderNav title="WeShare" />
-                    <Image style={{height: '90%', width: '90%', marginTop: 10}} source={require('./EconomyAssets/Weshare.jpg')}/>
+                    <Image fadeDuration={0} style={{height: '90%', width: '90%', marginTop: 10}} source={require('./EconomyAssets/Weshare.jpg')}/>
             </View>
 
         )

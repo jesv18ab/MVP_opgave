@@ -42,11 +42,11 @@ export default class App extends React.Component{
 
     setCount = () => this.setState(
         prevState => ({ ...prevState, count: this.state.count + 1 })
-    )
+    );
 
     name = () => this.setState(
         prevState => ({ ...prevState, count: this.state.count + 1 })
-    )
+    );
 
     //Metoden står for at gemme data fra en array i min firebase DB
     handleSave = () => {
@@ -65,15 +65,6 @@ export default class App extends React.Component{
                    var liste = snapshot.val();
                });
 
-           //console.log(this.state.listRetreived)
-
-
-         /*  for (let item of this.state.listOfGroceries) {
-               firebase
-                   .database()
-                   .ref(`${updateReference}`).push({item});
-           }
-           'Alert.alert("Listen er gemt og kan findes på overblikssiden")'*/
         } catch (error) {
             Alert.alert(`Error: ${error.message}`);
         }
@@ -85,22 +76,6 @@ export default class App extends React.Component{
         this._isMounted = false;
     }
 
-    differentSafeMethod = () => {
-        const mail = this.getUser().email;
-        const list = this.state.listOfGroceries;
-        try {
-            const reference = firebase
-                .database()
-                .ref('/groceryLists')
-                .push({list, mail});
-            Alert.alert(`Saved`);
-            this.setState({
-                listOfGroceries: []
-            });
-        } catch (error) {
-            Alert.alert(`Error: ${error.message}`);
-        }
-    };
 
 
 
