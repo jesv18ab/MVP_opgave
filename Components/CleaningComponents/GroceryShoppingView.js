@@ -124,7 +124,7 @@ export default class App extends React.Component{
                             }
                         }}
                         style={styles.button}>
-                        <Text style={{color: '#FFF', textAlign: 'center'}}>Add</Text>
+                        <Text style={{color: '#FFF', textAlign: 'center'}}>Tilføj</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={[styles.itemList, {marginLeft: '10%'}]}>
