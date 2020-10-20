@@ -8,12 +8,17 @@ export default class App extends React.Component{
     //Her instantieres state variabler for klassen
     state = {
         listOfGroceries: [],
+        groceries: [{
+            title : "Nytitel",
+            items: "new item"
+        }],
         newItem: '',
-        count: 0,
+        count: 1,
         listname: 'Indkøbsliste',
         checkList: [],
         item: '',
         inputError: '',
+        listRetreived: []
     };
 
     //Metoden bruges til at hente den bruger, som er valideret ved login
@@ -27,23 +32,65 @@ export default class App extends React.Component{
         return currentUser
     };
 
+    setCount = () => this.setState(
+        prevState => ({ ...prevState, count: this.state.count + 1 })
+    )
+
+    name = () => this.setState(
+        prevState => ({ ...prevState, count: this.state.count + 1 })
+    )
+
     //Metoden står for at gemme data fra en array i min firebase DB
     handleSave = () => {
-        const mail = this.getUser().email;
+        var id = this.getUser().uid;
+        var email = this.getUser().email;
         const list = this.state.listOfGroceries;
        try {
+            const reference = firebase
+                .database()
+                .ref(`/groceryLists/`).push({email, list});
+            this.setState({
+               listOfGroceries: []
+            });
+           const updateReference = reference.toString().replace("https://reactnativedbtrial.firebaseio.com", "");
+           firebase.database().ref(`${updateReference}/list`).on('value', snapshot => {
+                   var liste = snapshot.val();
+               });
+
+           //console.log(this.state.listRetreived)
+
+
+         /*  for (let item of this.state.listOfGroceries) {
+               firebase
+                   .database()
+                   .ref(`${updateReference}`).push({item});
+           }
+           'Alert.alert("Listen er gemt og kan findes på overblikssiden")'*/
+        } catch (error) {
+            Alert.alert(`Error: ${error.message}`);
+        }
+
+    };
+
+
+
+    differentSafeMethod = () => {
+        const mail = this.getUser().email;
+        const list = this.state.listOfGroceries;
+        try {
             const reference = firebase
                 .database()
                 .ref('/groceryLists')
                 .push({list, mail});
             Alert.alert(`Saved`);
             this.setState({
-               listOfGroceries: []
+                listOfGroceries: []
             });
         } catch (error) {
             Alert.alert(`Error: ${error.message}`);
         }
     };
+
 
 
     //I render oprettes der et inputfelt, der  indeholder logik, som står for
@@ -70,7 +117,7 @@ export default class App extends React.Component{
                                     //Her bliver en array opdateret med den nye vare, såfremt der er leveret data i inputfeltet.
                                     //Nederst bliver newItem sat tilbage til udganspunktet., efter det er tilføjet til listen
                                     return{
-                                        listOfGroceries: [...prevState.listOfGroceries, this.state.newItem]
+                                        listOfGroceries:  [...prevState.listOfGroceries,  this.state.newItem   ]
                                     }
                                 });
                                 this.setState({newItem: ''});

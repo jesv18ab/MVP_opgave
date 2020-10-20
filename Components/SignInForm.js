@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Alert, Text, TouchableOpacity, TextInput, View, StyleSheet, Image } from 'react-native';
+import {Alert, Text, TouchableOpacity, TextInput, View, StyleSheet, Image, LogBox} from 'react-native';
 import { MaterialIcons, FontAwesome, Entypo, Ionicons, Fontisto } from '@expo/vector-icons'
 import {Button} from  'react-native-paper'
 import * as firebase from 'firebase';
@@ -10,25 +10,33 @@ import AddMemberView from "./MembershipComponents/AddMemberView";
 import ProfileView from "./ProfileComponents/ProfileView";
 import {createAppContainer} from "react-navigation";
 import {createDrawerNavigator} from "react-navigation-drawer";
+import {createStackNavigator} from "react-navigation-stack";
 import CommonAreaCleaningView from "./CleaningComponents/CommonAreaCleaningView";
 import LaundryView from "./CleaningComponents/LaundryView";
 import GroceryShoppingView from "./CleaningComponents/GroceryShoppingView";
-import ListClass from "./CleaningComponents/ListView";
+import ListsItems from "./CleaningComponents/ListsItems";
+import ListView from "./CleaningComponents/ListView";
+
+const StackNavigator = createStackNavigator(
+    {
+        Oversigten: {screen: CommonAreaCleaningView, navigationOptions: {headerShown: false,}},
+        lister: { screen: ListsItems },
+        listeValgt: { screen: ListView },
+    },
+    { initialRouteKey: 'Oversigten' }
+);
 
 //Oprettelse af en drawernavigator, hvori vi placerer tilhørende screens
 const MyDrawerNavigator = createDrawerNavigator({
     Oversigten: {
-        screen: CommonAreaCleaningView, navigationOptions: {label: "Gå til vasketøj"}
+        screen: StackNavigator
     },
-    Vasketøj:{
+    Vasketøj: {
         screen:LaundryView
     },
     Indkøbsliste: {
         screen: GroceryShoppingView
     },
-    VisListe: {
-        screen: ListClass
-    }
 });
 
 //Vi instantiere en bottomnavigator, som står for den overordnede navigering i appplikationen.
@@ -123,6 +131,7 @@ export default class SignInForm extends Component {
     //HVis komponenten mountes, skal dette registreres. Dette gøres ved brug af
     //componentDidMount
     componentDidMount() {
+        LogBox.ignoreAllLogs();
     this.loginUser
     }
 
@@ -139,8 +148,8 @@ export default class SignInForm extends Component {
             return (
                     <View style={styles.container}>
                         <Text style={styles.titleText}>Velkommen til</Text>
-                        <Text style={{fontFamily: 'Baskerville', fontSize: 50}} >Kollektivet!</Text>
-                        <Image style={styles.welcomePic} source={require('./assets/house.png')}/>
+                        <Text style={{ fontSize: 50}} >Kollektivet!</Text>
+                        <Image style={styles.welcomePic} source={require('./assetsSignInForm/house.png')}/>
                         <TextInput
                             value={this.state.email}
                             keyboardType = 'email-address'
@@ -167,7 +176,7 @@ export default class SignInForm extends Component {
                                 <Button color='black'
                                         icon={() => (
                                             <Image
-                                                source={require('./assets/facebook_2.png')}
+                                                source={require('./assetsSignInForm/facebook_2.png')}
                                                 style={{ width: 34, height: 34, tintColor: 'black' }}/>
                                         )}>
                                     Login med Facebook
@@ -177,7 +186,7 @@ export default class SignInForm extends Component {
                                 <TouchableOpacity style={[styles.signInButtons, {marginTop: 5, textAlign: 'left'}]} >
                                     <Button color='black'
                                             icon={() => (
-                                                <Image source={require('./assets/Google.png')} style={{ width: 38, height: 38, tintColor: 'black' }}/>)}>
+                                                <Image source={require('./assetsSignInForm/Google.png')} style={{ width: 38, height: 38, tintColor: 'black' }}/>)}>
                                         Login med Google
                                     </Button>
                                 </TouchableOpacity>
@@ -235,6 +244,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'black',
         marginVertical: 10,
+
     }, welcomePic: {
         width: 64,
         height: 64,

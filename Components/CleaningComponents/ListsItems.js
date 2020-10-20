@@ -4,29 +4,32 @@ import {View, Text, FlatList, StyleSheet, TouchableOpacity,} from 'react-native'
 
 
 
-export default class ListItems extends React.Component {
+export default class ListsItems extends React.Component {
     //Instantiering af state variabel.
     state = ({
         items: []
     });
 
-    //MEtoden er ikke klar til brug endnu
-    /*handlePress = () => {
+    handlePress = () => {
         // Her pakker vi ting ud fra props
         const {id, onSelect} = this.props;
         // Kalder den onSelect prop vi får, med det ID vi har fået som argument.
         onSelect(id)
-    };*/
+    };
 
     //I render oprettes en komponent, som er mulig at trykke på.
     //I denne printes der en mail ud, som er parset via props.
     render() {
+       // console.log("Dette er list")
+        // Vi skal også bruge alle IDer, så vi tager alle keys også.
+       // console.log("Få fa på keys")
         return (
-            <TouchableOpacity style={styles.container} /*onPress={this.handlePress}*/>
-                <Text style={styles.label} >
-                    {this.props.mail}
-                </Text>
+            <View style={styles.listContainer} >
+                <Text style={styles.label}>{this.props.list.email}</Text>
+            <TouchableOpacity style={styles.button} onPress={this.handlePress}>
+                <Text style={{color: '#FFF', textAlign: 'center'}}>Gå til</Text>
             </TouchableOpacity>
+            </View>
         );
     }
 }
@@ -39,5 +42,26 @@ const styles = StyleSheet.create({
         height: 50,
         justifyContent:'center'
     },
-    label: { fontWeight: 'bold' },
+    label: {
+        fontWeight: 'bold',
+        marginLeft: '25%'
+    },
+    listContainer: {
+        height: 40,
+        width: '70%',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 0.3,
+        margin: '2%',
+        marginLeft: '15%',
+    },
+    button: {
+        padding: 10,
+        backgroundColor: '#414a4c',
+        width: '30%',
+        borderTopRightRadius: 10,
+        borderBottomRightRadius: 10,
+        marginLeft: '25%'
+    },
 });

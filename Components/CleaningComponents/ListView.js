@@ -1,62 +1,120 @@
 
 import * as React from 'react';
-import { View, Text, FlatList, StyleSheet, Button, Alert } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Button, Alert, TextInput } from 'react-native';
 import firebase from 'firebase';
 import HeaderClass from "./HeaderClass";
 
 //Nedenstående klasse skal på sigt anvendes, men er på nuværende tidspunkt
 //Blot en replikationen af carDetials klassen fra Øvelse 6
-export default class ListClass extends React.Component {
+export default class ListView extends React.Component {
+   _isMounted = false;
     //Instantiering af state variabler
-    state = { list: null };
+    state = {
+        list: [],
+        id: null,
+        newItem: '',
+        dataList: [],
+        email: null,
+        updatedList: [],
+    };
+
 
     //Der anvendes ComponentDidMount for relevante metoder.
     componentDidMount() {
+        this._isMounted = true;
         // Vi udlæser ID fra navgation parametre og loader bilen når komponenten starter
         const id = this.props.navigation.getParam('id');
-        this.loadList(id);
+       // const email = this.props.navigation.getParam('email');
+      this.loadList(id);
+
+   //   this.updateList;
+        this.removeItem;
+    }
+   componentWillUnmount() {
+        this._isMounted = false;
     }
 
-    //Denne metode skal loade en liste pba. et ID
-    loadList = id => {
-        firebase
-            .database().ref(`/groceryLists/${id}`).on('value', snapshot => {
-            this.setState({ list: snapshot.val() });
-        });
+  loadList = id =>{
+
+        var keys = null;
+      this.setState({id : id});
+      firebase
+          .database().ref(`/groceryLists/${id}/list`).on('value', snapshot => {
+          keys = Object.keys(snapshot.val());
+          this.setState({ list: snapshot.val() });
+      });
+
+     return keys
+  };
+
+    removeItem = ( list, item) =>{
+        this.setState({list: list});
+        var itemIndex = null;
+        var key = null;
+            const id = this.state.id;
+        for (let itemInList of list){
+            if (item === itemInList){
+              itemIndex = list.indexOf(itemInList)
+                key = this.loadList(id)[itemIndex];
+            }
+        }
+           firebase.database().ref(`/groceryLists/${id}/list/${key}`).remove();
     };
+
+    updateArray = (listToUpdate) =>{
+        console.log("Her er vi listToUpdate");
+        console.log(listToUpdate);
+        var array = null;
+        const id = this.state.id;
+        array = listToUpdate;
+        array.push(this.state.newItem);
+        return array
+    };
+
+
+
+    updateList = (listToUpdate) => {
+       const list = this.updateArray(listToUpdate);
+        // Vi bruger this.props.navigation flere steder så vi pakker den ud én gang for alle
+        const id = this.props.navigation.getParam('id');
+        const email = this.props.navigation.getParam('email');
+           firebase.database().ref(`/groceryLists/${id}`).set({email, list});
+            Alert.alert("Din info er nu opdateret");
+            this.setState({newItem:''})
+    };
+
+    //Denne metode skal loade en liste pba. et ID
 
 //Der oprettes et if-else statement, som skal bruges til at teste,
     //Om der er en liste, som passer med det id, som er parset med props
     //Findes der en liste, printes der data ud fra listen.
     render() {
-        const { list } = this.state;
-        if (!list) {
+        const list = Object.values(this.state.list);
+        const keys = Object.keys(list);
+        if (!this.state.list){
             return (
                 <View>
-                <HeaderClass navigation={this.props.navigation} title='Common Areas'/>
-                <Text>No data</Text>
+                    <Text>No data </Text>
                 </View>
-                    )
-        }
-        return (
-            <View>
-            <HeaderClass navigation={this.props.navigation} title='Common Areas'/>
+            )
+        } else
+                return (
             <View style={styles.container}>
-                <Button title="Edit"/>
-                <Button title="Delete"/>
-                <View style={styles.row}>
-                    <Text style={styles.label}></Text>
+                { list.map((item, key)=>(
+                    <View key={key} style={styles.row} >
+                        <Text style={styles.label}>{item}</Text>
+                        <Button title="Delete" onPress={() => this.removeItem( list, item)}/>
+                    </View>
+                    )
+                )}
+                <View>
+                    <TextInput
+                        placeholder="Indsæt varenavn"
+                        value={this.state.newItem}
+                        onChangeText={newItem => this.setState({ newItem })}
+                        style={styles.inputField}                    />
+                    <Button title="Tilføj en vare" onPress={() =>this.updateList(list)}/>
                 </View>
-                <View style={styles.row}>
-                    <Text style={styles.label}></Text>
-                </View>
-                <View style={styles.row}>
-                    <Text style={styles.label}></Text>
-                </View>
-                <View style={styles.row}>
-                    <Text style={styles.label}> </Text>
-                </View>
-            </View>
             </View>
         );
     }
@@ -69,5 +127,17 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     label: { width: 100, fontWeight: 'bold' },
+    input: { borderWidth: 1, flex: 1 },
     value: { flex: 1 },
+    inputField: {
+        width: '80%',
+        fontSize: 20,
+        height: 44,
+        padding: 10,
+        borderWidth: 0.3,
+        margin: '2%',
+        marginLeft: '10%',
+        borderRadius: 25,
+        backgroundColor: 'white',
+    }
 });

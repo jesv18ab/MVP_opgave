@@ -1,45 +1,71 @@
-import {Image, StyleSheet, Text, View, SectionList, Platform, Alert, FlatList} from "react-native";
+import {Image, StyleSheet, Text, View, SectionList, Platform, Alert, FlatList, TouchableOpacity} from "react-native";
 import React from "react";
 import HeaderClass from "./HeaderClass";
 import AsyncStorage from '@react-native-community/async-storage';
 import GroceryShoppingView from "./GroceryShoppingView";
 import firebase from "firebase";
-import ListItems from "./ListsItems";
+import ListsItems from "./ListsItems";
 
 
 export default class CommonAreaCleaningView extends React.Component {
+    _isMounted = false;
+
     //Her instantieres state variabler
     state = {
         groceryLists: [],
         routename: null,
         checkList: [],
         identifiers: [],
+        stateKeys: []
     };
 
     //Når komponenten mounter, skal en array med alle lister hentes
     componentDidMount() {
-            firebase
+        this._isMounted = true;
+
+        firebase
                 .database()
-                .ref('/groceryLists')
+                .ref('/groceryLists/')
                 .on('value', snapshot => {
                     this.setState({ groceryLists: snapshot.val() });
-                });
+                   // this.setState({ keys: Object.keys(this.state.groceryLists) });
+                    //console.log(this.state.groceryLists);
+                }
+                );
+
+        /*firebase
+            .database()
+            .ref(`groceryLists/${keys[0]}/list`)
+            .on('value', snapshot => {
+                    var s = snapshot.val();
+                    console.log(s[0]);
+                }
+            );*/
     }
+    componentWillUnmount() {
+        this._isMounted = false;
+    }
+
+    handleSelectedList = (email, id) => {
+        this.props.navigation.navigate('listeValgt', { id, email });
+    };
+
 
 
 render(){
     const { groceryLists } = this.state;
+    //console.log(groceryLists);
     // Vi viser ingenting hvis der ikke er data
     //Udover headeren naturligvis
     if (!groceryLists) {
-        return <HeaderClass navigation={this.props.navigation} title='Common Areas'/>;
+        return <View>
+            <HeaderClass navigation={this.props.navigation} title='Common Areas'/>
+        </View>;
     }
     // Flatlist forventer et array. Derfor tager vi alle values fra vores liste objekt, og bruger som array til listen
     const listArray = Object.values(groceryLists);
+    const listKeys = Object.keys(groceryLists);
     // Vi skal også bruge alle IDer, så vi tager alle keys også.
-    const listKeys = Object.keys(listArray)
-    console.log("Dette er keys");
-    console.log(listKeys);
     return(
 <View>
 <HeaderClass navigation={this.props.navigation} title='Common Areas'/>
@@ -53,10 +79,11 @@ render(){
         )}
         // Vi bruger Keys til at finde ID på den aktuelle liste og returnerer dette som key, og giver det med som ID til ListItems
         renderItem={({ item, index }) => (
-            <ListItems
+            <ListsItems
                 list={item}
                 id={listKeys[index]}
-                mail={item.mail}
+                mail={item.email}
+                onSelect={() => this.handleSelectedList(item.email, listKeys[index])}
             />
         )}
         keyExtractor={(item, index) => listKeys[index]}
@@ -74,7 +101,7 @@ alignItems: 'center',
 justifyContent: 'center',
 },
 SectionHeaderStyle: {
-    marginTop: 10,
+    marginTop: '5%',
 backgroundColor: '#376B73',
 fontSize: 20,
 padding: 5,

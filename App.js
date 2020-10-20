@@ -1,8 +1,9 @@
 //Vi husker de nødvendige imports
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import {LogBox, StyleSheet, Text, View} from 'react-native';
 import SignInForm from "./Components/SignInForm";
 import * as firebase from 'firebase';
+
 
 //Oprettelse af databasekonfiguration
 const fireBaseConfig = {
@@ -23,6 +24,8 @@ if (!firebase.apps.length) {
 
 //Oprettelse af klassse
 export default class App extends React.Component  {
+
+
   //Vi instantierer SignInform i vores App.js, da det er her, applikationen skal starte
   render(){
     return(
