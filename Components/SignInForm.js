@@ -19,9 +19,9 @@ import ListView from "./CleaningComponents/ListView";
 
 const StackNavigator = createStackNavigator(
     {
-        Oversigten: {screen: CommonAreaCleaningView, navigationOptions: {headerShown: false,}},
-        lister: { screen: ListsItems },
-        listeValgt: { screen: ListView },
+        Overblikket: {screen: CommonAreaCleaningView, navigationOptions: {headerShown: false,}},
+        lister: { screen: ListsItems  },
+        Indkøb: { screen: ListView },
     },
     { initialRouteKey: 'Oversigten' }
 );

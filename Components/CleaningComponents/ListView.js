@@ -1,11 +1,16 @@
 
 import * as React from 'react';
-import { View, Text, FlatList, StyleSheet, Button, Alert, TextInput } from 'react-native';
+import {View, Text, FlatList, StyleSheet, Button, Alert, TextInput, TouchableOpacity} from 'react-native';
 import firebase from 'firebase';
 import HeaderClass from "./HeaderClass";
+import { AntDesign } from '@expo/vector-icons';
+import {Header} from "react-native-elements";
+
 
 //Nedenstående klasse skal på sigt anvendes, men er på nuværende tidspunkt
 //Blot en replikationen af carDetials klassen fra Øvelse 6
+
+const indkøbsListe = 'Indkøbslisten';
 export default class ListView extends React.Component {
    _isMounted = false;
     //Instantiering af state variabler
@@ -101,9 +106,11 @@ export default class ListView extends React.Component {
                 return (
             <View style={styles.container}>
                 { list.map((item, key)=>(
-                    <View key={key} style={styles.row} >
+                    <View key={key} style={styles.listContainer} >
                         <Text style={styles.label}>{item}</Text>
-                        <Button title="Delete" onPress={() => this.removeItem( list, item)}/>
+                        <TouchableOpacity style={styles.button} title="Delete" onPress={() => this.removeItem( list, item)}>
+                            <AntDesign name="minuscircleo" size={35} color="#CD5C5C" />
+                        </TouchableOpacity>
                     </View>
                     )
                 )}
@@ -119,14 +126,15 @@ export default class ListView extends React.Component {
         );
     }
 }
+
 const styles = StyleSheet.create({
-    container: { flex: 1, justifyContent: 'flex-start' },
+    container: { flex: 1, marginTop: 10 },
     row: {
         margin: 5,
         padding: 5,
         flexDirection: 'row',
     },
-    label: { width: 100, fontWeight: 'bold' },
+    label: { width: 100, fontWeight: 'bold', marginLeft: '7%', fontSize: 15 },
     input: { borderWidth: 1, flex: 1 },
     value: { flex: 1 },
     inputField: {
@@ -139,5 +147,23 @@ const styles = StyleSheet.create({
         marginLeft: '10%',
         borderRadius: 25,
         backgroundColor: 'white',
-    }
+    },
+    listContainer: {
+        height: 55,
+        width: '100%',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 0.3,
+        marginBottom: '2%',
+        backgroundColor: 'white',
+        marginTop: '1%'
+    },
+    button: {
+        padding: 10,
+        width: '20%',
+        borderTopRightRadius: 10,
+        borderBottomRightRadius: 10,
+        marginLeft: '55%'
+    },
 });

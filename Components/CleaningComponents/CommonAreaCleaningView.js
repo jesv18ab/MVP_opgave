@@ -47,7 +47,7 @@ export default class CommonAreaCleaningView extends React.Component {
     }
 
     handleSelectedList = (email, id) => {
-        this.props.navigation.navigate('listeValgt', { id, email });
+        this.props.navigation.navigate('Indkøb', { id, email });
     };
 
 
@@ -59,7 +59,7 @@ render(){
     //Udover headeren naturligvis
     if (!groceryLists) {
         return <View>
-            <HeaderClass navigation={this.props.navigation} title='Common Areas'/>
+            <HeaderClass navigation={this.props.navigation} title='Overblikket'/>
         </View>;
     }
     // Flatlist forventer et array. Derfor tager vi alle values fra vores liste objekt, og bruger som array til listen
@@ -68,7 +68,7 @@ render(){
     // Vi skal også bruge alle IDer, så vi tager alle keys også.
     return(
 <View>
-<HeaderClass navigation={this.props.navigation} title='Common Areas'/>
+<HeaderClass navigation={this.props.navigation} title='Overblikket'/>
     <SectionList
         sections={[
             { title: 'Indkøbsliste', data: listArray },
