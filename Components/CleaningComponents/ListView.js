@@ -7,11 +7,9 @@ import { AntDesign } from '@expo/vector-icons';
 import {Header} from "react-native-elements";
 
 
-//Nedenstående klasse skal på sigt anvendes, men er på nuværende tidspunkt
-//Blot en replikationen af carDetials klassen fra Øvelse 6
 
-const indkøbsListe = 'Indkøbslisten';
 export default class ListView extends React.Component {
+    //Oprettelse af boolean til styring af lief cycles
    _isMounted = false;
     //Instantiering af state variabler
     state = {
@@ -24,7 +22,7 @@ export default class ListView extends React.Component {
     };
 
 
-    //Der anvendes ComponentDidMount for relevante metoder.
+    //Der anvendes ComponentDidMount for relevante metoder. Hvortil boolean variabel sættes true
     componentDidMount() {
         this._isMounted = true;
         // Vi udlæser ID fra navgation parametre og loader bilen når komponenten starter
@@ -39,6 +37,7 @@ export default class ListView extends React.Component {
         this._isMounted = false;
     }
 
+    //MEtoden her står for at loade den valgte liste, således vi kan få fat på e varer, der er placeret i listen
   loadList = id =>{
 
         var keys = null;
@@ -52,6 +51,9 @@ export default class ListView extends React.Component {
      return keys
   };
 
+    //Metoden her tager en lsite og et item med, som skal ferjens fra listen.
+    //Der kører et loop, som finder det valgte item i listen, hvorefter den tilknyttede key bestemmes og anvendes
+    //Til firebase kaldet, der fjerner produktet fra listen
     removeItem = ( list, item) =>{
         this.setState({list: list});
         var itemIndex = null;
@@ -66,9 +68,9 @@ export default class ListView extends React.Component {
            firebase.database().ref(`/groceryLists/${id}/list/${key}`).remove();
     };
 
+    //Denne metode opdatere og returnerer vores liste array
+    //Metoden tager en liste med som parameter
     updateArray = (listToUpdate) =>{
-        console.log("Her er vi listToUpdate");
-        console.log(listToUpdate);
         var array = null;
         const id = this.state.id;
         array = listToUpdate;
@@ -77,7 +79,8 @@ export default class ListView extends React.Component {
     };
 
 
-
+    //Denne metode Foreatger et firebase kald, som udfører en setter metode, der skal overskrive den gamle list e
+    //Med den nye opdaterede liste
     updateList = (listToUpdate) => {
        const list = this.updateArray(listToUpdate);
         // Vi bruger this.props.navigation flere steder så vi pakker den ud én gang for alle
@@ -88,11 +91,10 @@ export default class ListView extends React.Component {
             this.setState({newItem:''})
     };
 
-    //Denne metode skal loade en liste pba. et ID
-
-//Der oprettes et if-else statement, som skal bruges til at teste,
-    //Om der er en liste, som passer med det id, som er parset med props
-    //Findes der en liste, printes der data ud fra listen.
+    //I render opretes to constvariabler, der indeholder en liste og alle
+    //Dertilhørende keys.
+    //Derueodver udskrives alle produkter i som komponenter og der oprettes et inputfelt
+    //Der skal registrere det som brugerne indskriver, når der skal tilføes et produkt til listen
     render() {
         const list = Object.values(this.state.list);
         const keys = Object.keys(list);
@@ -127,6 +129,8 @@ export default class ListView extends React.Component {
     }
 }
 
+
+//Dette er blot styles til der skal anvendes til design
 const styles = StyleSheet.create({
     container: { flex: 1, marginTop: 10 },
     row: {

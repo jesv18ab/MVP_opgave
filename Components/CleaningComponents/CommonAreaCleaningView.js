@@ -33,14 +33,6 @@ export default class CommonAreaCleaningView extends React.Component {
                 }
                 );
 
-        /*firebase
-            .database()
-            .ref(`groceryLists/${keys[0]}/list`)
-            .on('value', snapshot => {
-                    var s = snapshot.val();
-                    console.log(s[0]);
-                }
-            );*/
     }
     componentWillUnmount() {
         this._isMounted = false;

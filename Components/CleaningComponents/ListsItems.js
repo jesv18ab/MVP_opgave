@@ -5,6 +5,16 @@ import {View, Text, FlatList, StyleSheet, TouchableOpacity,} from 'react-native'
 
 
 export default class ListsItems extends React.Component {
+    _isMounted = false;
+
+    componentDidMount() {
+        this._isMounted = true
+    }
+
+    componentWillUnmount() {
+        this._isMounted = false;
+    }
+
     //Instantiering af state variabel.
     state = ({
         items: []

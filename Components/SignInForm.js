@@ -104,7 +104,9 @@ const TabNavigator = createBottomTabNavigator(
 const AppBottomNav = createAppContainer(TabNavigator);
 
 export default class SignInForm extends Component {
-   //Der oprettes relevante state variabler, heriblandt varibler til håndtering
+    _isMounted = false;
+
+    //Der oprettes relevante state variabler, heriblandt varibler til håndtering
     //af credentials og en variabel, som skal tjekke, hvorvidt en person er logget ind.
     state = {
         email: '',
@@ -131,9 +133,15 @@ export default class SignInForm extends Component {
     //HVis komponenten mountes, skal dette registreres. Dette gøres ved brug af
     //componentDidMount
     componentDidMount() {
+        this._isMounted = true;
+
         LogBox.ignoreAllLogs();
-    this.loginUser
+    this.loginUser()
     }
+    componentWillUnmount() {
+        this._isMounted = false;
+    }
+
 
     //I render tester vi status på isLoggedIn state variablen.
     //er variablen true, skal vi instantiere vores AppBottomNav Komponent

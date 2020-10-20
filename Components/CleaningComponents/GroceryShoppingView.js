@@ -5,6 +5,8 @@ import firebase from "firebase";
 
 
 export default class App extends React.Component{
+    _isMounted = false;
+
     //Her instantieres state variabler for klassen
     state = {
         listOfGroceries: [],
@@ -20,6 +22,12 @@ export default class App extends React.Component{
         inputError: '',
         listRetreived: []
     };
+
+    componentDidMount() {
+        this._isMounted = true;
+    }
+
+
 
     //Metoden bruges til at hente den bruger, som er valideret ved login
     getUser = () =>{
@@ -73,6 +81,9 @@ export default class App extends React.Component{
     };
 
 
+    componentWillUnmount() {
+        this._isMounted = false;
+    }
 
     differentSafeMethod = () => {
         const mail = this.getUser().email;

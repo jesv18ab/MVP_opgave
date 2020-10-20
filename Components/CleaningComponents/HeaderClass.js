@@ -7,6 +7,15 @@ import {Header} from "react-native-elements";
 //Denne klasse skal være en konstant header i alle de komponenter,
 //Som er tilstede i drawernavigatoren.
 export default class HeaderClass extends Component {
+    _isMounted = false;
+
+    componentDidMount() {
+        this._isMounted = true;
+    }
+    componentWillUnmount() {
+        this._isMounted = false;
+    }
+
 
     //Åbner vores draweavigator, baseret på den screen, som brugeren befidner sig på.
     handleNavigation = () =>{
