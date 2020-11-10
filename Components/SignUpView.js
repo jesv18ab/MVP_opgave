@@ -16,6 +16,36 @@ import LaundryView from "./CleaningComponents/LaundryView";
 import GroceryShoppingView from "./CleaningComponents/GroceryShoppingView";
 import ListsItems from "./CleaningComponents/ListsItems";
 import ListView from "./CleaningComponents/ListView";
+import { AntDesign } from '@expo/vector-icons';
+import globalStyles from "./GlobalStyles";
+
+/*her ligger facebook og google utkast før frontend redigert*/
+/*
+<View style={{marginTop: 20}}>
+    <TouchableOpacity style={styles.iconButtons} >
+        <Button color='black'
+                icon={() => (
+                    <Image
+                        source={require('./assetsSignInForm/facebook_2.png')}
+                        style={{ width: 34, height: 34, tintColor: 'black' }}/>
+                )}>
+            Login med Facebook
+        </Button>
+    </TouchableOpacity>
+    <View style={{marginTop: 15}}>
+        <TouchableOpacity style={[styles.iconButtons, {marginTop: 5, textAlign: 'left'}]} >
+            <Button color='black'
+                    icon={() => (
+                        <Image source={require('./assetsSignInForm/Google.png')} style={{ width: 38, height: 38, tintColor: 'black' }}/>)}>
+                Login med Google
+            </Button>
+        </TouchableOpacity>
+
+    </View>
+
+</View>
+*/
+
 
 const StackNavigator = createStackNavigator(
     {
@@ -47,7 +77,7 @@ const TabNavigator = createBottomTabNavigator(
         CleaningOverview: {
             screen: MyDrawerNavigator, navigationOptions: {
                 tabBarLabel:"Home Page", tabBarIcon: ({ tintColor }) => (
-                    <Entypo name="home" size={24} color={tintColor} />
+                    <AntDesign name="home" size={24} color="black"  />
                 )
             },
         },
@@ -57,24 +87,17 @@ const TabNavigator = createBottomTabNavigator(
           navigationOptions: {
             tabBarLabel:"WeShare",
             tabBarIcon: ({ tintColor }) => (
-                <Entypo name="wallet" size={24} color={tintColor} />
+                <AntDesign name="wallet" size={24} color="black" />
             )
           },
         },
-        Profile: {
-            screen: ProfileView,
-            navigationOptions: {
-                tabBarLabel:"Profile",
-                tabBarIcon: ({ tintColor }) => (
-                    <MaterialIcons name="person-outline" size={24} color={tintColor} />                )
-            },
-        },
+
         Calendar: {
             screen: CalendarView,
             navigationOptions: {
                 tabBarLabel:"Calendar",
                 tabBarIcon: ({ tintColor }) => (
-                    <FontAwesome name="calendar" size={24} color={tintColor} />                )
+                    <AntDesign name="calendar" size={24} color="black" />               )
             },
         },
         Members: {
@@ -82,7 +105,16 @@ const TabNavigator = createBottomTabNavigator(
             navigationOptions: {
                 tabBarLabel:"Members",
                 tabBarIcon: ({ tintColor }) => (
-                    <Fontisto name="persons" size={24} color={tintColor} />                )
+                    <AntDesign name="adduser" size={24} color="black" />                  )
+            },
+        },
+
+        Profile: {
+            screen: ProfileView,
+            navigationOptions: {
+                tabBarLabel:"Profile",
+                tabBarIcon: ({ tintColor }) => (
+                    <AntDesign name="setting" size={24} color="black" />                 )
             },
         },
     },
@@ -93,9 +125,11 @@ const TabNavigator = createBottomTabNavigator(
             labelStyle: {
                 fontSize: 15,
             },
-            activeTintColor: 'blue',
+            activeTintColor: '#5FB8B2',
             inactiveTintColor: 'gray',
-            size: 40
+            size: 40,
+
+
         }, initialRouteName: "Profile"
     },
 );
@@ -154,10 +188,11 @@ export default class SignInForm extends Component {
         }
         else {
             return (
-                    <View style={styles.container}>
-                        <Text style={styles.titleText}>Velkommen til</Text>
-                        <Text style={{ fontSize: 50}} >Kollektivet!</Text>
-                        <Image style={styles.welcomePic} source={require('./assetsSignInForm/house.png')}/>
+                    <View style={globalStyles.container}>
+                        <Image style={styles.welcomePic} source={require('./assetsSignInForm/LogoKollektiv.png')}/>
+
+                        <Text style={styles.titleText} >Kollektivet!</Text>
+
                         <TextInput
                             value={this.state.email}
                             keyboardType = 'email-address'
@@ -174,32 +209,27 @@ export default class SignInForm extends Component {
                             placeholderTextColor = 'black'
                             style={styles.input}
                         />
-                        <TouchableOpacity style={[styles.signInButtons, {width: 200, height: 55}]} onPress={this.loginUser} >
-                            <Button color='black'>
-                                Login
-                            </Button>
+
+                        <TouchableOpacity style={[styles.signInButtons]} onPress={this.loginUser} >
+                            <Text style={styles.buttonText}>Sign in</Text>
                         </TouchableOpacity>
-                        <View style={{marginTop: 20}}>
-                            <TouchableOpacity style={styles.signInButtons} >
-                                <Button color='black'
-                                        icon={() => (
-                                            <Image
-                                                source={require('./assetsSignInForm/facebook_2.png')}
-                                                style={{ width: 34, height: 34, tintColor: 'black' }}/>
-                                        )}>
-                                    Login med Facebook
-                                </Button>
-                            </TouchableOpacity>
+
+
                             <View style={{marginTop: 15}}>
-                                <TouchableOpacity style={[styles.signInButtons, {marginTop: 5, textAlign: 'left'}]} >
-                                    <Button color='black'
-                                            icon={() => (
-                                                <Image source={require('./assetsSignInForm/Google.png')} style={{ width: 38, height: 38, tintColor: 'black' }}/>)}>
-                                        Login med Google
-                                    </Button>
+                                <TouchableOpacity style={[styles.iconButtonsGoogle, {marginTop: 5}]} >
+                                    <AntDesign name="google" size={24} color="black" />
+                                </TouchableOpacity>
+
+                                <TouchableOpacity style={[styles.iconButtonsFacebook,]} >
+                                    <Entypo name="facebook" size={24} color="black" />
                                 </TouchableOpacity>
                             </View>
-                        </View>
+
+                        <TouchableOpacity style={[styles.sigUpButton,]} >
+                            <Text>Registrer deg på Kollektivet</Text>
+                        </TouchableOpacity>
+
+
                     </View>
                 );
         }
@@ -209,15 +239,35 @@ export default class SignInForm extends Component {
 //Styling komponenter til design af siden
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        alignItems: 'center',
-        backgroundColor: '#EEEEEE',
+         flex: 1,
+         alignItems: 'center',
+         justifyContent: 'center',
+         backgroundColor: '#DBF1EE',
     },
+
+    welcomePic: {
+        bottom:50,
+        width: 90,
+        height: 90,
+    },
+
     titleText:{
-        marginTop: 50,
-        fontFamily: 'Baskerville',
-        fontSize: 50,
+       fontSize: 50,
+        fontWeight:'bold',
+        color:'#5FB8B2',
+
     },
+    input: {
+        width: 280,
+        fontSize: 15,
+        height: 44,
+        padding: 10,
+        borderWidth: 1,
+        borderColor: 'grey',
+        marginVertical: 10,
+
+    },
+
     button: {
         alignItems: 'center',
         width: 200,
@@ -228,33 +278,63 @@ const styles = StyleSheet.create({
         borderRadius: 25,
         marginBottom: 10,
     },
+
     signInButtons: {
+        alignItems: 'center',
+        backgroundColor: '#47525E',
         width: 280,
-        height: 60,
+        height: 54,
         padding: 10,
-        borderWidth: 1,
-        borderColor: 'black',
-        borderRadius: 25,
+        borderRadius: 5,
+        marginBottom: 10,
+        marginTop:7,
     },
+
+    iconButtonsGoogle: {
+        alignItems: 'center',
+        borderColor:'#47525E',
+        width: 125,
+        height: 54,
+        borderWidth:1,
+        borderRadius: 5,
+        marginBottom: 10,
+        right:80,
+        marginTop:7,
+        padding:10,
+
+    },
+
+    iconButtonsFacebook: {
+        alignItems: 'center',
+        borderColor:'#47525E',
+        width: 125,
+        height: 54,
+        borderWidth:1,
+        borderRadius: 5,
+        marginBottom: 10,
+        bottom:65,
+        padding:10,
+        left:80,
+    },
+
     buttonText:{
-        fontFamily: 'Baskerville',
         fontSize: 20,
+        color:'white',
+        fontWeight:'bold',
         alignItems: 'center',
         justifyContent: 'center',
-        textAlign:'center',
     },
-    input: {
-        width: 200,
-        fontFamily: 'Baskerville',
-        fontSize: 20,
-        height: 44,
-        padding: 10,
-        borderWidth: 1,
-        borderColor: 'black',
-        marginVertical: 10,
 
-    }, welcomePic: {
-        width: 64,
-        height: 64,
-    },
+
+    sigUpButton:{
+        alignItems: 'center',
+        width: 280,
+        height: 54,
+        padding: 10,
+        borderRadius: 5,
+        bottom:60,
+
+
+
+    }
 });

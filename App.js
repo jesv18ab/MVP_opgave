@@ -1,7 +1,7 @@
 //Vi husker de nødvendige imports
 import React from 'react';
 import {LogBox, StyleSheet, Text, View} from 'react-native';
-import SignInForm from "./Components/SignInForm";
+import SignInForm from "./Components/SignUpView";
 import * as firebase from 'firebase';
 
 
