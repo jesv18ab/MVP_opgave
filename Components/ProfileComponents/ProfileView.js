@@ -25,7 +25,7 @@ export default class ProfileView extends React.Component{
             <View style={{marginTop: 30}}>
                 <HeaderNav title ={currentUser.email} />
                 <View style={styles.container}>
-                <Text>Profile View / Test Henri</Text>
+                <Text>Profile View</Text>
             </View>
             </View>
         )
