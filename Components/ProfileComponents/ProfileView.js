@@ -25,7 +25,7 @@ export default class ProfileView extends React.Component{
             <View style={{marginTop: 30}}>
                 <HeaderNav title ={currentUser.email} />
                 <View style={styles.container}>
-                <Text>Profile View</Text>
+                <Text>Profile View / Test Henri</Text>
             </View>
             </View>
         )
@@ -35,7 +35,7 @@ export default class ProfileView extends React.Component{
 const styles = StyleSheet.create({
     container: {
         marginTop: 30,
-        backgroundColor: 'pink',
+        backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
         height: '100%',
