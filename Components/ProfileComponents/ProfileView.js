@@ -20,6 +20,7 @@ export default class ProfileView extends React.Component{
     };
 
     render(){
+        console.log(this.props.screenProps.currentUser);
         const currentUser = this.getUser();
         return(
             <View style={{marginTop: 30}}>

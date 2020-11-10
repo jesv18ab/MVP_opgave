@@ -5,63 +5,10 @@ import AsyncStorage from '@react-native-community/async-storage';
 import GroceryShoppingView from "./GroceryShoppingView";
 import firebase from "firebase";
 import ListsItems from "./ListsItems";
+import HouseCleaning from "./HouseCleaning";
 
 
-export default class CommonAreaCleaningView extends React.Component {
-    _isMounted = false;
-
-    //Her instantieres state variabler
-    state = {
-        groceryLists: [],
-        routename: null,
-        checkList: [],
-        identifiers: [],
-        stateKeys: []
-    };
-
-    //Når komponenten mounter, skal en array med alle lister hentes
-    componentDidMount() {
-        this._isMounted = true;
-
-        firebase
-                .database()
-                .ref('/groceryLists/')
-                .on('value', snapshot => {
-                    this.setState({ groceryLists: snapshot.val() });
-                   // this.setState({ keys: Object.keys(this.state.groceryLists) });
-                    //console.log(this.state.groceryLists);
-                }
-                );
-
-    }
-    componentWillUnmount() {
-        this._isMounted = false;
-    }
-
-    handleSelectedList = (email, id) => {
-        this.props.navigation.navigate('Indkøb', { id, email });
-    };
-
-
-
-render(){
-    const { groceryLists } = this.state;
-    //console.log(groceryLists);
-    // Vi viser ingenting hvis der ikke er data
-    //Udover headeren naturligvis
-    if (!groceryLists) {
-        return <View>
-            <HeaderClass navigation={this.props.navigation} title='Overblikket'/>
-        </View>;
-    }
-    // Flatlist forventer et array. Derfor tager vi alle values fra vores liste objekt, og bruger som array til listen
-    const listArray = Object.values(groceryLists);
-    const listKeys = Object.keys(groceryLists);
-    // Vi skal også bruge alle IDer, så vi tager alle keys også.
-    return(
-<View>
-<HeaderClass navigation={this.props.navigation} title='Overblikket'/>
-    <SectionList
+/* <SectionList
         sections={[
             { title: 'Indkøbsliste', data: listArray },
             { title: 'Vaskeplan', data: this.state.checkList },
@@ -79,31 +26,138 @@ render(){
             />
         )}
         keyExtractor={(item, index) => listKeys[index]}
-    />
-</View>
-)
-}
+    />*/
+
+
+export default class CommonAreaCleaningView extends React.Component {
+    _isMounted = false;
+    //Her instantieres state variabler
+    state = {
+        groceryLists: [],
+        routename: null,
+        checkList: [],
+        identifiers: [],
+        stateKeys: [],
+        allUsers: [],
+        households: []
+    };
+
+    //Når komponenten mounter, skal en array med alle lister hentes
+    componentDidMount() {
+        this._isMounted = true;
+        var allUsers = [];
+
+        firebase.database().ref('/groceryLists/').on('value', snapshot => {
+            this.setState({ groceryLists: snapshot.val() });
+        });
+
+        firebase.database().ref('/allUsers/').on('value', snapshot => {
+            this.setState({allUsers: snapshot.val()});
+        });
+
+
+    }
+    componentWillUnmount() {
+        this._isMounted = false;
+
+    }
+
+
+    gotToShoppingList = () => {
+        let houseHoldKey = null;
+        const allUsers = Object.values(this.state.allUsers);
+        allUsers.map((item, index) => {
+            if (item.email.toUpperCase() === this.props.screenProps.currentUser.email.toUpperCase()){
+                this.setState({houseHoldId: item.houseHoldId });
+                houseHoldKey = item.houseHoldId;
+            }
+            var specificList= [];
+            var specificListKey= [];
+            firebase.database().ref(`/households/${houseHoldKey}/groceryList`).on('value', snapshot => {
+                if (snapshot.val()){
+                    specificList = Object.values(snapshot.val()) ;
+                    specificListKey = Object.keys(snapshot.val())[0] ;
+                    this.props.navigation.navigate('ShoppingList', {houseHoldKey, specificListKey}, );
+                }
+            });
+        });
+    };
+
+    gotToHouseCleaning = () => {
+        this.props.navigation.navigate('HouseCleaning');
+    };
+    gotToEconomy = () => {
+        this.props.navigation.navigate('EconomyView');
+    };
+    gotToLaundry = () => {
+        this.props.navigation.navigate('Laundry');
+    };
+
+
+
+
+
+
+    render(){
+        const { groceryLists } = this.state;
+        //console.log(groceryLists);
+        // Vi viser ingenting hvis der ikke er data
+        //Udover headeren naturligvis
+        if (!groceryLists) {
+            return <View>
+                <Text>No data is available</Text>
+            </View>;
+        }
+        // Flatlist forventer et array. Derfor tager vi alle values fra vores liste objekt, og bruger som array til listen
+        const listArray = Object.values(groceryLists);
+        const listKeys = Object.keys(groceryLists);
+        // Vi skal også bruge alle IDer, så vi tager alle keys også.
+        return(
+            <View style={styles.container}>
+                <TouchableOpacity style={styles.buttonStyle} onPress={this.gotToShoppingList}>
+                    <Text> Indkøbslisten</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.buttonStyle} onPress={this.gotToHouseCleaning}>
+                    <Text> Rengøring</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.buttonStyle} onPress={this.gotToLaundry}>
+                    <Text> Vasketøj</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.buttonStyle} onPress={this.gotToEconomy}>
+                    <Text> Økonomi</Text>
+                </TouchableOpacity>
+            </View>
+        )
+    }
 
 }
 const styles = StyleSheet.create({
-container: {
-flex: 1,
-backgroundColor: '#fff',
-alignItems: 'center',
-justifyContent: 'center',
-},
-SectionHeaderStyle: {
-    marginTop: '5%',
-backgroundColor: '#376B73',
-fontSize: 20,
-padding: 5,
-color: '#fff',
+    container: {
+        flex: 1,
+        backgroundColor: '#fff',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    SectionHeaderStyle: {
+        marginTop: '5%',
+        backgroundColor: '#376B73',
+        fontSize: 20,
+        padding: 5,
+        color: '#fff',
 
-},
-SectionListItemStyle: {
-fontSize: 15,
-padding: 15,
-color: '#000',
-backgroundColor: '#F5F5F5',
-},
+    },
+    SectionListItemStyle: {
+        fontSize: 15,
+        padding: 15,
+        color: '#000',
+        backgroundColor: '#F5F5F5',
+    },
+    buttonStyle: {
+        width: 120,
+        height: 120,
+        borderWidth: 1,
+        borderColor: "black",
+        margin: 3
+    }
+
 });

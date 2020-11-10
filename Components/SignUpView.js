@@ -18,6 +18,8 @@ import ListsItems from "./CleaningComponents/ListsItems";
 import ListView from "./CleaningComponents/ListView";
 import { AntDesign } from '@expo/vector-icons';
 import globalStyles from "./GlobalStyles";
+import HouseCleaning from "./CleaningComponents/HouseCleaning";
+import EcononyView from "./CleaningComponents/EcononyView";
 
 /*her ligger facebook og google utkast før frontend redigert*/
 /*
@@ -45,7 +47,17 @@ import globalStyles from "./GlobalStyles";
 
 </View>
 */
-
+/*const MyDrawerNavigator = createDrawerNavigator({
+    Oversigten: {
+        screen: StackNavigator
+    },
+    Vasketøj: {
+        screen:LaundryView
+    },
+    Indkøbsliste: {
+        screen: GroceryShoppingView
+    },
+})*/
 
 const StackNavigator = createStackNavigator(
     {
@@ -57,17 +69,29 @@ const StackNavigator = createStackNavigator(
 );
 
 //Oprettelse af en drawernavigator, hvori vi placerer tilhørende screens
-const MyDrawerNavigator = createDrawerNavigator({
-    Oversigten: {
-        screen: StackNavigator
+;
+
+const StackNavigatorOverView = createStackNavigator(
+    {
+        Oversigten: {
+            screen: CommonAreaCleaningView
+        },
+        Laundry: {
+            screen:LaundryView
+        },
+        ShoppingList: {
+            screen: ListView
+        },
+        HouseCleaning: {
+            screen: HouseCleaning
+        },
+        EconomyView: {
+            screen: EcononyView
+        },
     },
-    Vasketøj: {
-        screen:LaundryView
-    },
-    Indkøbsliste: {
-        screen: GroceryShoppingView
-    },
-});
+    { initialRouteKey: 'Oversigten' }
+);
+
 
 //Vi instantiere en bottomnavigator, som står for den overordnede navigering i appplikationen.
 //Der  instantieres komponenter i de relevante screens samt oprettes en forbindelse til den oprettede drawernavigator
@@ -75,7 +99,7 @@ const MyDrawerNavigator = createDrawerNavigator({
 const TabNavigator = createBottomTabNavigator(
     {
         CleaningOverview: {
-            screen: MyDrawerNavigator, navigationOptions: {
+            screen: StackNavigatorOverView, navigationOptions: {
                 tabBarLabel:"Home Page", tabBarIcon: ({ tintColor }) => (
                     <AntDesign name="home" size={24} color="black"  />
                 )
@@ -138,6 +162,12 @@ const TabNavigator = createBottomTabNavigator(
 const AppBottomNav = createAppContainer(TabNavigator);
 
 export default class SignInForm extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {image: null};
+        this.state = {allUsers: null};
+        this.state = {currentUser: null};
+    }
     _isMounted = false;
 
     //Der oprettes relevante state variabler, heriblandt varibler til håndtering
@@ -145,8 +175,17 @@ export default class SignInForm extends Component {
     state = {
         email: '',
         password: '',
-        isLoggedIn: false
+        isLoggedIn: false,
+        image: null,
+        isNewUser: false,
+        allUsers: null,
+        stateOfUser: null,
+        currentUser: null
     };
+
+    //Der oprettes relevante state variabler, heriblandt varibler til håndtering
+    //af credentials og en variabel, som skal tjekke, hvorvidt en person er logget ind.
+
 
     //login metode. Dette er et asynkront kald, som validerer, hvovidt email og password
     //stemmer overens med de oplysninger, som er placeret i en firebase DB
@@ -170,7 +209,11 @@ export default class SignInForm extends Component {
         this._isMounted = true;
 
         LogBox.ignoreAllLogs();
-    this.loginUser()
+    this.loginUser();
+        firebase.auth().onAuthStateChanged(currentUser => {
+            this.setState({currentUser: currentUser});
+        });
+
     }
     componentWillUnmount() {
         this._isMounted = false;
@@ -183,7 +226,7 @@ export default class SignInForm extends Component {
     render() {
         if(this.state.isLoggedIn){
             return(
-            <AppBottomNav/>
+            <AppBottomNav screenProps={{ image: this.state.image, currentUser: this.state.currentUser}} />
             )
         }
         else {

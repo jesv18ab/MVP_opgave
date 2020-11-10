@@ -6,89 +6,103 @@ import HeaderClass from "./HeaderClass";
 import { AntDesign } from '@expo/vector-icons';
 import {Header} from "react-native-elements";
 
-
-
 export default class ListView extends React.Component {
     //Oprettelse af boolean til styring af lief cycles
-   _isMounted = false;
+    _isMounted = false;
     //Instantiering af state variabler
     state = {
         list: [],
+        test: [],
         id: null,
         newItem: '',
         dataList: [],
         email: null,
         updatedList: [],
+        allUsersFound: [],
+        houseHoldId: null,
+        key: null
     };
 
 
     //Der anvendes ComponentDidMount for relevante metoder. Hvortil boolean variabel sættes true
     componentDidMount() {
+        const keyHouseHold = this.props.navigation.getParam('houseHoldKey');
+        const keyToList = this.props.navigation.getParam('specificListKey');
         this._isMounted = true;
-        // Vi udlæser ID fra navgation parametre og loader bilen når komponenten starter
-        const id = this.props.navigation.getParam('id');
-       // const email = this.props.navigation.getParam('email');
-      this.loadList(id);
+        firebase.database().ref(`/households/${keyHouseHold}/groceryList/${keyToList}`).on('value', snapshot => {
+            this.setState({list: snapshot.val().items})
+        });
+        //  this.loadList(allUsers);
 
-   //   this.updateList;
+        // Vi udlæser ID fra navgation parametre og loader bilen når komponenten starter
+        // const id = this.props.navigation.getParam('id');
+        // const email = this.props.navigation.getParam('email');
+        // this.loadList(id);
+
+        //   this.updateList;
         this.removeItem;
     }
-   componentWillUnmount() {
+    componentWillUnmount() {
         this._isMounted = false;
     }
 
+
     //MEtoden her står for at loade den valgte liste, således vi kan få fat på e varer, der er placeret i listen
-  loadList = id =>{
+    loadList = allUsers =>{
+        console.log("He går det godt");
+        let houseHoldKey = null;
+        allUsers.map((item, index) => {
+            if (item.email.toUpperCase() === this.props.screenProps.currentUser.email.toUpperCase()){
+                this.setState({houseHoldId: item.houseHoldId });
+                houseHoldKey = item.houseHoldId;
+                this.setState({key: houseHoldKey})
+            }
+        });
 
-        var keys = null;
-      this.setState({id : id});
-      firebase
-          .database().ref(`/groceryLists/${id}/list`).on('value', snapshot => {
-          keys = Object.keys(snapshot.val());
-          this.setState({ list: snapshot.val() });
-      });
+        firebase.database().ref(`/households/${houseHoldKey}/groceryList`).on('value', snapshot => {
 
-     return keys
-  };
+            this.setState({list: snapshot.val()})
+        });
+
+    };
 
     //Metoden her tager en lsite og et item med, som skal ferjens fra listen.
     //Der kører et loop, som finder det valgte item i listen, hvorefter den tilknyttede key bestemmes og anvendes
     //Til firebase kaldet, der fjerner produktet fra listen
-    removeItem = ( list, item) =>{
+    removeItem = ( list, itemPicked, keys) =>{
         this.setState({list: list});
         var itemIndex = null;
         var key = null;
-            const id = this.state.id;
-        for (let itemInList of list){
-            if (item === itemInList){
-              itemIndex = list.indexOf(itemInList)
-                key = this.loadList(id)[itemIndex];
+        const keyHouseHold = this.props.navigation.getParam('houseHoldKey');
+        const keyToList = this.props.navigation.getParam('specificListKey');
+        list.map((item, index) => {
+            if (itemPicked === item){
+                key = keys[index];
             }
-        }
-           firebase.database().ref(`/groceryLists/${id}/list/${key}`).remove();
+        });
+        firebase.database().ref(`/households/${keyHouseHold}/groceryList/${keyToList}/items/${key}`).remove();
     };
 
     //Denne metode opdatere og returnerer vores liste array
     //Metoden tager en liste med som parameter
     updateArray = (listToUpdate) =>{
-        var array = null;
-        const id = this.state.id;
-        array = listToUpdate;
-        array.push(this.state.newItem);
-        return array
+        var arr = listToUpdate;
+        if (arr[0] === "No items added" ){
+            arr.splice(arr[0]);
+        }
+        arr.push(this.state.newItem);
+        this.setState({newItem: ""})
+        return arr
     };
 
 
     //Denne metode Foreatger et firebase kald, som udfører en setter metode, der skal overskrive den gamle list e
     //Med den nye opdaterede liste
     updateList = (listToUpdate) => {
-       const list = this.updateArray(listToUpdate);
-        // Vi bruger this.props.navigation flere steder så vi pakker den ud én gang for alle
-        const id = this.props.navigation.getParam('id');
-        const email = this.props.navigation.getParam('email');
-           firebase.database().ref(`/groceryLists/${id}`).set({email, list});
-            Alert.alert("Din info er nu opdateret");
-            this.setState({newItem:''})
+        const items = this.updateArray(listToUpdate);
+        const keyHouseHold = this.props.navigation.getParam('houseHoldKey');
+        const keyToList = this.props.navigation.getParam('specificListKey');
+        firebase.database().ref(`/households/${keyHouseHold}/groceryList/${keyToList}`).set({items});
     };
 
     //I render opretes to constvariabler, der indeholder en liste og alle
@@ -97,7 +111,7 @@ export default class ListView extends React.Component {
     //Der skal registrere det som brugerne indskriver, når der skal tilføes et produkt til listen
     render() {
         const list = Object.values(this.state.list);
-        const keys = Object.keys(list);
+        const keys = Object.keys(this.state.list);
         if (!this.state.list){
             return (
                 <View>
@@ -105,27 +119,27 @@ export default class ListView extends React.Component {
                 </View>
             )
         } else
-                return (
-            <View style={styles.container}>
-                { list.map((item, key)=>(
-                    <View key={key} style={styles.listContainer} >
-                        <Text style={styles.label}>{item}</Text>
-                        <TouchableOpacity style={styles.button} title="Delete" onPress={() => this.removeItem( list, item)}>
-                            <AntDesign name="minuscircleo" size={35} color="#CD5C5C" />
-                        </TouchableOpacity>
+            return (
+                <View style={styles.container}>
+                    { list.map((item, key)=>(
+                            <View key={key} style={styles.listContainer} >
+                                <Text style={styles.label}>{item}</Text>
+                                <TouchableOpacity style={styles.button} title="Delete" onPress={() => this.removeItem( list, item, keys)}>
+                                    <AntDesign name="minuscircleo" size={35} color="#CD5C5C"/>
+                                </TouchableOpacity>
+                            </View>
+                        )
+                    )}
+                    <View>
+                        <TextInput
+                            placeholder="Indsæt varenavn"
+                            value={this.state.newItem}
+                            onChangeText={newItem => this.setState({ newItem })}
+                            style={styles.inputField}                    />
+                        <Button title="Tilføj en vare" onPress={() =>this.updateList(list)}/>
                     </View>
-                    )
-                )}
-                <View>
-                    <TextInput
-                        placeholder="Indsæt varenavn"
-                        value={this.state.newItem}
-                        onChangeText={newItem => this.setState({ newItem })}
-                        style={styles.inputField}                    />
-                    <Button title="Tilføj en vare" onPress={() =>this.updateList(list)}/>
                 </View>
-            </View>
-        );
+            );
     }
 }
 
