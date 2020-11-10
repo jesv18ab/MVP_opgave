@@ -35,7 +35,7 @@ export default class ProfileView extends React.Component{
 const styles = StyleSheet.create({
     container: {
         marginTop: 30,
-        backgroundColor: '#fff',
+        backgroundColor: 'pink',
         alignItems: 'center',
         justifyContent: 'center',
         height: '100%',
