@@ -87,8 +87,6 @@ export default class myInvites extends React.Component{
             });
             users = Object.values(Object.values(users)[0])[0]
             users.push(this.props.screenProps.currentUser.email);
-            console.log("Dette er users");
-            console.log(users);
             const reference = firebase.database().ref(`/households/${houseHoldId}/users/${keyToUSers}`).set({users});
             firebase.database().ref(`/allInvitations/${key}`).remove();
             this.props.navigation.navigate('Profile');
