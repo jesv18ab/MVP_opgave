@@ -8,26 +8,6 @@ import ListsItems from "./ListsItems";
 import HouseCleaning from "./HouseCleaning";
 
 
-/* <SectionList
-        sections={[
-            { title: 'Indkøbsliste', data: listArray },
-            { title: 'Vaskeplan', data: this.state.checkList },
-        ]}
-        renderSectionHeader={({ section }) => (
-            <Text style={styles.SectionHeaderStyle}> {section.title} </Text>
-        )}
-        // Vi bruger Keys til at finde ID på den aktuelle liste og returnerer dette som key, og giver det med som ID til ListItems
-        renderItem={({ item, index }) => (
-            <ListsItems
-                list={item}
-                id={listKeys[index]}
-                mail={item.email}
-                onSelect={() => this.handleSelectedList(item.email, listKeys[index])}
-            />
-        )}
-        keyExtractor={(item, index) => listKeys[index]}
-    />*/
-
 
 export default class CommonAreaCleaningView extends React.Component {
     _isMounted = false;
@@ -72,7 +52,8 @@ export default class CommonAreaCleaningView extends React.Component {
             firebase.database().ref(`/households/${houseHoldKey}/groceryList`).on('value', snapshot => {
                 if (snapshot.val()){
                     specificList = Object.values(snapshot.val()) ;
-                    specificListKey = Object.keys(snapshot.val())[0] ;
+                    specificListKey = Object.keys(snapshot.val())[0];
+                    console.log(specificListKey);
                 }
             });
         });

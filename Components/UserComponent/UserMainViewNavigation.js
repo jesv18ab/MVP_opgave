@@ -1,8 +1,4 @@
 import React, { Component } from 'react';
-import {Alert, Text, TouchableOpacity, TextInput, View, StyleSheet, Image, LogBox} from 'react-native';
-import { MaterialIcons, FontAwesome, Entypo, Ionicons, Fontisto } from '@expo/vector-icons'
-import {Button} from  'react-native-paper'
-import * as firebase from 'firebase';
 import {createBottomTabNavigator} from "react-navigation-tabs";
 import CalendarView from "../CalendarComponent/CalendarView";
 import WeShareView from "../EconomyComponents/WeShareView";
@@ -23,62 +19,34 @@ import EcononyView from "../CleaningComponents/EcononyView";
 import CreateUser from "../GuestComponent/CreateUser";
 import MyInvites from "../GuestComponent/MyInvites";
 import CreateHouseHold from "../GuestComponent/CreateHouseHold";
-/*her ligger facebook og google utkast før frontend redigert*/
-/*
-<View style={{marginTop: 20}}>
-    <TouchableOpacity style={styles.iconButtons} >
-        <Button color='black'
-                icon={() => (
-                    <Image
-                        source={require('./assetsSignInForm/facebook_2.png')}
-                        style={{ width: 34, height: 34, tintColor: 'black' }}/>
-                )}>
-            Login med Facebook
-        </Button>
-    </TouchableOpacity>
-    <View style={{marginTop: 15}}>
-        <TouchableOpacity style={[styles.iconButtons, {marginTop: 5, textAlign: 'left'}]} >
-            <Button color='black'
-                    icon={() => (
-                        <Image source={require('./assetsSignInForm/Google.png')} style={{ width: 38, height: 38, tintColor: 'black' }}/>)}>
-                Login med Google
-            </Button>
-        </TouchableOpacity>
-
-    </View>
-
-</View>
-*/
-/*const MyDrawerNavigator = createDrawerNavigator({
-    Oversigten: {
-        screen: StackNavigator
-    },
-    Vasketøj: {
-        screen:LaundryView
-    },
-    Indkøbsliste: {
-        screen: GroceryShoppingView
-    },
-})*/
+import InitalViewNewUsers from "../GuestComponent/MainNavigationNewUserView";
 
 
 
 //Oprettelse af en drawernavigator, hvori vi placerer tilhørende screens
 const StackNavigatorNewUsers = createStackNavigator({
-        CreateHouseHold: {
-            screen: CreateHouseHold,
+    InitialPage:{
+        screen: InitalViewNewUsers, navigationOptions: {
+            headerLeft: null
         },
-    MyInvites: {
-    screen: MyInvites,
+    }, MyInvites: {
+            screen: MyInvites, navigationOptions: {
+                headerLeft: null
+            },
+        },
+        CreateHouseHold: {
+            screen: CreateHouseHold, navigationOptions: {
+                headerLeft: null
+            }
+        },
+
 },
-},
-    { initialRouteKey: 'CreateHousehold', navigationOptions: {tabBarVisible:  false}
+    { initialRouteKey: 'Texttest', navigationOptions: {tabBarVisible:  false}
     }
 );
 
 
-
-const StackNavigatorOverView = createStackNavigator(
+const StackNavigatorCleaningOverView = createStackNavigator(
     {
         Oversigten: {
             screen: CommonAreaCleaningView
@@ -101,21 +69,14 @@ const StackNavigatorOverView = createStackNavigator(
 );
 
 
-
-//Vi instantiere en bottomnavigator, som står for den overordnede navigering i appplikationen.
-//Der  instantieres komponenter i de relevante screens samt oprettes en forbindelse til den oprettede drawernavigator
-//Derudover er der benyttet ikoner
 const TabNavigator = createBottomTabNavigator(
     {
         CleaningOverview: {
-            screen: StackNavigatorOverView, navigationOptions: {
+            screen: StackNavigatorCleaningOverView, navigationOptions: {
                 tabBarLabel:"Home Page", tabBarIcon: ({ tintColor }) => (
                     <AntDesign name="home" size={24} color="black"  />
                 )
             },
-        },
-        NewUser: {
-            screen: StackNavigatorNewUsers
         },
         /*Navn på Route*/
         Weshare: {
@@ -163,11 +124,33 @@ const TabNavigator = createBottomTabNavigator(
             activeTintColor: '#5FB8B2',
             inactiveTintColor: 'gray',
             size: 40,
-        }, initialRouteName: "NewUser"
+        }, initialRouteName: "Profile"
     },
 );
 
+
+const StackNavigatorOverView = createStackNavigator(
+    {
+        Tabs: {
+            screen: TabNavigator, navigationOptions:{
+                headerShown: false
+            }
+        }, NewUser: {
+            screen: StackNavigatorNewUsers, navigationOptions:{
+                headerShown: false
+            }
+        }
+    }
+);
+
+
+
+//Vi instantiere en bottomnavigator, som står for den overordnede navigering i appplikationen.
+//Der  instantieres komponenter i de relevante screens samt oprettes en forbindelse til den oprettede drawernavigator
+//Derudover er der benyttet ikoner
+
+
 //Vi wrapper bottomnavigatoren ind i en appcontainer.
-const MainNavigator = createAppContainer(TabNavigator);
+const MainNavigator = createAppContainer(StackNavigatorOverView);
 
 export default MainNavigator

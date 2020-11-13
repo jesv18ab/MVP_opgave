@@ -15,15 +15,15 @@ export default class CreateHouseHold extends React.Component {
         allUsers: [],
         userFound: null,
         allHouseHolds: [],
-
+        houseHoldIsCreated: false
     };
 
     initialRetrival = async () => {
-        firebase.database().ref('/allUsers/').on('value', snapshot => {
+     await firebase.database().ref('/allUsers/').on('value', snapshot => {
                 this._isMounted && this.setState({ allUsers: snapshot.val() });
             }
         );
-        firebase.database().ref('/households/').on('value', snapshot => {
+      await firebase.database().ref('/households/').on('value', snapshot => {
                 this._isMounted && this.setState({ allHouseHolds: snapshot.val() });
             }
         );
@@ -36,9 +36,7 @@ export default class CreateHouseHold extends React.Component {
         this.authStateChangeUnsubscribe = firebase.auth().onAuthStateChanged(currentUser => {
             this._isMounted && this.setState({currentUser});
         });
-        if (this.props.screenProps.isNewUser ===false){
-            this.props.navigation.navigate('Profile');
-        }
+
 
     }
     componentWillUnmount() {
@@ -77,8 +75,9 @@ export default class CreateHouseHold extends React.Component {
             const {allUsers} = this.state;
             const listOfUsers = Object.values(allUsers);
             const listKeys = Object.keys(allUsers);
+
             listOfUsers.map((item, index) => {
-                if (item.email === this.props.screenProps.currentUser.email){
+                if (item.email.toUpperCase() === this.props.screenProps.currentUser.email.toUpperCase()){
                     keyFound= listKeys[index];
                     userToFind = item;
                     users.push(item.email);
@@ -86,12 +85,18 @@ export default class CreateHouseHold extends React.Component {
             });
             const { houseHoldName} = this.state;
             try {
-                const reference = firebase.database().ref(`/households/`).push({houseHoldName, users });
+                const reference = firebase.database().ref(`/households/`).push({houseHoldName });
                 const houseHoldId = reference.toString().replace("https://reactnativedbtrial.firebaseio.com/households/", "");
+                firebase.database().ref(`/households/${houseHoldId}/users`).push({users});
                 firebase.database().ref(`/households/${houseHoldId}/groceryList/`).push({items});
                 const status = true;
-                firebase.database().ref(`/allUsers/${keyFound}`).update({houseHoldId, status});
-                this._isMounted && this.setState({isApartOfHouseHold: true})
+              try {
+                  await firebase.database().ref(`/allUsers/${keyFound}`).update({houseHoldId, status});
+              }catch (e) {
+                  console.log(e.message)
+              }
+                var newHouseHold = true;
+                this.props.navigation.navigate('Profile');
             } catch (error) {
                 // Vi sender `message` feltet fra den error der modtages, videre.
                 this.setError(error.message);
@@ -103,26 +108,21 @@ export default class CreateHouseHold extends React.Component {
 
     };
 
+    profile = () => {
+        this.props.navigation.navigate('InitialViewNewUsers');
+    }
+
     render()  {
-        console.log(this.props.screenProps.isNewUse)
         const { errorMessage, houseHoldName, isCompleted } = this.state;
-        if (this.props.screenProps.isNewUser) {
         return (
             <View>
                 <Text style={styles.header}>Her oprettet vi et nyt kollektiv</Text>
                 <TextInput placeholder="Navngiv jeres kollektiv" value={houseHoldName} onChangeText={this.handleChangehouseHoldName} style={styles.inputField}/>
                 <Button onPress={this.handleSubmit} title="Opret jeres hus"/>
                 <Button onPress={this.handleLogOut} title="Log ud"/>
-                <Button onPress={this.goback} title="tilbage"/>
+                <Button onPress={this.profile} title="profile"/>
             </View>
         );
-    }else{
-            return (
-                <View style={styles.container} >
-                <ActivityIndicator/>
-                </View>
-            )
-        }
     }
 
 }

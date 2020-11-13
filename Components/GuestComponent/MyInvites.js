@@ -1,10 +1,7 @@
 import React from 'react';
 import {Button, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import firebase from "firebase";
-import { AntDesign } from '@expo/vector-icons';
-
-
-
+import { AntDesign, Feather } from '@expo/vector-icons';
 
 var usersFound = ["Test data"];
 
@@ -56,18 +53,27 @@ export default class myInvites extends React.Component{
     };
 
     answerInvite = (key, houseHoldId, houseHoldName) => {
-        let keyFound = null;
+        let keyToUSers = null;
+        firebase.database().ref(`/households/${houseHoldId}`).on('value', snapshot => {
+            keyToUSers = Object.keys(snapshot.val().users)[0]
+            }
+        );
+      let keyFound = null;
         let userToFind = null;
         const {allUsers} = this.state;
         const listOfUsers = Object.values(allUsers);
         const listKeys = Object.keys(allUsers);
-        listOfUsers.map((item, index) => {
-            if (item.email === this.props.screenProps.currentUser.email){
+            listOfUsers.map((item, index) => {
+            var receiver = item.email;
+                receiver = receiver.toUpperCase();
+            if (receiver === this.props.screenProps.currentUser.email.toUpperCase()){
                 keyFound= listKeys[index];
                 userToFind = item;
             }
         });
         try {
+            console.log("Dette er user");
+            console.log(keyFound);
             const status = true;
             firebase.database().ref(`/allUsers/${keyFound}`).update({houseHoldId, status});
             var users =[];
@@ -79,13 +85,16 @@ export default class myInvites extends React.Component{
                     users = (houseFound.users)
                 }
             });
+            users = Object.values(Object.values(users)[0])[0]
             users.push(this.props.screenProps.currentUser.email);
-            const reference = firebase.database().ref(`/households/${houseHoldId}`).set({houseHoldName, users});
+            console.log("Dette er users");
+            console.log(users);
+            const reference = firebase.database().ref(`/households/${houseHoldId}/users/${keyToUSers}`).set({users});
             firebase.database().ref(`/allInvitations/${key}`).remove();
-
+            this.props.navigation.navigate('Profile');
         } catch (error) {
             // Vi sender `message` feltet fra den error der modtages, videre.
-            this.setError(error.message);
+            console.log(error.message);
         }
         this.setState({acceptedInHousehold: true})
     };
@@ -99,6 +108,7 @@ export default class myInvites extends React.Component{
     render() {
         const list = Object.values(this.state.userInvites);
         const listOfKeys = Object.values(this.state.invitationKeys);
+     //   console.log(list);
         if (!this.state.acceptedInHousehold){
             return (
                 <View>
@@ -107,8 +117,8 @@ export default class myInvites extends React.Component{
                         {list.map((item, index) => (
                             <View key={index} style={styles.listContainer}>
                                 <Text style={styles.label}>{item.sender}</Text>
-                                <TouchableOpacity style={styles.button} title="Delete" onPress={() => this.answerInvite(listOfKeys[index], item.houseHoldId, item.houseHoldName )}>
-                                    <AntDesign name="minuscircleo" size={35} color="#CD5C5C"/>
+                                <TouchableOpacity style={styles.button} title="Accept" onPress={() => this.answerInvite(listOfKeys[index], item.houseHoldId, item.houseHoldName )}>
+                                    <Feather name="check" size={24} color='#008000' />
                                 </TouchableOpacity>
                             </View>
                         ))}

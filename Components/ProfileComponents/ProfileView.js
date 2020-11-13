@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import {StyleSheet, Text, View, TouchableOpacity, ActivityIndicator} from 'react-native';
 import HeaderNav from "../HeaderNav";
 import firebase from "firebase";
 //import SignUpView from "../SignInView";
@@ -8,7 +8,8 @@ import firebase from "firebase";
 export default class ProfileView extends React.Component{
 
 state = {
-    currentUser: this.props.screenProps.currentUser
+    currentUser: this.props.screenProps.currentUser,
+    houseHasBeenCreated: null
 };
 
 //Denne metode henter den bruger, som er valideret under login
@@ -17,30 +18,51 @@ state = {
         var currentUser = null;
         try {
              currentUser =  firebase.auth().currentUser;
-             console.log("CurrentUser" + currentUser)
         }catch (e) {
             console.log(e.message)
         }
         return currentUser
     };
     componentDidMount() {
+        this.checkIfNewUser();
+
         firebase.auth().onAuthStateChanged(currentUser => {
             this.setState({currentUser: currentUser});
         });
     }
 
+
     handleLogOut =  () => {
          firebase.auth().signOut();
     };
 
-    newUserPage =() =>{
-        this.props.navigation.navigate('NewUser');
-    };
+
+    checkIfNewUser = async () => {
+        var status
+        await firebase.database().ref('allUsers').on('value', snapshot => {
+            if (snapshot.val()){
+            Object.values(snapshot.val()).map((item, index) => {
+                    if (item.email.toUpperCase() === this.props.screenProps.currentUser.email.toUpperCase()){
+                        this.setState({houseHasBeenCreated: item.status})
+                        status = item.status;
+                    }
+                }
+            )
+            }
+        });
+        if (!status)
+        {
+            this.props.navigation.navigate('NewUser');
+        }
+};
+
+
+
 
     render(){
-        console.log("Dette er profileview");
         const currentUser = this.state.currentUser;
-        if (currentUser) {
+        const {houseHasBeenCreated} = this.state;
+        if (houseHasBeenCreated === true ){
             return (
                 <View style={{marginTop: 30}}>
                     <HeaderNav title={currentUser.email}/>
@@ -50,8 +72,13 @@ state = {
                     </View>
                 </View>
             )
+        }else{
+            return (
+                <ActivityIndicator/>
+            )
         }
-    }
+        }
+
 
 }
 const styles = StyleSheet.create({

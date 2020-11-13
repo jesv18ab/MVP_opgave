@@ -9,7 +9,6 @@ import ModalView from "./Components/ModalView";
 import globalStyles from "./Components/GlobalStyles";
 import {AntDesign, Entypo} from "@expo/vector-icons";
 import InitialView from "./Components/UserComponent/NewUsersNavigation";
-import NewUsers from "./Components/GuestComponent/Stack";
 
 
 //Oprettelse af databasekonfiguration
@@ -56,41 +55,38 @@ export default class App extends React.Component {
 
 
   componentDidMount() {
+    firebase.auth().signOut();
     this._isMounted = true;
-    //this._isMounted = true;
     LogBox.ignoreAllLogs();
-    //this.loginUser();
-    this._isMounted && this.makeUsersForComparison();
+
+    //this._isMounted && this.makeUsersForComparison();
 
     firebase.database().ref('allUsers').on('value', snapshot => {
           this.setState({ allUsers: snapshot.val()});
         }
     );
 
-
     this.authStateChangeUnsubscribe = firebase.auth().onAuthStateChanged(currentUser => {
-      console.log("Dette er currentuser");
-      console.log(currentUser);
-      if (currentUser){
-        console.log("hej");
-        this.CheckUserStatus(currentUser)
-            }
       this.setState({currentUser});
     });
   }
+
+
+
   componentWillUnmount() {
     this.authStateChangeUnsubscribe && this.authStateChangeUnsubscribe();
     this._isMounted = false;
   }
   authStateChangeUnsubscribe = null;
 
-  CheckUserStatus =  (user) => {
+  /*CheckUserStatus =  (user) => {
     var count = 0;
     const currentUser = user;
       var users = Object.values(this.state.allUsersInHouseHolds);
-      console.log(users)
       for (let user of users){
-        if (user.userEmail === currentUser.email) {
+        var email = user.userEmail;
+        email = email.toUpperCase();
+        if (email === currentUser.email.toUpperCase()) {
           count = count + 1;
         }
       }
@@ -99,9 +95,9 @@ export default class App extends React.Component {
       }else {
         this._isMounted && this.setState({isNewUser: false})
       }
-  };
+  };*/
 
-  makeUsersForComparison = async ()  => {
+ /* makeUsersForComparison = async ()  => {
     var usersRetrived = [];
     var allUsersInHouseHolds =[];
     await firebase.database().ref('/households/').on('value', snapshot => {
@@ -118,16 +114,16 @@ export default class App extends React.Component {
       }
     });
   this._isMounted && this.setState({allUsersInHouseHolds: allUsersInHouseHolds })
-  };
+  };*/
 
 
   //Vi instantierer SignInform i vores App.js, da det er her, applikationen skal starte
   render() {
-    const {currentUser, isNewUser} = this.state;
-    console.log(isNewUser);
-    if (currentUser && this.state.isNewUser!= null ) {
+
+    const {currentUser} = this.state;
+    if (currentUser ) {
         return (
-            <MainNavigator screenProps={{image: this.state.image, currentUser: this.state.currentUser, allUsers: this.state.allUsers, isNewUser: this.state.isNewUser}} />
+            <MainNavigator screenProps={{image: this.state.image, currentUser: this.state.currentUser, allUsers: this.state.allUsers}} />
         );
     }else {
       return (
