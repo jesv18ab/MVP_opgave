@@ -20,7 +20,7 @@ import { AntDesign } from '@expo/vector-icons';
 import globalStyles from "./GlobalStyles";
 import HouseCleaning from "./CleaningComponents/HouseCleaning";
 import EcononyView from "./CleaningComponents/EcononyView";
-
+import CreateUser from "./GuestComponent/CreateUser";
 /*her ligger facebook og google utkast før frontend redigert*/
 /*
 <View style={{marginTop: 20}}>
@@ -59,18 +59,21 @@ import EcononyView from "./CleaningComponents/EcononyView";
     },
 })*/
 
-const StackNavigator = createStackNavigator(
-    {
-        Overblikket: {screen: CommonAreaCleaningView, navigationOptions: {headerShown: false,}},
-        lister: { screen: ListsItems  },
-        Indkøb: { screen: ListView },
-    },
-    { initialRouteKey: 'Oversigten' }
-);
+/*     if(this.state.isLoggedIn){
+            return(
+                <AppBottomNav screenProps={{ image: this.state.image, currentUser: this.state.currentUser}} />
+            )
+        }
+            if (this.state.isNewUser){
+                return(
+                    <CreateUser screenProps={{ currentUser: "guest"}}/>
+                )
+            }
+            else {}*/
 
 //Oprettelse af en drawernavigator, hvori vi placerer tilhørende screens
-;
 
+/*
 const StackNavigatorOverView = createStackNavigator(
     {
         Oversigten: {
@@ -106,7 +109,7 @@ const TabNavigator = createBottomTabNavigator(
             },
         },
         /*Navn på Route*/
-        Weshare: {
+      /*  Weshare: {
           screen: WeShareView,
           navigationOptions: {
             tabBarLabel:"WeShare",
@@ -143,7 +146,7 @@ const TabNavigator = createBottomTabNavigator(
         },
     },
     /*Generelle label indstillinger. Blot en design metode*/
-    {
+  /*  {
         tabBarOptions: {
             showIcon: true,
             labelStyle: {
@@ -152,23 +155,21 @@ const TabNavigator = createBottomTabNavigator(
             activeTintColor: '#5FB8B2',
             inactiveTintColor: 'gray',
             size: 40,
-
-
+*/
+/*
         }, initialRouteName: "Profile"
     },
 );
-
+*/
 //Vi wrapper bottomnavigatoren ind i en appcontainer.
-const AppBottomNav = createAppContainer(TabNavigator);
+//const AppBottomNav = createAppContainer(TabNavigator);
 
-export default class SignInForm extends Component {
+export default class SignInView extends Component {
     constructor(props) {
         super(props);
-        this.state = {image: null};
-        this.state = {allUsers: null};
-        this.state = {currentUser: null};
+        this._isMounted = false;
     }
-    _isMounted = false;
+  //  _isMounted = false;
 
     //Der oprettes relevante state variabler, heriblandt varibler til håndtering
     //af credentials og en variabel, som skal tjekke, hvorvidt en person er logget ind.
@@ -197,45 +198,34 @@ export default class SignInForm extends Component {
             const output =  await firebase.auth().signInWithEmailAndPassword(email, password);
             //Hvis credentials passser, skal state variablen sætte true
             //Der er ikke oprettet fejlhåndtering endnu
-            this.setState({ isLoggedIn: true });
+            this._isMounted && this.setState({ isLoggedIn: true });
         } catch (error) {
            console.log(error.message);
-            this.setState({ isLoggedIn: false });
+            this._isMounted && this.setState({ isLoggedIn: false });
         }
     };
     //HVis komponenten mountes, skal dette registreres. Dette gøres ved brug af
     //componentDidMount
     componentDidMount() {
         this._isMounted = true;
-
-        LogBox.ignoreAllLogs();
-    this.loginUser();
-        firebase.auth().onAuthStateChanged(currentUser => {
-            this.setState({currentUser: currentUser});
-        });
+        this._isMounted && this.loginUser();
 
     }
     componentWillUnmount() {
         this._isMounted = false;
     }
-
+    willSignUp =() => {
+        this.props.navigation.navigate('SignUp');
+    };
 
     //I render tester vi status på isLoggedIn state variablen.
     //er variablen true, skal vi instantiere vores AppBottomNav Komponent
     //Ellers skal signIn siden fremvises
     render() {
-        if(this.state.isLoggedIn){
-            return(
-            <AppBottomNav screenProps={{ image: this.state.image, currentUser: this.state.currentUser}} />
-            )
-        }
-        else {
             return (
                     <View style={globalStyles.container}>
                         <Image style={styles.welcomePic} source={require('./assetsSignInForm/LogoKollektiv.png')}/>
-
                         <Text style={styles.titleText} >Kollektivet!</Text>
-
                         <TextInput
                             value={this.state.email}
                             keyboardType = 'email-address'
@@ -256,8 +246,6 @@ export default class SignInForm extends Component {
                         <TouchableOpacity style={[styles.signInButtons]} onPress={this.loginUser} >
                             <Text style={styles.buttonText}>Sign in</Text>
                         </TouchableOpacity>
-
-
                             <View style={{marginTop: 15}}>
                                 <TouchableOpacity style={[styles.iconButtonsGoogle, {marginTop: 5}]} >
                                     <AntDesign name="google" size={24} color="black" />
@@ -267,16 +255,13 @@ export default class SignInForm extends Component {
                                     <Entypo name="facebook" size={24} color="black" />
                                 </TouchableOpacity>
                             </View>
-
-                        <TouchableOpacity style={[styles.sigUpButton,]} >
+                        <TouchableOpacity onPress={this.willSignUp} style={[styles.sigUpButton,]} >
                             <Text>Registrer deg på Kollektivet</Text>
                         </TouchableOpacity>
-
-
                     </View>
                 );
         }
-        }
+
 }
 
 //Styling komponenter til design af siden

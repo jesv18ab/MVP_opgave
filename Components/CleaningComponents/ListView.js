@@ -11,7 +11,7 @@ export default class ListView extends React.Component {
     _isMounted = false;
     //Instantiering af state variabler
     state = {
-        list: [],
+        list: [""],
         test: [],
         id: null,
         newItem: '',
@@ -30,7 +30,9 @@ export default class ListView extends React.Component {
         const keyToList = this.props.navigation.getParam('specificListKey');
         this._isMounted = true;
         firebase.database().ref(`/households/${keyHouseHold}/groceryList/${keyToList}`).on('value', snapshot => {
+          if (snapshot.val()){
             this.setState({list: snapshot.val().items})
+          }
         });
         //  this.loadList(allUsers);
 
@@ -45,7 +47,9 @@ export default class ListView extends React.Component {
     componentWillUnmount() {
         this._isMounted = false;
     }
-
+    handleLogOut =  () => {
+        firebase.auth().signOut();
+    };
 
     //MEtoden her står for at loade den valgte liste, således vi kan få fat på e varer, der er placeret i listen
     loadList = allUsers =>{
@@ -112,10 +116,12 @@ export default class ListView extends React.Component {
     render() {
         const list = Object.values(this.state.list);
         const keys = Object.keys(this.state.list);
+
         if (!this.state.list){
             return (
                 <View>
                     <Text>No data </Text>
+                    <Button title="Log ud" onPress={this.handleLogOut}/>
                 </View>
             )
         } else
@@ -138,6 +144,7 @@ export default class ListView extends React.Component {
                             style={styles.inputField}                    />
                         <Button title="Tilføj en vare" onPress={() =>this.updateList(list)}/>
                     </View>
+                    <Button title="Log ud" onPress={this.handleLogOut}/>
                 </View>
             );
     }

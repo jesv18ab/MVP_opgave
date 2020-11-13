@@ -47,40 +47,37 @@ export default class CommonAreaCleaningView extends React.Component {
         this._isMounted = true;
         var allUsers = [];
 
-        firebase.database().ref('/groceryLists/').on('value', snapshot => {
-            this.setState({ groceryLists: snapshot.val() });
-        });
-
         firebase.database().ref('/allUsers/').on('value', snapshot => {
             this.setState({allUsers: snapshot.val()});
         });
 
-
     }
     componentWillUnmount() {
         this._isMounted = false;
-
     }
 
 
     gotToShoppingList = () => {
+        var specificList= [];
+        var specificListKey= [];
         let houseHoldKey = null;
         const allUsers = Object.values(this.state.allUsers);
+        console.log(this.props.screenProps.currentUser);
         allUsers.map((item, index) => {
             if (item.email.toUpperCase() === this.props.screenProps.currentUser.email.toUpperCase()){
                 this.setState({houseHoldId: item.houseHoldId });
                 houseHoldKey = item.houseHoldId;
             }
-            var specificList= [];
-            var specificListKey= [];
+
             firebase.database().ref(`/households/${houseHoldKey}/groceryList`).on('value', snapshot => {
                 if (snapshot.val()){
                     specificList = Object.values(snapshot.val()) ;
                     specificListKey = Object.keys(snapshot.val())[0] ;
-                    this.props.navigation.navigate('ShoppingList', {houseHoldKey, specificListKey}, );
                 }
             });
         });
+        this.props.navigation.navigate('ShoppingList', {houseHoldKey, specificListKey}, );
+
     };
 
     gotToHouseCleaning = () => {
@@ -90,7 +87,7 @@ export default class CommonAreaCleaningView extends React.Component {
         this.props.navigation.navigate('EconomyView');
     };
     gotToLaundry = () => {
-        this.props.navigation.navigate('Laundry');
+        this.props.navigation.navigate('NewUser');
     };
 
 
@@ -99,18 +96,6 @@ export default class CommonAreaCleaningView extends React.Component {
 
 
     render(){
-        const { groceryLists } = this.state;
-        //console.log(groceryLists);
-        // Vi viser ingenting hvis der ikke er data
-        //Udover headeren naturligvis
-        if (!groceryLists) {
-            return <View>
-                <Text>No data is available</Text>
-            </View>;
-        }
-        // Flatlist forventer et array. Derfor tager vi alle values fra vores liste objekt, og bruger som array til listen
-        const listArray = Object.values(groceryLists);
-        const listKeys = Object.keys(groceryLists);
         // Vi skal også bruge alle IDer, så vi tager alle keys også.
         return(
             <View style={styles.container}>
