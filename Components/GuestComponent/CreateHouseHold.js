@@ -104,7 +104,6 @@ export default class CreateHouseHold extends React.Component {
     };
 
     render()  {
-        console.log("props user")
         console.log(this.props.screenProps.isNewUse)
         const { errorMessage, houseHoldName, isCompleted } = this.state;
         if (this.props.screenProps.isNewUser) {
