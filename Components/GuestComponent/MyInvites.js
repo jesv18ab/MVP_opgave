@@ -108,7 +108,6 @@ export default class myInvites extends React.Component{
     render() {
         const list = Object.values(this.state.userInvites);
         const listOfKeys = Object.values(this.state.invitationKeys);
-     //   console.log(list);
         if (!this.state.acceptedInHousehold){
             return (
                 <View>
