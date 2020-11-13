@@ -32,7 +32,6 @@ export default class modalView extends React.Component {
                     <View style={styles.centeredView}>
                         <View style={styles.modalView}>
                             <Text style={styles.modalText}>Hello World!</Text>
-
                             <TouchableHighlight
                                 style={{ ...styles.openButton, backgroundColor: "#2196F3" }}
                                 onPress={this.showModal}>

@@ -38,28 +38,30 @@ state = {
 
 
     checkIfNewUser = async () => {
-        var status
+        var status = null;
         await firebase.database().ref('allUsers').on('value', snapshot => {
             if (snapshot.val()){
             Object.values(snapshot.val()).map((item, index) => {
                     if (item.email.toUpperCase() === this.props.screenProps.currentUser.email.toUpperCase()){
                         this.setState({houseHasBeenCreated: item.status})
                         status = item.status;
+                        if (!item.status && item.status != null)
+                        {
+                            this.props.navigation.navigate('NewUser');
+                        }
                     }
                 }
             )
             }
         });
-        if (!status)
-        {
-            this.props.navigation.navigate('NewUser');
-        }
+
 };
 
 
 
 
     render(){
+
         const currentUser = this.state.currentUser;
         const {houseHasBeenCreated} = this.state;
         if (houseHasBeenCreated === true ){

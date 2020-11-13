@@ -95,11 +95,11 @@ export default class CreateUser extends React.Component {
             <View>
                 <Text style={styles.header}>Her opretter vi en bruger</Text>
                 <TextInput
-                    placeholder="email"
-                    value={email}
-                    onChangeText={this.handleChangeEmail}
-                    style={styles.inputField}
-                />
+                placeholder="email"
+                value={email}
+                onChangeText={this.handleChangeEmail}
+                style={styles.inputField}
+            />
                 <TextInput
                     placeholder="password"
                     value={password}

@@ -2,9 +2,7 @@ import {Image, StyleSheet, Text, View, SectionList, Platform, Alert, FlatList, T
 import React from "react";
 import HeaderClass from "./HeaderClass";
 import AsyncStorage from '@react-native-community/async-storage';
-import GroceryShoppingView from "./GroceryShoppingView";
 import firebase from "firebase";
-import ListsItems from "./ListsItems";
 import HouseCleaning from "./HouseCleaning";
 
 

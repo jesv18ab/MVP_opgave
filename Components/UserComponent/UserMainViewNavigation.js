@@ -5,15 +5,11 @@ import WeShareView from "../EconomyComponents/WeShareView";
 import AddMemberView from "../MembershipComponents/AddMemberView";
 import ProfileView from "../ProfileComponents/ProfileView";
 import {createAppContainer} from "react-navigation";
-import {createDrawerNavigator} from "react-navigation-drawer";
 import {createStackNavigator} from "react-navigation-stack";
 import CommonAreaCleaningView from "../CleaningComponents/CommonAreaCleaningView";
 import LaundryView from "../CleaningComponents/LaundryView";
-import GroceryShoppingView from "../CleaningComponents/GroceryShoppingView";
-import ListsItems from "../CleaningComponents/ListsItems";
 import ListView from "../CleaningComponents/ListView";
 import { AntDesign } from '@expo/vector-icons';
-import globalStyles from "../GlobalStyles";
 import HouseCleaning from "../CleaningComponents/HouseCleaning";
 import EcononyView from "../CleaningComponents/EcononyView";
 import CreateUser from "../GuestComponent/CreateUser";
@@ -71,6 +67,15 @@ const StackNavigatorCleaningOverView = createStackNavigator(
 
 const TabNavigator = createBottomTabNavigator(
     {
+
+        Profile: {
+            screen: ProfileView,
+            navigationOptions: {
+                tabBarLabel:"Profile",
+                tabBarIcon: ({ tintColor }) => (
+                    <AntDesign name="setting" size={24} color="black" />                 )
+            },
+        },
         CleaningOverview: {
             screen: StackNavigatorCleaningOverView, navigationOptions: {
                 tabBarLabel:"Home Page", tabBarIcon: ({ tintColor }) => (
@@ -102,15 +107,6 @@ const TabNavigator = createBottomTabNavigator(
                 tabBarLabel:"Members",
                 tabBarIcon: ({ tintColor }) => (
                     <AntDesign name="adduser" size={24} color="black" />                  )
-            },
-        },
-
-        Profile: {
-            screen: ProfileView,
-            navigationOptions: {
-                tabBarLabel:"Profile",
-                tabBarIcon: ({ tintColor }) => (
-                    <AntDesign name="setting" size={24} color="black" />                 )
             },
         },
     },

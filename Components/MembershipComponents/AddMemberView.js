@@ -1,21 +1,119 @@
 import React, { Component } from 'react';
 import { Alert, Button, Text, TouchableOpacity, TextInput, View, StyleSheet } from 'react-native';
+import * as firebase from 'firebase';
+
 
 export default class AddMemberView extends React.Component{
+    _isMounted = false;
+
+    //Her instantieres state variabler for klassen
     state = {
-        name: '',
-        email: '',
-
+        membersToAdd: [],
+        usersToAdd: [],
+        newUserAdded: '',
+        allUsers: [],
+        houseHolds: [],
+        email: "",
+        name: ""
     };
-
-
-    onLogin() {
-        const {name, email } = this.state;
-
-        Alert.alert('Credentials',` name: ${name} + email: ${email} `);
+    componentDidMount() {
+        this._isMounted = true;
+        firebase.database().ref('/allUsers/').on('value', snapshot => {
+                this.setState({ allUsers: snapshot.val() });
+            }
+        );
+        firebase.database().ref('/households/').on('value', snapshot => {
+                this.setState({ houseHolds: snapshot.val() });
+            }
+        );
     }
 
+    handleLogOut = async () => {
+        await firebase.auth().signOut();
+    };
 
+    getHouseHoldName = () => {
+        const listOfhouseHolds = Object.values(this.state.houseHolds);
+        const listOfKeys = Object.keys(this.state.houseHolds);
+        const currentUser = this.getCurrentUser();
+        var keyFound = null;
+        var houseHoldName = null;
+        listOfhouseHolds.map((item, index) => {
+            if (listOfKeys[index] === currentUser.houseHoldId){
+                keyFound = listOfKeys[index];
+            }
+        });
+        firebase.database().ref(`/households/${keyFound}`).on('value', snapshot => {
+                houseHoldName = snapshot.val();
+            }
+        );
+        return houseHoldName;
+    };
+
+    getCurrentUser = () => {
+        let keyFound = null;
+        let currentUser = null;
+        const listOfUsers = Object.values(this.state.allUsers);
+        listOfUsers.map((item, index) => {
+            if (item.email.toUpperCase() === this.props.screenProps.currentUser.email.toUpperCase()){
+                currentUser = listOfUsers[index];
+            }
+        });
+        return currentUser
+    };
+
+    //Metoden står for at gemme data fra en array i min firebase DB
+    handleSave = () => {
+        let isValidated = null;
+    //    let isValidatedKey = null;
+     //   var usersFromHouseHold = [];
+     //   var validatedUsers= [];
+       // var validatedUsersKeys = [];
+       // var users = [];
+      //  var checkVariable = false;
+        //let user = null;
+        //const listToAdd = this.state.membersToAdd;
+        const allUsers = Object.values(this.state.allUsers);
+        //const keys = Object.keys(this.state.allUsers);
+        const currentUser = this.getCurrentUser();
+        const id = currentUser.houseHoldId;
+        const houseHoldName = this.getHouseHoldName();
+
+        console.log(this.state.email);
+        //Altså sammen er fra en liste struktur
+        /*firebase.database().ref(`/households/${currentUser.houseHoldId}/users`).on('value', snapshot => {
+                usersFromHouseHold = snapshot.val();
+            }
+        );*/
+     /*   const houseHoldUsers = Object.values(usersFromHouseHold);
+        for (let user of houseHoldUsers){
+            users.push(user)
+        }*/
+     /*   for (let checkMail of listToAdd) {
+
+        }*/
+
+        allUsers.map((item, index) => {
+            if (item.email.toUpperCase() === this.state.email.toUpperCase()){
+                isValidated = this.state.email
+                //NEdenstående kan bruges vil man vil lave en liste af invitationer sstedet for at invitere enkeltvis
+                //  isValidatedKey = keys[index];
+                //validatedUsers.push(checkMail);
+                //validatedUsersKeys.push(isValidatedKey);
+            }
+        });
+        console.log(currentUser)
+        const reference = firebase.database().ref(`/allInvitations/`).push({sender: currentUser.email, receiver: isValidated, houseHoldName: houseHoldName.houseHoldName, houseHoldId: currentUser.houseHoldId, status: "not replied"});
+        try {
+            // const reference = firebase.database().ref(`/households/${id}`).set({houseHoldName, users});
+        } catch (error) {
+            Alert.alert(`Error: ${error.message}`);
+        }
+    };
+
+    componentWillUnmount() {
+        this._isMounted = false;
+    }
     //her er kun design utviklet enn så lenge - ikke logikk. Lager input felt, som skal ta vare på fremtidige nye brukere.
     render() {
         return (
@@ -44,9 +142,8 @@ export default class AddMemberView extends React.Component{
 
                 <TouchableOpacity
                     style={styles.button}
-                    onPress={this.onLogin.bind(this)}
-                >
-                    <Text style={styles.buttonText}>Invite your friend</Text>
+                    onPress={this.handleSave}>
+                    <Text style={styles.buttonText}>Inviter roommates</Text>
                 </TouchableOpacity>
 
                 <Text style={styles.termsText}>By creating an account you agree to the terms </Text>
