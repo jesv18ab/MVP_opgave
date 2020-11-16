@@ -122,7 +122,6 @@ const styles = StyleSheet.create({
     },
 
     titleText:{
-
        fontSize: 50,
         fontWeight:'bold',
         color:'#5FB8B2',
