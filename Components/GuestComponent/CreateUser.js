@@ -3,10 +3,8 @@ import {Button,Text, View, TextInput, ActivityIndicator, StyleSheet, Alert,} fro
 import firebase from "firebase";
 import {createBottomTabNavigator} from "react-navigation-tabs";
 import {createAppContainer} from "react-navigation";
-import MakeHouseHold from "./MakeHouseHold";
 import MyInvites from "./MyInvites";
 import {Entypo, FontAwesome, Fontisto, MaterialIcons} from "@expo/vector-icons";
-import newUsers from "./Stack";
 const styles = StyleSheet.create({
     error: {
         color: 'red',
@@ -24,13 +22,6 @@ const styles = StyleSheet.create({
 
 const TabNavigator = createBottomTabNavigator(
     {
-        MakeHouseHold: {
-            screen: MakeHouseHold, navigationOptions: {
-                tabBarLabel:"Opret kollektiv", tabBarIcon: ({ tintColor }) => (
-                    <Entypo name="home" size={24} color={tintColor} />
-                )
-            },
-        },
         /*Navn på Route*/
         MyInvites: {
             screen: MyInvites,
@@ -52,7 +43,7 @@ const TabNavigator = createBottomTabNavigator(
             activeTintColor: 'blue',
             inactiveTintColor: 'gray',
             size: 40
-        }, initialRouteName: "MakeHouseHold",
+        }, initialRouteName: "MyInvites",
     },
 );
 
