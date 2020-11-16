@@ -33,6 +33,7 @@ export default class ListView extends React.Component {
         this._isMounted = true;
         firebase.database().ref(`/households/${keyHouseHold}/groceryList/${keyToList}`).on('value', snapshot => {
           if (snapshot.val()){
+              console.log(snapshot.val())
             this.setState({list: snapshot.val().items})
           }
         });
@@ -118,7 +119,6 @@ export default class ListView extends React.Component {
     render() {
         const list = Object.values(this.state.list);
         const keys = Object.keys(this.state.list);
-        console.log("Hej med dig ")
 
         if (!this.state.list){
             return (
