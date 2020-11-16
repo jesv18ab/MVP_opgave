@@ -52,14 +52,10 @@ export default class CommonAreaCleaningView extends React.Component {
 
             firebase.database().ref(`/households/${houseHoldKey}/groceryList`).on('value', snapshot => {
                 if (snapshot.val()){
-                    specificList = Object.values(snapshot.val()) ;
-                    specificListKey = Object.keys(snapshot.val())[0];
-                    console.log(specificListKey);
+                    this.props.navigation.navigate('ShoppingList', {houseHoldKey, specificListKey: Object.keys(snapshot.val())[0] }, );
                 }
             });
         });
-        this.props.navigation.navigate('ShoppingList', {houseHoldKey, specificListKey}, );
-
     };
 
     gotToHouseCleaning = () => {

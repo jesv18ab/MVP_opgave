@@ -12,7 +12,8 @@ export default class ListView extends React.Component {
     _isMounted = false;
     //Instantiering af state variabler
     state = {
-        list: [""],
+        list: ["No data Available"],
+        keys: ["No keys"],
         test: [],
         id: null,
         newItem: '',
@@ -21,21 +22,26 @@ export default class ListView extends React.Component {
         updatedList: [],
         allUsersFound: [],
         houseHoldId: null,
-        key: null
+        key: null,
+        keyHouseHold: null,
+        keyToList: null
     };
 
 
     //Der anvendes ComponentDidMount for relevante metoder. Hvortil boolean variabel sættes true
     componentDidMount() {
-        const keyHouseHold = this.props.navigation.getParam('houseHoldKey');
-        const keyToList = this.props.navigation.getParam('specificListKey');
+            const keyHouseHold = this.props.navigation.getParam('houseHoldKey');
+            const keyToList = this.props.navigation.getParam('specificListKey');
+            console.log(keyHouseHold)
+            console.log(keyToList)
 
         this._isMounted = true;
         firebase.database().ref(`/households/${keyHouseHold}/groceryList/${keyToList}`).on('value', snapshot => {
-          if (snapshot.val()){
-              console.log(snapshot.val())
-            this.setState({list: snapshot.val().items})
-          }
+
+           this.setState({list: (Object.values(snapshot.val())[0]) });
+            this.setState({keys: (Object.values(Object.values(snapshot.val())[0]))});
+            this.setState({keyHouseHold: keyHouseHold})
+            this.setState({keyToList: keyToList})
         });
         //  this.loadList(allUsers);
 
@@ -67,7 +73,6 @@ export default class ListView extends React.Component {
         });
 
         firebase.database().ref(`/households/${houseHoldKey}/groceryList`).on('value', snapshot => {
-
             this.setState({list: snapshot.val()})
         });
 
@@ -98,18 +103,20 @@ export default class ListView extends React.Component {
             arr.splice(arr[0]);
         }
         arr.push(this.state.newItem);
-        this.setState({newItem: ""})
+        this.setState({newItem: ""});
         return arr
     };
 
 
     //Denne metode Foreatger et firebase kald, som udfører en setter metode, der skal overskrive den gamle list e
     //Med den nye opdaterede liste
-    updateList = (listToUpdate) => {
+    updateList = (listToUpdate, key) => {
+
         const items = this.updateArray(listToUpdate);
         const keyHouseHold = this.props.navigation.getParam('houseHoldKey');
         const keyToList = this.props.navigation.getParam('specificListKey');
-        firebase.database().ref(`/households/${keyHouseHold}/groceryList/${keyToList}`).set({items});
+
+        firebase.database().ref(`/households/${keyHouseHold}/groceryList/${keyToList}/`).set({items});
     };
 
     //I render opretes to constvariabler, der indeholder en liste og alle
@@ -117,9 +124,10 @@ export default class ListView extends React.Component {
     //Derueodver udskrives alle produkter i som komponenter og der oprettes et inputfelt
     //Der skal registrere det som brugerne indskriver, når der skal tilføes et produkt til listen
     render() {
-        const list = Object.values(this.state.list);
-        const keys = Object.keys(this.state.list);
-
+        const list = this.state.list;
+        console.log("list")
+        console.log(list)
+        const keys = this.state.keys;
         if (!this.state.list){
             return (
                 <View>
@@ -131,7 +139,7 @@ export default class ListView extends React.Component {
             return (
                 <View style={globalStyles.container}>
                     <Text style={[globalStyles.headerText,styles.headerText]}>Inkjøpsliste</Text>
-                    { list.map((item, key)=>(
+                    {list.map((item, key)=>(
                             <View key={key} style={styles.listContainer} >
                                 <Text style={styles.label}>{item}</Text>
                                 <TouchableOpacity style={styles.button} title="Delete" onPress={() => this.removeItem( list, item, keys)}>
@@ -146,7 +154,7 @@ export default class ListView extends React.Component {
                             value={this.state.newItem}
                             onChangeText={newItem => this.setState({ newItem })}
                             style={styles.inputField}                    />
-                        <Button title="Tilføj en vare" onPress={() =>this.updateList(list)}/>
+                        <Button title="Tilføj en vare" onPress={() =>this.updateList(list, this.state.keyToList)}/>
                     </View>
                     <Button title="Log ud" onPress={this.handleLogOut}/>
                 </View>
