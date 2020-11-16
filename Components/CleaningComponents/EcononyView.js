@@ -8,7 +8,6 @@ import AsyncStorage from '@react-native-community/async-storage';
 export default class EconomyView extends React.Component {
 
     render(){
-        console.log("TEst commit")
         return(
             <View>
                 <Text>Economy</Text>

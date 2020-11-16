@@ -91,7 +91,7 @@ export default class myInvites extends React.Component{
                     users = (houseFound.users)
                 }
             });
-            users = Object.values(Object.values(users)[0])[0]
+            users = Object.values(Object.values(users)[0])[0];
             users.push(this.props.screenProps.currentUser.email);
             const reference = this._isMounted && await firebase.database().ref(`/households/${houseHoldId}/users/${keyToUSers}`).set({users});
             this._isMounted && await firebase.database().ref(`/allInvitations/${key}`).remove();

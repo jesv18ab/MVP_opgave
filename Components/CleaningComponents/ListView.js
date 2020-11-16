@@ -1,6 +1,6 @@
 
 import * as React from 'react';
-import {View, Text, FlatList, StyleSheet, Button, Alert, TextInput, TouchableOpacity} from 'react-native';
+import {View, Text, FlatList, StyleSheet, Button, Alert, TextInput, TouchableOpacity, ScrollView} from 'react-native';
 import firebase from 'firebase';
 import HeaderClass from "./HeaderClass";
 import { AntDesign } from '@expo/vector-icons';
@@ -32,14 +32,13 @@ export default class ListView extends React.Component {
     componentDidMount() {
             const keyHouseHold = this.props.navigation.getParam('houseHoldKey');
             const keyToList = this.props.navigation.getParam('specificListKey');
-            console.log(keyHouseHold)
-            console.log(keyToList)
+
 
         this._isMounted = true;
         firebase.database().ref(`/households/${keyHouseHold}/groceryList/${keyToList}`).on('value', snapshot => {
 
            this.setState({list: (Object.values(snapshot.val())[0]) });
-            this.setState({keys: (Object.values(Object.values(snapshot.val())[0]))});
+            this.setState({keys: (Object.keys(Object.values(snapshot.val())[0]))});
             this.setState({keyHouseHold: keyHouseHold})
             this.setState({keyToList: keyToList})
         });
@@ -62,7 +61,6 @@ export default class ListView extends React.Component {
 
     //MEtoden her står for at loade den valgte liste, således vi kan få fat på e varer, der er placeret i listen
     loadList = allUsers =>{
-        console.log("He går det godt");
         let houseHoldKey = null;
         allUsers.map((item, index) => {
             if (item.email.toUpperCase() === this.props.screenProps.currentUser.email.toUpperCase()){
@@ -81,17 +79,10 @@ export default class ListView extends React.Component {
     //Metoden her tager en lsite og et item med, som skal ferjens fra listen.
     //Der kører et loop, som finder det valgte item i listen, hvorefter den tilknyttede key bestemmes og anvendes
     //Til firebase kaldet, der fjerner produktet fra listen
-    removeItem = ( list, itemPicked, keys) =>{
-        this.setState({list: list});
-        var itemIndex = null;
-        var key = null;
+    removeItem = (key) =>{
+
         const keyHouseHold = this.props.navigation.getParam('houseHoldKey');
         const keyToList = this.props.navigation.getParam('specificListKey');
-        list.map((item, index) => {
-            if (itemPicked === item){
-                key = keys[index];
-            }
-        });
         firebase.database().ref(`/households/${keyHouseHold}/groceryList/${keyToList}/items/${key}`).remove();
     };
 
@@ -124,10 +115,9 @@ export default class ListView extends React.Component {
     //Derueodver udskrives alle produkter i som komponenter og der oprettes et inputfelt
     //Der skal registrere det som brugerne indskriver, når der skal tilføes et produkt til listen
     render() {
-        const list = this.state.list;
-        console.log("list")
-        console.log(list)
+        const list = Object.values(this.state.list);
         const keys = this.state.keys;
+
         if (!this.state.list){
             return (
                 <View>
@@ -139,10 +129,10 @@ export default class ListView extends React.Component {
             return (
                 <View style={globalStyles.container}>
                     <Text style={[globalStyles.headerText,styles.headerText]}>Inkjøpsliste</Text>
-                    {list.map((item, key)=>(
-                            <View key={key} style={styles.listContainer} >
+                    {list.map((item, index)=>(
+                            <View key={index} style={styles.listContainer} >
                                 <Text style={styles.label}>{item}</Text>
-                                <TouchableOpacity style={styles.button} title="Delete" onPress={() => this.removeItem( list, item, keys)}>
+                                <TouchableOpacity style={styles.button} title="Delete" onPress={() => this.removeItem(keys[index])}>
                                     <AntDesign name="minuscircleo" size={35} color="#CD5C5C"/>
                                 </TouchableOpacity>
                             </View>
