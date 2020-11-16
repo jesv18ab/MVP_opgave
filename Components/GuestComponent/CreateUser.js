@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
     },
 
     termsText:{
-        color:'grey',
+        color:'pink',
         marginTop: 14,
         bottom:80,
     },
