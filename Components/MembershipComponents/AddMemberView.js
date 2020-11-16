@@ -5,13 +5,10 @@ export default class AddMemberView extends React.Component{
     state = {
         name: '',
         email: '',
-
     };
-
 
     onLogin() {
         const {name, email } = this.state;
-
         Alert.alert('Credentials',` name: ${name} + email: ${email} `);
     }
 
@@ -27,8 +24,7 @@ export default class AddMemberView extends React.Component{
                     onChangeText={(name) => this.setState({ name })}
                     placeholder='Full name'
                     placeholderTextColor = 'grey'
-                    style={styles.input}
-                />
+                    style={styles.input}/>
 
 
                 <TextInput
