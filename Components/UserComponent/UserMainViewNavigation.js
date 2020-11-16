@@ -59,7 +59,6 @@ const StackNavigatorCleaningOverView = createStackNavigator(
         EconomyView: {
             screen: EcononyView
         },
-
     },
     { initialRouteKey: 'Oversigten'  }
 );
@@ -67,7 +66,6 @@ const StackNavigatorCleaningOverView = createStackNavigator(
 
 const TabNavigator = createBottomTabNavigator(
     {
-
         Profile: {
             screen: ProfileView,
             navigationOptions: {

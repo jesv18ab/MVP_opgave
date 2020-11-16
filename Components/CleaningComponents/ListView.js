@@ -117,6 +117,7 @@ export default class ListView extends React.Component {
     render() {
         const list = Object.values(this.state.list);
         const keys = Object.keys(this.state.list);
+        console.log("Hej med dig ")
 
         if (!this.state.list){
             return (

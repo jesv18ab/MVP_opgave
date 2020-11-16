@@ -82,18 +82,33 @@ showTimePicker =() => {
 };
 
     timePicked = () => {
-        this.setState({});
+        let minutesBelow = 0;
+        let hoursBelow = 0;
         this.setState({chosenHours: this.state.selectedHours});
-        this.setState({chosenMinutes: this.state.selectedMinutes})
+        if (this.state.selectedHours < 10){
+            hoursBelow = hoursBelow.toString()+this.state.selectedHours.toString()
+            this.setState({chose: minutesBelow})
+        }
+        else {
+            this.setState({chosenMinutes: this.state.selectedMinutes})
+        }
+        if (this.state.selectedMinutes < 10){
+            minutesBelow = minutesBelow.toString()+this.state.selectedMinutes.toString()
+            this.setState({chosenMinutes: minutesBelow})
+        }
+        else {
+            this.setState({chosenMinutes: this.state.selectedMinutes})
+        }
     };
 
     //I render instantieres en CalenderPicker komponent, der fremviser en kalender
     //Kalender har en property, som kan registrere valg af datoer, som forekommer ved tryk på skærmen
     render() {
 
-        const { selectedHours, selectedMinutes, show, chosenHours } = this.state;
+        const { selectedHours, selectedMinutes, show, chosenHours, chosenMinutes } = this.state;
         const { selectedStartDate, modalVisible, setModalVisible } = this.state;
         const startDate = selectedStartDate ? selectedStartDate.toString() : '';
+        const timeStart = chosenHours + ":" + chosenMinutes;
 
         return (
             <View>
@@ -125,13 +140,27 @@ showTimePicker =() => {
                             value={startDate.toString()}
                             editable={false}
                             style={styles.inputField}/>
-                        <TextInput
-                            placeholder="Tidspunkt"
-                            value={chosenHours.toString()}
-                            onChangeText={(chosenHours) => this.setState({ chosenHours })}
-                            style={styles.inputField}
+                     <View style={{width: '100%'}}>
+                      <View style={{flexDirection: 'row', width: '100%'}} >
+                        <View style={{width: '50%'}} >
+                          <TextInput
+                            placeholder="Fra"
+                            value={timeStart.toString()}
+                            style={[styles.inputField_time, {justifyContent: 'flex-start', marginLeft: '10%'}]}
                             editable={false}
                         />
+                        </View>
+                          <View style={{width: '50%'}}  >
+                         <TextInput
+                             placeholder="Til"
+                             value={chosenMinutes.toString()}
+                             style={[styles.inputField_time,]}
+                             editable={false}
+                         />
+                          </View>
+                      </View>
+                     </View>
+
                         <Button title={"Sæt et tidspunkt"} onPress={this.showTimePicker} />
                      </View>
                         <View style={styles.modalView}>
@@ -208,6 +237,11 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         margin: 10,
         padding: 10,
+    },
+    inputField_time: {
+        borderWidth: 1,
+        padding: 10,
+        width: '85%'
     },
     eventBox: {
 

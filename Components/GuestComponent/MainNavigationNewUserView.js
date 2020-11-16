@@ -9,7 +9,6 @@ export default class InitalViewNewUsers extends Component {
     getHouseHolds = () =>{
 
     }
-
     gotToCreate = () => {
         this.props.navigation.navigate('CreateHouseHold');
     };
