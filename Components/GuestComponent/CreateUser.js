@@ -3,7 +3,6 @@ import {Button, Text, View, TextInput, ActivityIndicator, StyleSheet, Alert, Tou
 import firebase from "firebase";
 import {createBottomTabNavigator} from "react-navigation-tabs";
 import {createAppContainer} from "react-navigation";
-import MakeHouseHold from "./MakeHouseHold";
 import MyInvites from "./MyInvites";
 import {Entypo, FontAwesome, Fontisto, MaterialIcons} from "@expo/vector-icons";
 import newUsers from "./Stack";
