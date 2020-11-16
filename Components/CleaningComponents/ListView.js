@@ -5,6 +5,7 @@ import firebase from 'firebase';
 import HeaderClass from "./HeaderClass";
 import { AntDesign } from '@expo/vector-icons';
 import {Header} from "react-native-elements";
+import globalStyles from "../GlobalStyles";
 
 export default class ListView extends React.Component {
     //Oprettelse af boolean til styring af lief cycles
@@ -128,7 +129,8 @@ export default class ListView extends React.Component {
             )
         } else
             return (
-                <View style={styles.container}>
+                <View style={globalStyles.container}>
+                    <Text style={[globalStyles.headerText,styles.headerText]}>Inkjøpsliste</Text>
                     { list.map((item, key)=>(
                             <View key={key} style={styles.listContainer} >
                                 <Text style={styles.label}>{item}</Text>
@@ -155,15 +157,39 @@ export default class ListView extends React.Component {
 
 //Dette er blot styles til der skal anvendes til design
 const styles = StyleSheet.create({
-    container: { flex: 1, marginTop: 10 },
+    container: {
+        flex: 1,
+        marginTop: 10
+    },
+
+    headerText:{
+      fontSize:20,
+      right:140,
+      marginBottom: 8,
+      bottom:200,
+
+    },
+
     row: {
         margin: 5,
         padding: 5,
         flexDirection: 'row',
     },
-    label: { width: 100, fontWeight: 'bold', marginLeft: '7%', fontSize: 15 },
-    input: { borderWidth: 1, flex: 1 },
-    value: { flex: 1 },
+    label: {
+        width: 100,
+        fontWeight: 'bold',
+        marginLeft: '7%',
+        fontSize: 15
+    },
+
+    input: {
+        borderWidth: 1,
+        flex: 1 },
+
+
+    value: {
+        flex: 1 },
+
     inputField: {
         width: '80%',
         fontSize: 20,
@@ -184,7 +210,8 @@ const styles = StyleSheet.create({
         borderWidth: 0.3,
         marginBottom: '2%',
         backgroundColor: 'white',
-        marginTop: '1%'
+        marginTop: '1%',
+        bottom:200,
     },
     button: {
         padding: 10,

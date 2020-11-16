@@ -1,129 +1,21 @@
 import React, { Component } from 'react';
 import { Alert, Button, Text, TouchableOpacity, TextInput, View, StyleSheet } from 'react-native';
-import * as firebase from 'firebase';
-
 
 export default class AddMemberView extends React.Component{
-    _isMounted = false;
-
-    //Her instantieres state variabler for klassen
     state = {
-        membersToAdd: [],
-        usersToAdd: [],
-        newUserAdded: '',
-        allUsers: [],
-        houseHolds: [],
-        email: "",
-        name: ""
+        name: '',
+        email: '',
+
     };
-    componentDidMount() {
-        this._isMounted = true;
-        this._isMounted && this.getUsers();
-        this._isMounted && this.getHouseHolds();
+
+
+    onLogin() {
+        const {name, email } = this.state;
+
+        Alert.alert('Credentials',` name: ${name} + email: ${email} `);
     }
 
-getUsers = async () => {
-    await firebase.database().ref('/allUsers/').on('value', snapshot => {
-        this._isMounted && this.setState({ allUsers: snapshot.val() });
-        }
-    );
-};
 
-    getHouseHolds = async () => {
-       await firebase.database().ref('/households/').on('value', snapshot => {
-           this._isMounted && this.setState({ houseHolds: snapshot.val() });
-            }
-        );
-    };
-
-    handleLogOut = async () => {
-        this._isMounted && await firebase.auth().signOut();
-    };
-
-    getHouseHoldName =  ()  =>  {
-        const listOfhouseHolds = Object.values(this.state.houseHolds);
-        const listOfKeys = Object.keys(this.state.houseHolds);
-        const currentUser = this.getCurrentUser();
-        var keyFound = null;
-        var houseHoldName = null;
-        listOfhouseHolds.map((item, index) => {
-            if (listOfKeys[index] === currentUser.houseHoldId){
-                keyFound = listOfKeys[index];
-            }
-        });
-        firebase.database().ref(`/households/${keyFound}`).on('value', snapshot => {
-           console.log(snapshot.val())
-                houseHoldName = snapshot.val();
-            }
-        );
-
-        return houseHoldName;
-    };
-
-    getCurrentUser = () => {
-        let keyFound = null;
-        let currentUser = null;
-        const listOfUsers = Object.values(this.state.allUsers);
-        listOfUsers.map((item, index) => {
-            if (item.email.toUpperCase() === this.props.screenProps.currentUser.email.toUpperCase()){
-                currentUser = listOfUsers[index];
-            }
-        });
-        return currentUser
-    };
-
-    //Metoden står for at gemme data fra en array i min firebase DB
-    handleSave = async () => {
-        let isValidated = null;
-    //    let isValidatedKey = null;
-     //   var usersFromHouseHold = [];
-     //   var validatedUsers= [];
-       // var validatedUsersKeys = [];
-       // var users = [];
-      //  var checkVariable = false;
-        //let user = null;
-        //const listToAdd = this.state.membersToAdd;
-        const allUsers = Object.values(this.state.allUsers);
-        //const keys = Object.keys(this.state.allUsers);
-        const currentUser = this.getCurrentUser();
-        const id = currentUser.houseHoldId;
-        const houseHoldName =  this.getHouseHoldName();
-
-        //Altså sammen er fra en liste struktur
-        /*firebase.database().ref(`/households/${currentUser.houseHoldId}/users`).on('value', snapshot => {
-                usersFromHouseHold = snapshot.val();
-            }
-        );*/
-     /*   const houseHoldUsers = Object.values(usersFromHouseHold);
-        for (let user of houseHoldUsers){
-            users.push(user)
-        }*/
-     /*   for (let checkMail of listToAdd) {
-
-        }*/
-
-        allUsers.map((item, index) => {
-            if (item.email.toUpperCase() === this.state.email.toUpperCase()){
-                isValidated = this.state.email
-                //NEdenstående kan bruges vil man vil lave en liste af invitationer sstedet for at invitere enkeltvis
-                //  isValidatedKey = keys[index];
-                //validatedUsers.push(checkMail);
-                //validatedUsersKeys.push(isValidatedKey);
-            }
-        });
-        console.log("test")
-        console.log(houseHoldName.houseHoldName)
-         const reference = await firebase.database().ref(`/allInvitations/`).push({sender: currentUser.email, receiver: isValidated, houseHoldName: houseHoldName.houseHoldName, houseHoldId: currentUser.houseHoldId, status: "not replied"});
-        try {
-            // const reference = firebase.database().ref(`/households/${id}`).set({houseHoldName, users});
-        } catch (error) {
-            Alert.alert(`Error: ${error.message}`);
-        }
-    };
-
-    componentWillUnmount() {
-        this._isMounted = false;
-    }
     //her er kun design utviklet enn så lenge - ikke logikk. Lager input felt, som skal ta vare på fremtidige nye brukere.
     render() {
         return (
@@ -132,7 +24,7 @@ getUsers = async () => {
                 <Text style={styles.textSubmit}>Submit</Text>
                 <TextInput
                     value={this.state.name}
-                    onChangeText={(name) => this._isMounted && this.setState({ name })}
+                    onChangeText={(name) => this.setState({ name })}
                     placeholder='Full name'
                     placeholderTextColor = 'grey'
                     style={styles.input}
@@ -142,7 +34,7 @@ getUsers = async () => {
                 <TextInput
                     value={this.state.email}
                     keyboardType = 'email-address'
-                    onChangeText={(email) => this._isMounted && this.setState({ email })}
+                    onChangeText={(email) => this.setState({ email })}
                     placeholder='Email'
                     placeholderTextColor = 'grey'
                     style={styles.input}
@@ -152,8 +44,9 @@ getUsers = async () => {
 
                 <TouchableOpacity
                     style={styles.button}
-                    onPress={this.handleSave}>
-                    <Text style={styles.buttonText}>Inviter roommates</Text>
+                    onPress={this.onLogin.bind(this)}
+                >
+                    <Text style={styles.buttonText}>Invite your friend</Text>
                 </TouchableOpacity>
 
                 <Text style={styles.termsText}>By creating an account you agree to the terms </Text>

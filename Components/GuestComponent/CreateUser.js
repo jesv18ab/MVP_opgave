@@ -3,8 +3,10 @@ import {Button,Text, View, TextInput, ActivityIndicator, StyleSheet, Alert,} fro
 import firebase from "firebase";
 import {createBottomTabNavigator} from "react-navigation-tabs";
 import {createAppContainer} from "react-navigation";
+import MakeHouseHold from "./MakeHouseHold";
 import MyInvites from "./MyInvites";
 import {Entypo, FontAwesome, Fontisto, MaterialIcons} from "@expo/vector-icons";
+import newUsers from "./Stack";
 const styles = StyleSheet.create({
     error: {
         color: 'red',
@@ -20,6 +22,41 @@ const styles = StyleSheet.create({
 });
 
 
+const TabNavigator = createBottomTabNavigator(
+    {
+        MakeHouseHold: {
+            screen: MakeHouseHold, navigationOptions: {
+                tabBarLabel:"Opret kollektiv", tabBarIcon: ({ tintColor }) => (
+                    <Entypo name="home" size={24} color={tintColor} />
+                )
+            },
+        },
+        /*Navn på Route*/
+        MyInvites: {
+            screen: MyInvites,
+            navigationOptions: {
+                tabBarLabel:"Invitationer",
+                tabBarIcon: ({ tintColor }) => (
+                    <Entypo name="wallet" size={24} color={tintColor} />
+                )
+            },
+        },
+    },
+    /*Generelle label indstillinger. Blot en design metode*/
+    {
+        tabBarOptions: {
+            showIcon: true,
+            labelStyle: {
+                fontSize: 15,
+            },
+            activeTintColor: 'blue',
+            inactiveTintColor: 'gray',
+            size: 40
+        }, initialRouteName: "MakeHouseHold",
+    },
+);
+
+const AppBottomNav = createAppContainer(TabNavigator);
 
 
 export default class CreateUser extends React.Component {
@@ -95,11 +132,11 @@ export default class CreateUser extends React.Component {
             <View>
                 <Text style={styles.header}>Her opretter vi en bruger</Text>
                 <TextInput
-                placeholder="email"
-                value={email}
-                onChangeText={this.handleChangeEmail}
-                style={styles.inputField}
-            />
+                    placeholder="email"
+                    value={email}
+                    onChangeText={this.handleChangeEmail}
+                    style={styles.inputField}
+                />
                 <TextInput
                     placeholder="password"
                     value={password}

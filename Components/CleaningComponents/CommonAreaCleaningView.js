@@ -4,6 +4,9 @@ import HeaderClass from "./HeaderClass";
 import AsyncStorage from '@react-native-community/async-storage';
 import firebase from "firebase";
 import HouseCleaning from "./HouseCleaning";
+import globalStyles from "../GlobalStyles";
+import { AntDesign } from '@expo/vector-icons';
+
 
 
 
@@ -73,8 +76,10 @@ export default class CommonAreaCleaningView extends React.Component {
     render(){
         // Vi skal også bruge alle IDer, så vi tager alle keys også.
         return(
-            <View style={styles.container}>
+            <View style={globalStyles.container}>
+                <Text> Your private space</Text>
                 <TouchableOpacity style={styles.buttonStyle} onPress={this.gotToShoppingList}>
+                    <AntDesign name="shoppingcart" size={24} color="black" />
                     <Text> Indkøbslisten</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.buttonStyle} onPress={this.gotToHouseCleaning}>
@@ -92,12 +97,7 @@ export default class CommonAreaCleaningView extends React.Component {
 
 }
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
+
     SectionHeaderStyle: {
         marginTop: '5%',
         backgroundColor: '#376B73',
