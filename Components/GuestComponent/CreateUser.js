@@ -1,13 +1,25 @@
 import * as React from 'react';
-import {Button, Text, View, TextInput, ActivityIndicator, StyleSheet, Alert, TouchableOpacity,} from 'react-native';
+import {Button,Text, View, TextInput, ActivityIndicator, StyleSheet, Alert,} from 'react-native';
 import firebase from "firebase";
 import {createBottomTabNavigator} from "react-navigation-tabs";
 import {createAppContainer} from "react-navigation";
+import MakeHouseHold from "./MakeHouseHold";
 import MyInvites from "./MyInvites";
 import {Entypo, FontAwesome, Fontisto, MaterialIcons} from "@expo/vector-icons";
 import newUsers from "./Stack";
-import globalStyles from "../GlobalStyles";
-
+const styles = StyleSheet.create({
+    error: {
+        color: 'red',
+    },
+    inputField: {
+        borderWidth: 1,
+        margin: 10,
+        padding: 10,
+    },
+    header: {
+        fontSize: 40,
+    },
+});
 
 
 const TabNavigator = createBottomTabNavigator(
@@ -70,41 +82,41 @@ export default class CreateUser extends React.Component {
         firebase.database().ref('/allUsers/').on('value', snapshot => {
             this.setState({allUsers: snapshot.val()})
         });
-        /* firebase.auth().onAuthStateChanged(currentUser => {
-             this.setState({currentUser: currentUser});
-         });*/
+       /* firebase.auth().onAuthStateChanged(currentUser => {
+            this.setState({currentUser: currentUser});
+        });*/
     }
 
     componentWillUnmount() {
     }
 
 // Dene fremviser at vi loader. Når en operation idriftsættes, skal der vises en spinner
-    startLoading = () => this.setState({isLoading: true});
+    startLoading = () => this.setState({ isLoading: true });
     // Når vores loading er færdig, kaldes denne metode til at fjerne spinneren
-    endLoading = () => this.setState({isLoading: false});
+    endLoading = () => this.setState({ isLoading: false });
 // Denne vises, når vi skal præsentere en fejlsbesked
-    setError = errorMessage => this.setState({errorMessage});
+    setError = errorMessage => this.setState({ errorMessage });
 // Denne kaldes, når vi afprøver en operation igen og skal fjerne fejlbeskeden.
-    clearError = () => this.setState({errorMessage: null});
+    clearError = () => this.setState({ errorMessage: null });
 
 // EStår for at opdatere værdierne af vores inputfields, når der bliver skrevet i disse.
-    handleChangeHouseHold = houseHoldName => this.setState({houseHoldName});
+    handleChangeHouseHold = houseHoldName => this.setState({ houseHoldName });
     //   handleChangePassword = password => this.setState({ password });
 
-    handleChangeEmail = email => this.setState({email});
-    handleChangePassword = password => this.setState({password});
+    handleChangeEmail = email => this.setState({ email });
+    handleChangePassword = password => this.setState({ password });
 
 
     handleSubmit = async () => {
-        const {email, password} = this.state;
+        const { email, password } = this.state;
         const status = false;
         const houseHoldId = "none";
         try {
             const result = await firebase.auth().createUserWithEmailAndPassword(email, password);
-            const reference = firebase.database().ref(`/allUsers/`).push({email, status, houseHoldId});
+            const reference = firebase.database().ref(`/allUsers/`).push({ email, status, houseHoldId });
 
-            //   this.setState({isAuthenticated: true});
-            // this.setState({currentUser: true})
+         //   this.setState({isAuthenticated: true});
+           // this.setState({currentUser: true})
             // const reference = firebase.database().ref(`/households/`).push({houseHoldName});
             // const updateReference = reference.toString().replace("https://reactnativedbtrial.firebaseio.com", "");
         } catch (error) {
@@ -114,69 +126,28 @@ export default class CreateUser extends React.Component {
         }
     };
 
-    render() {
-        const {email, password} = this.state;
+    render () {
+        const { email, password } = this.state;
         return (
-            <View style={globalStyles.container}>
-                <Text style={styles.headerText}>Sign up</Text>
-
-                <Text style={styles.textSubmit}>Submit</Text>
+            <View>
+                <Text style={styles.header}>Her opretter vi en bruger</Text>
                 <TextInput
                     placeholder="email"
                     value={email}
                     onChangeText={this.handleChangeEmail}
-                    style={[globalStyles.inputFields, styles.input]}
+                    style={styles.inputField}
                 />
                 <TextInput
                     placeholder="password"
                     value={password}
                     onChangeText={this.handleChangePassword}
                     secureTextEntry
-                    style={[globalStyles.inputFields, styles.input]}
+                    style={styles.inputField}
                 />
-
-                <TouchableOpacity onPress={this.handleSubmit} style={[globalStyles.button,styles.button] } >
-                    <Text style={globalStyles.buttonText}>Registrer</Text>
-                </TouchableOpacity>
-
-                <Text style={styles.termsText}>By creating an account you agree to the terms </Text>
-
+                <Button onPress={this.handleSubmit} title="Opret en bruger"/>
             </View>
         );
     };
 
 
 }
-const styles = StyleSheet.create({
-    error: {
-        color: 'red',
-    },
-
-    headerText: {
-        fontSize: 50,
-        fontWeight:'bold',
-        color:'#5FB8B2',
-        bottom:180,
-    },
-    input:{
-      bottom:80,
-    },
-    button:{
-        bottom:70,
-    },
-
-
-    textSubmit:{
-        fontSize: 25,
-        color:'black',
-        bottom:100,
-        alignItems: 'center',
-    },
-
-    termsText:{
-        color:'pink',
-        marginTop: 14,
-        bottom:80,
-    },
-
-});

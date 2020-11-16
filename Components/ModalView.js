@@ -3,20 +3,28 @@ import {LogBox, StyleSheet, Text, View, Modal, TouchableHighlight} from 'react-n
 import * as firebase from 'firebase';
 
 export default class modalView extends React.Component {
+    _isMounted = true;
+
     state = {
         modalVisible: false,
         setModalVisible: false
     };
     componentDidMount() {
+        this._isMounted = true;
     }
 
     showModal =() =>{
         if (this.state.setModalVisible ===false && this.state.modalVisible === false){
-            this.setState({setModalVisible: true, modalVisible: true })
+            this._isMounted &&  this.setState({setModalVisible: true, modalVisible: true })
         } else {
-            this.setState({setModalVisible: false, modalVisible: false })
+            this._isMounted &&   this.setState({setModalVisible: false, modalVisible: false })
         }
     };
+
+    componentWillUnmount() {
+        this._isMounted = false;
+    }
+
     render() {
         const {modalVisible} = this.state;
         const {setModalVisible} = this.state;
@@ -32,7 +40,6 @@ export default class modalView extends React.Component {
                     <View style={styles.centeredView}>
                         <View style={styles.modalView}>
                             <Text style={styles.modalText}>Hello World!</Text>
-
                             <TouchableHighlight
                                 style={{ ...styles.openButton, backgroundColor: "#2196F3" }}
                                 onPress={this.showModal}>

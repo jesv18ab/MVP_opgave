@@ -11,6 +11,7 @@ export default class AddMemberView extends React.Component{
 
     onLogin() {
         const {name, email } = this.state;
+
         Alert.alert('Credentials',` name: ${name} + email: ${email} `);
     }
 

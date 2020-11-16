@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import {StyleSheet, Text, View, Alert, TouchableOpacity, Image, Linking} from 'react-native';
+import {
+    StyleSheet, Text, View, Alert, TouchableOpacity, Image, Linking, Modal, TouchableHighlight, TextInput, Button} from 'react-native';
 import CalendarPicker from 'react-native-calendar-picker';
 import HeaderNav from "../HeaderNav";
-import {Entypo} from "@expo/vector-icons";
-
-
+import TimePicker from "react-native-simple-time-picker";
+import { format } from "date-fns";
 //Kalender klassen er en eksternt hentet komponent, som ikek er blevet tilpasset til porjektet endnu
 //Selve designet er under overvejelser, men er ikke fuldstændig fastlagt.
 export default class CalendarView extends Component {
@@ -16,21 +16,45 @@ export default class CalendarView extends Component {
         super(props);
         this.state = {
             selectedStartDate: null,
+            makeEvent: null,
+            setModalVisible: false,
+            selectedHours: 12,
+            selectedMinutes: 0,
+            show: false,
+            chosenHours: "",
+            chosenMinutes: ""
         };
         this.onDateChange = this.onDateChange.bind(this);
     }
 
+
+
     //Alert som kan anvendes, hvis man vælger en dato
     //Er ikke brugt
-    makeAlert =() =>{
-        Alert.alert("ramt");
-    }
-
+    makeEvent =() =>{
+        console.log(this.state.setModalVisible)
+        if (this.state.setModalVisible === false){
+            this.setState({setModalVisible: true})
+        } else if(this.state.setModalVisible === true) {
+            this.setState({setModalVisible: false})
+        }
+    };
     //Metoder som håndtere skiftende datoer
     onDateChange(date) {
-        this.setState({
-            selectedStartDate: date,
+        let date_string = date.toString();
+        let dateArray = [];
+        let output = date_string.split('');
+        output.map((item, index) => {
+            if (index < 10 ){
+                dateArray.push(item);
+            }
         });
+        let date_formatted = dateArray.join("");
+        console.log(date_formatted);
+        this.setState({
+            selectedStartDate: date_formatted,
+        });
+        this.showAlert()
     }
     calendar = () => {
         try {
@@ -40,21 +64,126 @@ export default class CalendarView extends Component {
         }
     };
 
+    showAlert = () => {
+        Alert.alert(
+            'Aviso',
+            '¿Desea cerrar la sesion?',
+            [
+                {text: 'Opret begivenhed', onPress: () => this.setState({setModalVisible: true})},
+                {text: 'Cancel', onPress: () => alert('Cancel Pressed'), style: 'cancel'},
+            ],
+            { cancelable: false }
+        )
+    };
+
+
+showTimePicker =() => {
+    this.setState({show: true})
+};
+
+    timePicked = () => {
+        let minutesBelow = 0;
+        let hoursBelow = 0;
+        this.setState({chosenHours: this.state.selectedHours});
+        if (this.state.selectedHours < 10){
+            hoursBelow = hoursBelow.toString()+this.state.selectedHours.toString()
+            this.setState({chose: minutesBelow})
+        }
+        else {
+            this.setState({chosenMinutes: this.state.selectedMinutes})
+        }
+        if (this.state.selectedMinutes < 10){
+            minutesBelow = minutesBelow.toString()+this.state.selectedMinutes.toString()
+            this.setState({chosenMinutes: minutesBelow})
+        }
+        else {
+            this.setState({chosenMinutes: this.state.selectedMinutes})
+        }
+    };
+
     //I render instantieres en CalenderPicker komponent, der fremviser en kalender
     //Kalender har en property, som kan registrere valg af datoer, som forekommer ved tryk på skærmen
     render() {
-        const { selectedStartDate } = this.state;
+
+        const { selectedHours, selectedMinutes, show, chosenHours, chosenMinutes } = this.state;
+        const { selectedStartDate, modalVisible, setModalVisible } = this.state;
         const startDate = selectedStartDate ? selectedStartDate.toString() : '';
+        const timeStart = chosenHours + ":" + chosenMinutes;
+
         return (
             <View>
             <View style={{marginTop: 30}} >
-                <HeaderNav title="Kalender" />
                 <View style={{marginTop: 40}}>
                 <CalendarPicker style={{marginTop: 500}} onDateChange={this.onDateChange}/>
                 </View>
                 <View>
                     <Text>SELECTED DATE:{ startDate }</Text>
                 </View>
+
+                </View>
+
+                <View style={styles.container}>
+                <Modal
+                    transparent={true}
+                    animationType="slide"
+                    visible={setModalVisible}
+                    onRequestClose={() => {
+                        Alert.alert("Modal has been closed.");
+                    }}>
+                    <View style={styles.eventBox}>
+                        <View style={{alignItems: 'center', justifyContent: 'center',}}>
+                        <Text style={{fontSize: 20, fontWeight: 'bold'}} >Opret begivenhed</Text>
+                        </View>
+                     <View>
+                        <TextInput
+                            placeholder={startDate.toString()}
+                            value={startDate.toString()}
+                            editable={false}
+                            style={styles.inputField}/>
+                     <View style={{width: '100%'}}>
+                      <View style={{flexDirection: 'row', width: '100%'}} >
+                        <View style={{width: '50%'}} >
+                          <TextInput
+                            placeholder="Fra"
+                            value={timeStart.toString()}
+                            style={[styles.inputField_time, {justifyContent: 'flex-start', marginLeft: '10%'}]}
+                            editable={false}
+                        />
+                        </View>
+                          <View style={{width: '50%'}}  >
+                         <TextInput
+                             placeholder="Til"
+                             value={chosenMinutes.toString()}
+                             style={[styles.inputField_time,]}
+                             editable={false}
+                         />
+                          </View>
+                      </View>
+                     </View>
+
+                        <Button title={"Sæt et tidspunkt"} onPress={this.showTimePicker} />
+                     </View>
+                        <View style={styles.modalView}>
+                            <Text style={styles.modalText}>Hello World!</Text>
+                            <TouchableHighlight
+                                style={{ ...styles.openButton, backgroundColor: "#2196F3" }}
+                                onPress={this.makeEvent}>
+                                <Text style={styles.textStyle}>Hide Modal</Text>
+                            </TouchableHighlight>
+                            <Button title="Set false" onPress={this.makeEvent} />
+                            {show &&(
+                                <View style={{backgroundColor: 'white'}}>
+                                    <TimePicker
+                                        selectedHours={selectedHours}
+                                        selectedMinutes={selectedMinutes}
+                                        onChange={(hours, minutes) => this.setState({ selectedHours: hours, selectedMinutes: minutes })}
+                                    />
+                                    <Button title="færdig" onPress={this.timePicked} />
+                                </View>
+                            )}
+                        </View>
+                    </View>
+                </Modal>
                 </View>
                 <View>
     <TouchableOpacity style={[styles.iconButtonsFacebook,]} onPress={this.calendar}>
@@ -62,6 +191,7 @@ export default class CalendarView extends Component {
         <Image source={require('./assetsCalendar/GoogleCalendar.png')} style={{ width: 38, height: 38 }}/>
     </TouchableOpacity>
             </View>
+
             </View>
         );
     }
@@ -95,8 +225,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-
-
     sigUpButton:{
         alignItems: 'center',
         width: 280,
@@ -104,8 +232,27 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 5,
         bottom:60,
+    },
+    inputField: {
+        borderWidth: 1,
+        margin: 10,
+        padding: 10,
+    },
+    inputField_time: {
+        borderWidth: 1,
+        padding: 10,
+        width: '85%'
+    },
+    eventBox: {
 
-
-
+        height: 300,
+        width: 300,
+        backgroundColor: 'white',
+        margin:'15%',
+        marginTop: '25%',
+        shadowColor: '#470000',
+        shadowOffset: {width: 0, height: 1},
+        shadowOpacity: 0.2,
+        elevation: 1,
     }
 });
