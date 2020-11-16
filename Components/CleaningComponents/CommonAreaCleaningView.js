@@ -66,12 +66,8 @@ export default class CommonAreaCleaningView extends React.Component {
         this.props.navigation.navigate('EconomyView');
     };
     gotToLaundry = () => {
-        this.props.navigation.navigate('NewUser');
+        this.props.navigation.navigate('Laundry');
     };
-
-
-
-
 
 
     render(){

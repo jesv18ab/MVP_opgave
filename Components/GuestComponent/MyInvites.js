@@ -6,6 +6,7 @@ import { AntDesign, Feather } from '@expo/vector-icons';
 var usersFound = ["Test data"];
 
 export default class myInvites extends React.Component{
+    _isMounted = false
     state = {
         test: ["æble", "kage", "ris"],
         allInvitations: [],
@@ -17,23 +18,30 @@ export default class myInvites extends React.Component{
         houseHolds: ["No Data"]
     };
     componentDidMount() {
-        firebase.database().ref('/allInvitations/').on('value', snapshot => {
+        this._isMounted = true;
+        this._isMounted && this.getInfo()
+    }
+
+    getInfo = async () => {
+      await  firebase.database().ref('/allInvitations/').on('value', snapshot => {
                 if (snapshot.val() != null){
                     this.findMyInvites(snapshot.val());
-                    this.setState({allInvitations: snapshot.val()})
+                    this._isMounted &&   this.setState({allInvitations: snapshot.val()})
                 }
             }
         );
-        firebase.database().ref('/allUsers/').on('value', snapshot => {
-                this.setState({allUsers: snapshot.val()})
+       await firebase.database().ref('/allUsers/').on('value', snapshot => {
+           this._isMounted &&   this.setState({allUsers: snapshot.val()})
             }
         );
-        firebase.database().ref(`/households/`).on('value', snapshot => {
-                this.setState({houseHolds: snapshot.val()})
+       await firebase.database().ref(`/households/`).on('value', snapshot => {
+           this._isMounted &&   this.setState({houseHolds: snapshot.val()})
             }
         );
-    }
+    };
+
     componentWillUnmount() {
+        this._isMounted = false;
     }
 
     findMyInvites = invitations =>{
@@ -48,13 +56,13 @@ export default class myInvites extends React.Component{
                 invitationkeys.push(keys[index])
             }
         });
-        this.setState({userInvites: arr});
-        this.setState({invitationKeys: invitationkeys})
+        this._isMounted &&  this.setState({userInvites: arr});
+        this._isMounted &&  this.setState({invitationKeys: invitationkeys})
     };
 
-    answerInvite = (key, houseHoldId, houseHoldName) => {
+    answerInvite = async (key, houseHoldId, houseHoldName) => {
         let keyToUSers = null;
-        firebase.database().ref(`/households/${houseHoldId}`).on('value', snapshot => {
+        this._isMounted && await  firebase.database().ref(`/households/${houseHoldId}`).on('value', snapshot => {
             keyToUSers = Object.keys(snapshot.val().users)[0]
             }
         );
@@ -72,10 +80,8 @@ export default class myInvites extends React.Component{
             }
         });
         try {
-            console.log("Dette er user");
-            console.log(keyFound);
             const status = true;
-            firebase.database().ref(`/allUsers/${keyFound}`).update({houseHoldId, status});
+            this._isMounted && await firebase.database().ref(`/allUsers/${keyFound}`).update({houseHoldId, status});
             var users =[];
             const houseHoldsToSearch = Object.values(this.state.houseHolds);
             const houseHoldsKeys = Object.keys(this.state.houseHolds);
@@ -87,18 +93,18 @@ export default class myInvites extends React.Component{
             });
             users = Object.values(Object.values(users)[0])[0]
             users.push(this.props.screenProps.currentUser.email);
-            const reference = firebase.database().ref(`/households/${houseHoldId}/users/${keyToUSers}`).set({users});
-            firebase.database().ref(`/allInvitations/${key}`).remove();
+            const reference = this._isMounted && await firebase.database().ref(`/households/${houseHoldId}/users/${keyToUSers}`).set({users});
+            this._isMounted && await firebase.database().ref(`/allInvitations/${key}`).remove();
             this.props.navigation.navigate('Profile');
         } catch (error) {
             // Vi sender `message` feltet fra den error der modtages, videre.
             console.log(error.message);
         }
-        this.setState({acceptedInHousehold: true})
+        this._isMounted &&  this.setState({acceptedInHousehold: true})
     };
 
     handleLogOut = async () => {
-        await firebase.auth().signOut();
+        this._isMounted &&  await firebase.auth().signOut();
     };
 
 
@@ -107,6 +113,13 @@ export default class myInvites extends React.Component{
         const list = Object.values(this.state.userInvites);
         const listOfKeys = Object.values(this.state.invitationKeys);
         if (!this.state.acceptedInHousehold){
+            if(list[0] === "no Data"){
+                return (
+                    <View>
+                        <Text>Du har ingen invitationer på nuværende tidsunkt</Text>
+                    </View>
+                )
+            }else {
             return (
                 <View>
                     <View style={[styles.itemList, {marginLeft: '10%', marginTop: 50}]}>
@@ -123,9 +136,9 @@ export default class myInvites extends React.Component{
                     <Button title="Dette er log ud knappen" onPress={this.handleLogOut}/>
                 </View>
             );
+            }
         }
         else {
-            console.log(this.state.acceptedInHousehold)
             return(
                 <View style={{margin: 50}} >
                     <Text>Tillykke du er et medlem af et kollektiv</Text>

@@ -16,8 +16,7 @@ import CreateUser from "../GuestComponent/CreateUser";
 import MyInvites from "../GuestComponent/MyInvites";
 import CreateHouseHold from "../GuestComponent/CreateHouseHold";
 import InitalViewNewUsers from "../GuestComponent/MainNavigationNewUserView";
-
-
+import HeaderNavigation from "./HeaderNavigation";
 
 //Oprettelse af en drawernavigator, hvori vi placerer tilhørende screens
 const StackNavigatorNewUsers = createStackNavigator({
@@ -26,20 +25,21 @@ const StackNavigatorNewUsers = createStackNavigator({
             headerLeft: null
         },
     }, MyInvites: {
-            screen: MyInvites, navigationOptions: {
-                headerLeft: null
-            },
+            screen: MyInvites, navigationOptions: ({navigation}) =>( {
+                headerLeft:<HeaderNavigation navigation={navigation}/>
+            }),
         },
         CreateHouseHold: {
-            screen: CreateHouseHold, navigationOptions: {
-                headerLeft: null
-            }
+            screen: CreateHouseHold, navigationOptions: ({navigation}) =>( {
+                headerLeft:<HeaderNavigation navigation={navigation}/>
+            }),
         },
 
 },
     { initialRouteKey: 'Texttest', navigationOptions: {tabBarVisible:  false}
     }
 );
+
 
 
 const StackNavigatorCleaningOverView = createStackNavigator(
@@ -106,7 +106,7 @@ const TabNavigator = createBottomTabNavigator(
             navigationOptions: {
                 tabBarLabel:"Members",
                 tabBarIcon: ({ tintColor }) => (
-                    <AntDesign name="adduser" size={24} color="black" />                  )
+                    <AntDesign name="adduser" size={24} color="black" />)
             },
         },
     },

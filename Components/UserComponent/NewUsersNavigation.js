@@ -3,6 +3,7 @@ import {createAppContainer} from "react-navigation";
 import SignInView from "../SignInView";
 import CreateUser from "../GuestComponent/CreateUser";
 
+
 const StackNavigatorInitialView = createStackNavigator(
     {
         SignIn: {

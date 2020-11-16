@@ -18,21 +18,29 @@ export default class AddMemberView extends React.Component{
     };
     componentDidMount() {
         this._isMounted = true;
-        firebase.database().ref('/allUsers/').on('value', snapshot => {
-                this.setState({ allUsers: snapshot.val() });
-            }
-        );
-        firebase.database().ref('/households/').on('value', snapshot => {
-                this.setState({ houseHolds: snapshot.val() });
-            }
-        );
+        this._isMounted && this.getUsers();
+        this._isMounted && this.getHouseHolds();
     }
 
-    handleLogOut = async () => {
-        await firebase.auth().signOut();
+getUsers = async () => {
+    await firebase.database().ref('/allUsers/').on('value', snapshot => {
+        this._isMounted && this.setState({ allUsers: snapshot.val() });
+        }
+    );
+};
+
+    getHouseHolds = async () => {
+       await firebase.database().ref('/households/').on('value', snapshot => {
+           this._isMounted && this.setState({ houseHolds: snapshot.val() });
+            }
+        );
     };
 
-    getHouseHoldName = () => {
+    handleLogOut = async () => {
+        this._isMounted && await firebase.auth().signOut();
+    };
+
+    getHouseHoldName =  ()  =>  {
         const listOfhouseHolds = Object.values(this.state.houseHolds);
         const listOfKeys = Object.keys(this.state.houseHolds);
         const currentUser = this.getCurrentUser();
@@ -44,9 +52,11 @@ export default class AddMemberView extends React.Component{
             }
         });
         firebase.database().ref(`/households/${keyFound}`).on('value', snapshot => {
+           console.log(snapshot.val())
                 houseHoldName = snapshot.val();
             }
         );
+
         return houseHoldName;
     };
 
@@ -63,7 +73,7 @@ export default class AddMemberView extends React.Component{
     };
 
     //Metoden står for at gemme data fra en array i min firebase DB
-    handleSave = () => {
+    handleSave = async () => {
         let isValidated = null;
     //    let isValidatedKey = null;
      //   var usersFromHouseHold = [];
@@ -77,9 +87,8 @@ export default class AddMemberView extends React.Component{
         //const keys = Object.keys(this.state.allUsers);
         const currentUser = this.getCurrentUser();
         const id = currentUser.houseHoldId;
-        const houseHoldName = this.getHouseHoldName();
+        const houseHoldName =  this.getHouseHoldName();
 
-        console.log(this.state.email);
         //Altså sammen er fra en liste struktur
         /*firebase.database().ref(`/households/${currentUser.houseHoldId}/users`).on('value', snapshot => {
                 usersFromHouseHold = snapshot.val();
@@ -102,8 +111,9 @@ export default class AddMemberView extends React.Component{
                 //validatedUsersKeys.push(isValidatedKey);
             }
         });
-        console.log(currentUser)
-        const reference = firebase.database().ref(`/allInvitations/`).push({sender: currentUser.email, receiver: isValidated, houseHoldName: houseHoldName.houseHoldName, houseHoldId: currentUser.houseHoldId, status: "not replied"});
+        console.log("test")
+        console.log(houseHoldName.houseHoldName)
+         const reference = await firebase.database().ref(`/allInvitations/`).push({sender: currentUser.email, receiver: isValidated, houseHoldName: houseHoldName.houseHoldName, houseHoldId: currentUser.houseHoldId, status: "not replied"});
         try {
             // const reference = firebase.database().ref(`/households/${id}`).set({houseHoldName, users});
         } catch (error) {
@@ -122,7 +132,7 @@ export default class AddMemberView extends React.Component{
                 <Text style={styles.textSubmit}>Submit</Text>
                 <TextInput
                     value={this.state.name}
-                    onChangeText={(name) => this.setState({ name })}
+                    onChangeText={(name) => this._isMounted && this.setState({ name })}
                     placeholder='Full name'
                     placeholderTextColor = 'grey'
                     style={styles.input}
@@ -132,7 +142,7 @@ export default class AddMemberView extends React.Component{
                 <TextInput
                     value={this.state.email}
                     keyboardType = 'email-address'
-                    onChangeText={(email) => this.setState({ email })}
+                    onChangeText={(email) => this._isMounted && this.setState({ email })}
                     placeholder='Email'
                     placeholderTextColor = 'grey'
                     style={styles.input}

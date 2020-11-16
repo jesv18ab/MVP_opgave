@@ -6,7 +6,7 @@ import firebase from "firebase";
 
 
 export default class ProfileView extends React.Component{
-
+    _isMounted = false;
 state = {
     currentUser: this.props.screenProps.currentUser,
     houseHasBeenCreated: null
@@ -24,16 +24,19 @@ state = {
         return currentUser
     };
     componentDidMount() {
-        this.checkIfNewUser();
-
-        firebase.auth().onAuthStateChanged(currentUser => {
-            this.setState({currentUser: currentUser});
-        });
+        this._isMounted = true;
+        this._isMounted && this.checkIfNewUser();
+        this._isMounted && this.stateUser();
     }
 
+    stateUser = async() =>{
+       await firebase.auth().onAuthStateChanged(currentUser => {
+            this.setState({currentUser: currentUser});
+        });
+    };
 
-    handleLogOut =  () => {
-         firebase.auth().signOut();
+    handleLogOut = async () => {
+        this._isMounted &&  await firebase.auth().signOut();
     };
 
 
@@ -43,7 +46,7 @@ state = {
             if (snapshot.val()){
             Object.values(snapshot.val()).map((item, index) => {
                     if (item.email.toUpperCase() === this.props.screenProps.currentUser.email.toUpperCase()){
-                        this.setState({houseHasBeenCreated: item.status})
+                        this._isMounted && this.setState({houseHasBeenCreated: item.status})
                         status = item.status;
                         if (!item.status && item.status != null)
                         {
@@ -58,7 +61,9 @@ state = {
 };
 
 
-
+componentWillUnmount() {
+    this._isMounted = false;
+}
 
     render(){
 

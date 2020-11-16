@@ -55,22 +55,28 @@ export default class App extends React.Component {
 
 
   componentDidMount() {
-    firebase.auth().signOut();
     this._isMounted = true;
+    firebase.auth().signOut();
     LogBox.ignoreAllLogs();
 
     //this._isMounted && this.makeUsersForComparison();
+    this._isMounted && this.getUsers();
+    this._isMounted && this.stateChange();
 
-    firebase.database().ref('allUsers').on('value', snapshot => {
-          this.setState({ allUsers: snapshot.val()});
-        }
-    );
-
-    this.authStateChangeUnsubscribe = firebase.auth().onAuthStateChanged(currentUser => {
-      this.setState({currentUser});
-    });
   }
 
+  stateChange = () => {
+     this.authStateChangeUnsubscribe = firebase.auth().onAuthStateChanged(currentUser => {
+      this._isMounted && this.setState({currentUser});
+    });
+  };
+
+  getUsers = async ()=>{
+    await firebase.database().ref('allUsers').on('value', snapshot => {
+          this._isMounted &&  this.setState({ allUsers: snapshot.val()});
+        }
+    );
+  };
 
 
   componentWillUnmount() {
