@@ -62,8 +62,18 @@ export default class App extends React.Component {
     //this._isMounted && this.makeUsersForComparison();
     this._isMounted && this.getUsers();
     this._isMounted && this.stateChange();
-
   }
+
+  getHouseHoldId = () => {
+    let houseHoldId = null;
+    const allUsers = Object.values(this.props.screenProps.allUsers);
+    allUsers.map((item, index) => {
+      if(item.email.toUpperCase() === this.props.screenProps.currentUser.email.toUpperCase()){
+        houseHoldId = item.houseHoldId
+      }
+    });
+    this.setState({houseHoldId: houseHoldId })
+  };
 
   stateChange = () => {
      this.authStateChangeUnsubscribe = firebase.auth().onAuthStateChanged(currentUser => {

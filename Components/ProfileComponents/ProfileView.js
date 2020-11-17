@@ -39,7 +39,6 @@ state = {
         this._isMounted &&  await firebase.auth().signOut();
     };
 
-
     checkIfNewUser = async () => {
         var status = null;
         await firebase.database().ref('allUsers').on('value', snapshot => {

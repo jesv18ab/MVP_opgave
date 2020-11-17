@@ -77,6 +77,8 @@ export default class CreateHouseHold extends React.Component {
             const listKeys = Object.keys(allUsers);
 
             listOfUsers.map((item, index) => {
+                console.log("item")
+                console.log(item)
                 if (item.email.toUpperCase() === this.props.screenProps.currentUser.email.toUpperCase()){
                     keyFound= listKeys[index];
                     userToFind = item;

@@ -6,7 +6,7 @@ import { AntDesign, Feather } from '@expo/vector-icons';
 var usersFound = ["Test data"];
 
 export default class myInvites extends React.Component{
-    _isMounted = false
+    _isMounted = false;
     state = {
         test: ["æble", "kage", "ris"],
         allInvitations: [],
