@@ -1,23 +1,12 @@
 import * as React from 'react';
-import {Button,Text, View, TextInput, ActivityIndicator, StyleSheet, Alert,} from 'react-native';
+import {Button, Text, View, TextInput, ActivityIndicator, StyleSheet, Alert, TouchableOpacity,} from 'react-native';
 import firebase from "firebase";
 import {createBottomTabNavigator} from "react-navigation-tabs";
 import {createAppContainer} from "react-navigation";
 import MyInvites from "./MyInvites";
 import {Entypo, FontAwesome, Fontisto, MaterialIcons} from "@expo/vector-icons";
-const styles = StyleSheet.create({
-    error: {
-        color: 'red',
-    },
-    inputField: {
-        borderWidth: 1,
-        margin: 10,
-        padding: 10,
-    },
-    header: {
-        fontSize: 40,
-    },
-});
+import globalStyles from "../GlobalStyles";
+
 
 
 const TabNavigator = createBottomTabNavigator(
@@ -120,25 +109,108 @@ export default class CreateUser extends React.Component {
     render () {
         const { email, password } = this.state;
         return (
-            <View>
-                <Text style={styles.header}>Her opretter vi en bruger</Text>
+            <View style={styles.container}>
+                <Text style={styles.headerText}>Join the team!</Text>
+                <Text style={styles.textSubmit}>Submit</Text>
+
+
                 <TextInput
-                    placeholder="email"
+                    placeholder="Email"
                     value={email}
                     onChangeText={this.handleChangeEmail}
                     style={styles.inputField}
                 />
                 <TextInput
-                    placeholder="password"
+                    placeholder="Password"
                     value={password}
                     onChangeText={this.handleChangePassword}
                     secureTextEntry
                     style={styles.inputField}
                 />
-                <Button onPress={this.handleSubmit} title="Opret en bruger"/>
+
+
+                <TouchableOpacity
+                    style={styles.button}
+                    onPress={this.handleSubmit}>
+                    <Text style={styles.buttonText}>Sign up </Text>
+                </TouchableOpacity>
+
+                <Text style={styles.termsText}> By register you agree to the terms</Text>
+
             </View>
         );
     };
 
 
 }
+
+
+const styles = StyleSheet.create({
+    error: {
+        color: 'red',
+    },
+
+    container: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#DBF1EE',
+    },
+
+
+    button: {
+        alignItems: 'center',
+        backgroundColor: '#47525E',
+        width: 250,
+        height: 54,
+        padding: 10,
+        borderWidth: 1,
+        borderRadius: 10,
+        marginBottom: 10,
+        marginTop:7,
+        bottom:65,
+    },
+    buttonText:{
+        fontSize: 20,
+        color:'white',
+        fontWeight:'bold',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+
+    inputField: {
+        width: 250,
+        fontSize: 15,
+        height: 44,
+        padding: 10,
+        borderWidth: 1,
+        borderColor: 'grey',
+        marginVertical: 10,
+        bottom:80,
+    },
+
+    headerText: {
+        fontSize: 50,
+        fontWeight:'bold',
+        color:'#5FB8B2',
+        bottom:180,
+    },
+
+    textSubmit:{
+        fontSize: 25,
+        color:'black',
+        bottom:100,
+        alignItems: 'center',
+
+    },
+
+    termsText:{
+        color:'grey',
+        marginTop: 10,
+        bottom:60,
+
+    },
+
+
+});
+

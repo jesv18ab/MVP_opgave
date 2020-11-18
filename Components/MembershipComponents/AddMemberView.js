@@ -164,7 +164,6 @@ const styles = StyleSheet.create({
     },
     input: {
         width: 250,
-
         fontSize: 15,
         height: 44,
         padding: 10,
