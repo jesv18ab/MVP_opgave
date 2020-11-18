@@ -6,6 +6,7 @@ import {createAppContainer} from "react-navigation";
 import MyInvites from "./MyInvites";
 import {Entypo, FontAwesome, Fontisto, MaterialIcons} from "@expo/vector-icons";
 import globalStyles from "../GlobalStyles";
+import RNPickerSelect from "react-native-picker-select";
 
 
 
@@ -65,7 +66,22 @@ export default class CreateUser extends React.Component {
        /* firebase.auth().onAuthStateChanged(currentUser => {
             this.setState({currentUser: currentUser});
         });*/
+
+    this.getYears()
     }
+    getYears = () => {
+        let years = [];
+        let n = 1920;
+        years.push(n);
+        var year = new Date().getFullYear();
+        console.log(year)
+        while (n <= year){
+            n = n+1;
+            years.push({label: n, value: n})
+        }
+        this.setState({years: years})
+    };
+
 
     componentWillUnmount() {
     }
@@ -107,12 +123,12 @@ export default class CreateUser extends React.Component {
     };
 
     render () {
-        const { email, password } = this.state;
+        const { email, password, years } = this.state;
         return (
             <View style={styles.container}>
+
                 <Text style={styles.headerText}>Join the team!</Text>
                 <Text style={styles.textSubmit}>Submit</Text>
-
 
                 <TextInput
                     placeholder="Email"

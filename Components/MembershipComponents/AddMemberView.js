@@ -101,12 +101,6 @@ export default class AddMemberView extends React.Component{
             <View style={styles.container}>
                 <Text style={styles.text}>Invite your friend!</Text>
                 <Text style={styles.textSubmit}>Submit</Text>
-                <TextInput
-                    value={this.state.name}
-                    onChangeText={(name) => this.setState({ name })}
-                    placeholder='Full name'
-                    placeholderTextColor = 'grey'
-                    style={styles.input}/>
 
                 <TextInput
                     value={this.state.email}

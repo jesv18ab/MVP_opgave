@@ -6,6 +6,8 @@ import { AntDesign } from '@expo/vector-icons';
 import globalStyles from "./GlobalStyles";
 
 
+
+
 export default class SignInView extends Component {
     constructor(props) {
         super(props);
@@ -18,13 +20,16 @@ export default class SignInView extends Component {
     state = {
         email: '',
         password: '',
+
         isLoggedIn: false,
         image: null,
         isNewUser: false,
         allUsers: null,
         stateOfUser: null,
-        currentUser: null
+        currentUser: null,
+        years: []
     };
+
 
     //Der oprettes relevante state variabler, heriblandt varibler til håndtering
     //af credentials og en variabel, som skal tjekke, hvorvidt en person er logget ind.
@@ -60,6 +65,7 @@ export default class SignInView extends Component {
         this.props.navigation.navigate('SignUp');
     };
 
+
     //I render tester vi status på isLoggedIn state variablen.
     //er variablen true, skal vi instantiere vores AppBottomNav Komponent
     //Ellers skal signIn siden fremvises
@@ -68,6 +74,7 @@ export default class SignInView extends Component {
                     <View style={globalStyles.container}>
                         <Image style={styles.welcomePic} source={require('./assetsSignInForm/LogoKollektiv.png')}/>
                         <Text style={styles.titleText} >Kollektivet!</Text>
+
                         <TextInput
                             value={this.state.email}
                             keyboardType = 'email-address'

@@ -10,6 +10,7 @@ import {StyleSheet, Text,
     TextInput,
     Button,
     ScrollView,
+    FlatList
 } from 'react-native';
 import CalendarPicker from 'react-native-calendar-picker';
 import HeaderEvents from "./HeaderEvents";
@@ -19,8 +20,7 @@ import {AntDesign} from "@expo/vector-icons";
 import HeaderNav from "../HeaderNav";
 import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
 import { format } from "date-fns";
-
-
+import { SimpleLineIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 const title = "Opret Begivenhed"
 
 //Kalender klassen er en eksternt hentet komponent, som ikek er blevet tilpasset til porjektet endnu
@@ -45,12 +45,15 @@ export default class CalendarView extends Component {
             showMode: 'time',
             time: 12,
             type: null,
-            description: null,
-            eventName: null,
+            description: "Beskrivelse af Begivenhed....",
+            eventName: "Angiv begivenhedens navn",
             houseHoldId: null,
             allHouseHoldEvents: ["Der er ingen begivnheder lige nu"],
             showCalendar: false,
-            dates: []
+            dates: [],
+            startTime: "Fra",
+            endTime: 'Til',
+            date: null
         };
         this.onDateChange = this.onDateChange.bind(this);
     }
@@ -66,7 +69,9 @@ export default class CalendarView extends Component {
                 houseHoldId = item.houseHoldId
             }
         });
+        console.log(houseHoldId);
         firebase.database().ref(`/households/${houseHoldId}/events/`).on('value', snapshot => {
+            if (snapshot.val()){
                 let arr = [];
                 console.log(snapshot.val())
                 Object.values(Object.values(Object.values(snapshot.val()))).map((item, index) => {
@@ -75,14 +80,16 @@ export default class CalendarView extends Component {
                 arr =  arr.reduce((c, v) => Object.assign(c, {[v]: {selected: true, endingDay: true, color: 'green', textColor: 'gray'}}), {});
                 this.setState({dates: arr});
                 this.setState({allHouseHoldEvents: snapshot.val()});
-                this.setState({houseHoldId: houseHoldId })
+            }
             }
         );
+        this.setState({houseHoldId: houseHoldId })
 
     };
     //Alert som kan anvendes, hvis man vælger en dato
     //Er ikke brugt
     makeEvent =() =>{
+        this.reset();
         if (this.state.setEventModalVisible === false){
             this.setState({setEventModalVisible: true})
         } else if(this.state.setEventModalVisible === true) {
@@ -138,8 +145,6 @@ export default class CalendarView extends Component {
     };
 
 
-
-
     setTimeStartTime = () => {
         if (this.state.type === 1){
         }
@@ -176,7 +181,8 @@ export default class CalendarView extends Component {
     };
 
     reset = () => {
-        this.setState({time: 12, selectedHours: 12, selectedMinutes: 30, chosenStartHours: "", chosenStartMinutes: "", chosenEndHours: "", chosenEndMinutes: "", type: null, description: null, eventName: null, setTimeVisible: false, setEventModalVisible: false, })
+        this.setState({day: null, time: 12, selectedHours: 12, selectedMinutes: 30, chosenStartHours: "", chosenStartMinutes: "", chosenEndHours: "", chosenEndMinutes: "", type: null, description: "Beskrivelse af Begivenhed....", eventName: "Angiv begivenhedens navn", setTimeVisible: false, setEventModalVisible: false, startTime: "Fra", endTime: 'Til', date: null
+        })
     };
 
     setTimeEndTime = () => {
@@ -200,6 +206,16 @@ export default class CalendarView extends Component {
         this.setState({selectedMinutes: 30 });
         this.setState({setTimeVisible: false})
     };
+    showEvent = item => {
+        const date =  Object.values(Object.values(Object.values(item)[0])[0])[0];
+        const description =  Object.values(Object.values(Object.values(item)[0])[0])[1];
+        const endTime =   Object.values(Object.values(Object.values(item)[0])[0])[2];
+        const eventName =   Object.values(Object.values(Object.values(item)[0])[0])[3];
+        const startTime =   Object.values(Object.values(Object.values(item)[0])[0])[4];
+        let newdate = new Date(date);
+        let dayFormatted = format(newdate, "dd MMMM yyyy ")
+        this.setState({endTime: endTime, date: dayFormatted, description: description, eventName: eventName, startTime: startTime, setEventModalVisible: true })
+    }
 
     createEvent = () => {
         let startTime = this.state.chosenStartHours + this.state.chosenStartMinutes;
@@ -216,162 +232,320 @@ export default class CalendarView extends Component {
         this.reset()
     };
 
+    test = () => {
+        Alert.alert("TEst");
+    };
+
     //I render instantieres en CalenderPicker komponent, der fremviser en kalender
     //Kalender har en property, som kan registrere valg af datoer, som forekommer ved tryk på skærmen
     render() {
-        const { selectedHours, selectedMinutes, chosenStartHours, chosenStartMinutes, chosenEndHours, chosenEndMinutes, houseHoldId, showCalendar, day    } = this.state;
+        const { selectedHours, selectedMinutes, chosenStartHours, chosenStartMinutes, chosenEndHours, chosenEndMinutes, houseHoldId, showCalendar, day, startTime, endTime, date } = this.state;
         const {  setEventModalVisible, setTimeVisible, description, eventName, dates } = this.state;
         let dayFormatted = null;
       if (day){
+          console.log("day")
+          console.log(day);
           let newdate = new Date(day.dateString);
+          console.log(newdate)
            dayFormatted = format(newdate, "dd MMMM yyyy ")
       }
-      console.log(day)
+      else if (date){
+          dayFormatted = date
+      }
         const allEvents = (Object.values(Object.values(Object.values(this.state.allHouseHoldEvents))));
         const eventKeys = Object.keys(this.state.allHouseHoldEvents);
-        return (
-            <View style={{flex: 1}}>
-                <View >
-                    <View style={{marginTop: '3%', width: '100%', height: '5%'}} >
-                        <HeaderNav title="Kalender" />
-                    </View>
-                    <Text style={{zIndex: 10, marginLeft: 140, marginTop: 15, position: 'absolute', fontSize: 20}}>November</Text>
-                   <View style={{padding: '5%', height: '65%', paddingBottom: '1%'}}>
-                    <Calendar
-                        current={Date()}
-                        onDayLongPress={(day) => {this.newEvent({day})}}
-                        markedDates={dates}
-                        monthFormat={'MM'}
-                        enableSwipeMonths={true}
-                        onMonthChange={(month) => {console.log('month changed', month)}}
-                        hideArrows={false}
-                        hideExtraDays={true}
-                        disableMonthChange={true}
-                        firstDay={1}
-                        hideDayNames={false}
-                        onDateChange={(day) => {this.setState({day})}}
-                        showWeekNumbers={true}
-                        onPressArrowLeft={substractMonth => substractMonth()}
-                        onPressArrowRight={addMonth => addMonth()}
-                    />
-                </View>
-                </View>
-                <View>
-                <View style={{ bottom: '30%'}}>
-                <Text style={{fontWeight: 'bold', fontSize: 32, }}> Kommende begivenheder </Text>
-                </View>
-                <ScrollView horizontal={true} style={{width:'100%', height: '30%', bottom: '15%'}}>
-                    {allEvents.map((item, index)=>(
-                        <View style={{width:'40%', height: '100%', padding: '1%', justifyContent: 'center', alignItems: 'center'}} key={index}>
-                           <View style={{borderWidth: 1, borderColor: 'black', width: '95%', height: '100%', backgroundColor: 'white'}} >
-                           <View style={{backgroundColor: '#3D6DCC', justifyContent: 'center', alignItems: 'center', padding: '5%'}}>
-                            <Text style={{fontSize: 15, fontWeight: 'bold', color: 'white'}}>{Object.values(Object.values(item)[0])[3]}</Text>
-                           </View>
-                               <View style={{padding: '5%', justifyContent: 'center', alignItems: 'center'}}>
-                                   <Text style={{fontWeight: 'bold'}}> Dato og tidspunkt </Text>
-                            <Text style={{fontSize: 15}}> {Object.values(Object.values(item)[0])[4]} til {Object.values(Object.values(item)[0])[2]} </Text>
-                            <Text style={{fontSize: 15}}>  {Object.values(Object.values(item)[0])[0]}</Text>
-                               </View>
-                               <View style={{justifyContent: 'center', alignItems: 'center'}} >
-                                   <Text style={{fontWeight: 'bold'}}> Beskrivelse</Text>
-                                   <Text style={{fontSize: 15, }}> Dato: {Object.values(Object.values(item)[0])[1]}</Text>
-                               </View>
-                           </View>
+        if (allEvents[0] === 'Der er ingen begivnheder lige nu'){
+            return (
+                <View style={{flex: 1, backgroundColor: 'white' }}>
+                    <View >
+                        <View style={{marginTop: '3%', width: '100%', height: '5%'}} >
+                            <HeaderNav title="Kalender" />
                         </View>
-                    ))}
-                </ScrollView>
-                </View>
-                <View style={styles.container}>
-                    <Modal
-                        transparent={true}
-                        animationType="slide"
-                        visible={setEventModalVisible}
-                        onRequestClose={() => {
-                            Alert.alert("Modal has been closed.");
-                        }}>
+                        <Text style={{zIndex: 10, marginLeft: '40%', marginTop: '15%', position: 'absolute', fontSize: 20}}></Text>
+                        <View style={{ height: '65%', paddingBottom: '1%', marginTop:'3%', backgroundColor: 'white'}}>
+                            <Calendar
+                                current={Date()}
+                                onDayLongPress={(day) => {this.newEvent({day})}}
+                                markedDates={dates}
+                                enableSwipeMonths={true}
+                                onMonthChange={(month) => {console.log('month changed', month)}}
+                                hideArrows={false}
+                                hideExtraDays={true}
+                                disableMonthChange={true}
+                                firstDay={1}
+                                hideDayNames={false}
+                                onDateChange={(day) => {this.setState({day})}}
+                                showWeekNumbers={true}
+                                onPressArrowLeft={substractMonth => substractMonth()}
+                                onPressArrowRight={addMonth => addMonth()}
+                            />
+                        </View>
+                    </View>
+                    <View>
+                        <Text>
+                            Der er ingen begivenheder på nuværende tidspunkt
+                        </Text>
+                    </View>
 
-                        <View style={{ flex: 1, justifyContent: 'center',  alignItems: 'center'}} >
+                    <View style={styles.container}>
+                        <Modal
+                            transparent={true}
+                            animationType="slide"
+                            visible={setEventModalVisible}
+                            onRequestClose={() => {
+                                Alert.alert("Modal has been closed.");
+                            }}>
+                            <View style={{ flex: 1, justifyContent: 'center',  alignItems: 'center',}} >
+                                <View style={styles.eventBox}>
+                                    <View style={styles.eventHeader}>
+                                        <Text style={{fontSize: 25, color: '#fff' }}>{title}</Text>
+                                    </View>
+                                    <View style={{padding: '2%', justifyContent: 'center', alignItems: 'center'}} >
+                                        <Text style={{fontSize: 20, paddingBottom: '2%', fontWeight: 'bold'}}> Navn på begivenheden</Text>
+                                        <TextInput
+                                            placeholder={eventName}
+                                            value={eventName}
+                                            style={styles.inputField}
+                                            onChangeText={(eventName) => this.setState({ eventName })}/>
+                                    </View>
+                                    <View style={{paddingTop: '2%', paddingRight: '3%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+                                        <SimpleLineIcons style={{paddingRight: '3%', paddingBottom: '2%'}} name="clock" size={28} color="black" />
+                                        <Text style={{fontSize: 20, fontWeight: 'bold'}}> Tidspunkt for begivenheden </Text>
+                                    </View>
+                                    <View style={{width: '100%', justifyContent: 'center', alignItems: 'center', paddingBottom: '2%'}}>
+                                        <View style={{flexDirection: 'row', width: '100%', justifyContent: 'center', alignItems: 'center' }} >
+                                            <View style={{width: '30%', }}  >
+                                                <TextInput
+                                                    placeholder={startTime}
+                                                    value={chosenStartHours.toString() +chosenStartMinutes.toString() }
+                                                    style={[styles.inputField_time, {justifyContent: 'flex-start', marginLeft: '10%'}]}
+                                                    editable={true}
+                                                    onFocus={() =>this.showTime(1)}
+                                                />
 
-                            <View style={styles.eventBox}>
-                                <View style={styles.eventHeader}>
-                                    <Text style={{fontSize: 25, color: '#fff' }}>{title}</Text>
-                                </View>
-                                <TextInput
-                                    placeholder="Vælg en dag"
-                                    value={dayFormatted}
-                                    editable={false}
-                                    style={styles.inputField}/>
-
-                                <TextInput
-                                    placeholder="Begivenhedens navn"
-                                    value={eventName}
-                                    style={styles.inputField}
-                                    onChangeText={(eventName) => this.setState({ eventName })}/>
-                                <View style={{width: '100%'}}>
-                                    <View style={{flexDirection: 'row', width: '100%'}} >
-                                        <View style={{width: '50%'}} >
-                                            <TextInput
-                                                placeholder="Fra"
-                                                value={chosenStartHours.toString() +chosenStartMinutes.toString() }
-                                                style={[styles.inputField_time, {justifyContent: 'flex-start', marginLeft: '10%'}]}
-                                                editable={false}
-                                            />
+                                            </View>
+                                            <View style ={{justifyContent: 'center', alignItems: 'center'}}>
+                                                <Text>  -   </Text>
+                                            </View>
+                                            <View style={{width: '30%'}}  >
+                                                <TextInput
+                                                    placeholder={endTime}
+                                                    value={chosenEndHours.toString() + chosenEndMinutes.toString() }
+                                                    style={[styles.inputField_time, {justifyContent: 'flex-end'}]}
+                                                    onFocus={() =>this.showTime(2)}/>
+                                            </View>
                                         </View>
-                                        <View style={{width: '50%'}}  >
-                                            <TextInput
-                                                placeholder="Til"
-                                                value={chosenEndHours.toString() +chosenEndMinutes.toString() }
-                                                style={[styles.inputField_time,]}
-                                                editable={false}
-                                            />
+                                        <View style={{paddingTop: '3%', paddingRight: '3%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', width: '100%'}}>
+                                            <MaterialCommunityIcons style={{paddingRight: '4%', paddingBottom: '2%'}} name="calendar-check-outline" size={30} color="black" />
+                                            <Text style={{fontSize: 20, fontWeight: 'bold'}}>Dato begivenheden</Text>
+                                        </View>
+                                        <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                                            <Text style={{fontSize: 15, width: '100%' , }} > {dayFormatted} </Text>
                                         </View>
                                     </View>
-                                    <View style={{flexDirection: 'row', width: '100%'}} >
-                                        <View style={{width: '50%'}} >
-                                            <Button title={"Vælg start"} onPress={() =>this.showTime(1)} />
-                                        </View>
-                                        <View style={{width: '50%'}} >
-                                            <Button title={"Vælg slut"} onPress={() =>this.showTime(2)} />
-                                        </View>
+                                    <View style={{paddingTop: '2%', paddingRight: '3%', paddingBottom: '2%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+                                        <Text style={{fontSize: 20, fontWeight: 'bold'}}> Beskrivelse af begivenhed </Text>
                                     </View>
-                                </View>
-                                <View>
                                     <TextInput
-                                        placeholder="Beskrivelse af Begivenhed...."
+                                        placeholder={description}
                                         value={description}
                                         style={styles.description}
                                         onChangeText={(description) => this.setState({ description })}
                                     />
-                                </View>
-                                <View style={styles.modalView}>
-                                    <TouchableHighlight
-                                        style={{ ...styles.openButton, backgroundColor: "#2196F3" }}
-                                        onPress={this.makeEvent}>
-                                        <Text style={styles.textStyle}>Hide Modal</Text>
-                                    </TouchableHighlight>
-                                    <Button title="Set false" onPress={this.makeEvent} />
+                                    <View style={{ paddingTop: '8%'}}>
+                                        <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+                                            <TouchableOpacity
+                                                style={styles.button}
+                                                onPress={this.makeEvent}>
+                                                <Text style={styles.buttonText}>Annuller</Text>
+                                            </TouchableOpacity>
+                                            <Text>   </Text>
+                                            <TouchableOpacity
+                                                style={styles.button}
+                                                onPress={this.createEvent}>
+                                                <Text style={styles.buttonText}>Opret</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                    {(setTimeVisible &&
+                                        <View style={{backgroundColor: 'white', zIndex: 10, marginBottom: 180, position: 'absolute', width: '120%', height: '100%', marginRight: '35%'}}>
+                                            <TimePicker
+                                                selectedHours={selectedHours}
+                                                selectedMinutes={selectedMinutes}
+                                                onChange={(hours, minutes) => this.setState({ selectedHours: hours, selectedMinutes: minutes })}
+                                            />
+                                            <Button title="færdig" onPress={this.setTime} />
+                                        </View>
+                                    )}
 
                                 </View>
-                                {(setTimeVisible &&
-                                    <View style={{backgroundColor: 'white', zIndex: 10, marginBottom: 180, position: 'absolute', width: '120%', height: '100%', marginRight: '35%'}}>
-                                        <TimePicker
-                                            selectedHours={selectedHours}
-                                            selectedMinutes={selectedMinutes}
-                                            onChange={(hours, minutes) => this.setState({ selectedHours: hours, selectedMinutes: minutes })}
-                                        />
-                                        <Button title="færdig" onPress={this.setTime} />
-                                    </View>
-                                )}
 
                             </View>
-
-                        </View>
-                    </Modal>
+                        </Modal>
+                    </View>
                 </View>
-            </View>
 
 
-        );
+            );
+
+        } else{
+            return(
+                <View style={{flex: 1, backgroundColor: 'white' }}>
+                    <View >
+                        <View style={{marginTop: '3%', width: '100%', height: '5%'}} >
+                            <HeaderNav title="Kalender" />
+                        </View>
+                        <Text style={{zIndex: 10, marginLeft: '40%', marginTop: '15%', position: 'absolute', fontSize: 20}}></Text>
+                        <View style={{ height: '65%', paddingBottom: '1%', marginTop:'3%', backgroundColor: 'white'}}>
+                            <Calendar
+                                current={Date()}
+                                onDayLongPress={(day) => {this.newEvent({day})}}
+                                markedDates={dates}
+                                enableSwipeMonths={true}
+                                onMonthChange={(month) => {console.log('month changed', month)}}
+                                hideArrows={false}
+                                hideExtraDays={true}
+                                disableMonthChange={true}
+                                firstDay={1}
+                                hideDayNames={false}
+                                onDateChange={(day) => {this.setState({day})}}
+                                showWeekNumbers={true}
+                                onPressArrowLeft={substractMonth => substractMonth()}
+                                onPressArrowRight={addMonth => addMonth()}
+                            />
+                        </View>
+                    </View>
+                    <View style={{backgroundColor: 'white'}}>
+                        <View style={{ bottom: '40%', marginLeft: '7%'}}>
+                            <Text style={{fontWeight: 'bold', fontSize: 28, color: '#5FB8B2' }}> Kommende begivenheder </Text>
+                        </View>
+                        <ScrollView  horizontal={true}  style={{width:'100%', height: '30%', bottom: '20%', backgroundColor: 'white'}}>
+                            {allEvents.map((item, index)=>(
+                                <TouchableOpacity onPress={() => this.showEvent ({item})} style={{width: 190, height: '100%'}}>
+                                    <View style={{ padding: '0%', justifyContent: 'center', alignItems: 'center'}} key={index}>
+                                        <View style={{borderWidth: 1, borderColor: 'black', width: '95%', height: '100%', backgroundColor: 'white'}} >
+                                            <View style={{backgroundColor: '#5FB8B2', justifyContent: 'center', alignItems: 'center', padding: '5%'}}>
+                                                <Text style={{fontSize: 15, fontWeight: 'bold', color: 'white'}}>{Object.values(Object.values(item)[0])[3]}</Text>
+                                            </View>
+                                            <View style={{justifyContent: 'center', alignItems: 'center', paddingTop: '5%'}}>
+                                                <Text style={{fontWeight: 'bold'}}> Dato og tid </Text>
+                                            </View>
+                                            <View style={{justifyContent: 'center', alignItems: 'center', paddingTop: '5%'}}>
+                                                <Text style={{fontSize: 15}}> {Object.values(Object.values(item)[0])[4]} til {Object.values(Object.values(item)[0])[2]} </Text>
+                                                <Text style={{fontSize: 15, paddingTop: '2%'}}>  {Object.values(Object.values(item)[0])[0]}</Text>
+                                            </View>
+                                            <View style={{justifyContent: 'center', alignItems: 'center', paddingTop: '5%'}} >
+                                                <Text style={{fontWeight: 'bold'}}> Beskrivelse</Text>
+                                            </View>
+                                            <View style={{padding: '1%', justifyContent: 'center', alignItems: 'center'}}>
+                                                <Text style={{fontSize: 15, }}>{Object.values(Object.values(item)[0])[1]}</Text>
+                                            </View>
+                                        </View>
+                                    </View>
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
+                    </View>
+                    <View style={styles.container}>
+                        <Modal
+                            transparent={true}
+                            animationType="slide"
+                            visible={setEventModalVisible}
+                            onRequestClose={() => {
+                                Alert.alert("Modal has been closed.");
+                            }}>
+                            <View style={{ flex: 1, justifyContent: 'center',  alignItems: 'center',}} >
+                                <View style={styles.eventBox}>
+                                    <View style={styles.eventHeader}>
+                                        <Text style={{fontSize: 25, color: '#fff' }}>{title}</Text>
+                                    </View>
+                                    <View style={{padding: '2%', justifyContent: 'center', alignItems: 'center'}} >
+                                        <Text style={{fontSize: 20, paddingBottom: '2%', fontWeight: 'bold'}}> Navn på begivenheden</Text>
+                                        <TextInput
+                                            placeholder={eventName}
+                                            value={eventName}
+                                            style={styles.inputField}
+                                            onChangeText={(eventName) => this.setState({ eventName })}/>
+                                    </View>
+                                    <View style={{paddingTop: '2%', paddingRight: '3%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+                                        <SimpleLineIcons style={{paddingRight: '3%', paddingBottom: '2%'}} name="clock" size={28} color="black" />
+                                        <Text style={{fontSize: 20, fontWeight: 'bold'}}> Tidspunkt for begivenheden </Text>
+                                    </View>
+                                    <View style={{width: '100%', justifyContent: 'center', alignItems: 'center', paddingBottom: '2%'}}>
+                                        <View style={{flexDirection: 'row', width: '100%', justifyContent: 'center', alignItems: 'center' }} >
+                                            <View style={{width: '30%', }}  >
+                                                <TextInput
+                                                    placeholder={startTime}
+                                                    value={chosenStartHours.toString() +chosenStartMinutes.toString() }
+                                                    style={[styles.inputField_time, {justifyContent: 'flex-start', marginLeft: '10%'}]}
+                                                    editable={true}
+                                                    onFocus={() =>this.showTime(1)}
+                                                />
+
+                                            </View>
+                                            <View style ={{justifyContent: 'center', alignItems: 'center'}}>
+                                                <Text>  -   </Text>
+                                            </View>
+                                            <View style={{width: '30%'}}  >
+                                                <TextInput
+                                                    placeholder={endTime}
+                                                    value={chosenEndHours.toString() + chosenEndMinutes.toString() }
+                                                    style={[styles.inputField_time, {justifyContent: 'flex-end'}]}
+                                                    onFocus={() =>this.showTime(2)}/>
+                                            </View>
+                                        </View>
+                                        <View style={{paddingTop: '3%', paddingRight: '3%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', width: '100%'}}>
+                                            <MaterialCommunityIcons style={{paddingRight: '4%', paddingBottom: '2%'}} name="calendar-check-outline" size={30} color="black" />
+                                            <Text style={{fontSize: 20, fontWeight: 'bold'}}>Dato begivenheden</Text>
+                                        </View>
+                                        <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                                            <Text style={{fontSize: 15, width: '100%' , }} > {dayFormatted} </Text>
+                                        </View>
+                                    </View>
+                                    <View style={{paddingTop: '2%', paddingRight: '3%', paddingBottom: '2%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+                                        <Text style={{fontSize: 20, fontWeight: 'bold'}}> Beskrivelse af begivenhed </Text>
+                                    </View>
+                                    <TextInput
+                                        placeholder={description}
+                                        value={description}
+                                        style={styles.description}
+                                        onChangeText={(description) => this.setState({ description })}
+                                    />
+                                    <View style={{ paddingTop: '8%'}}>
+                                        <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+                                            <TouchableOpacity
+                                                style={styles.button}
+                                                onPress={this.makeEvent}>
+                                                <Text style={styles.buttonText}>Annuller</Text>
+                                            </TouchableOpacity>
+                                            <Text>   </Text>
+                                            <TouchableOpacity
+                                                style={styles.button}
+                                                onPress={this.createEvent}>
+                                                <Text style={styles.buttonText}>Opret</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                    {(setTimeVisible &&
+                                        <View style={{backgroundColor: 'white', zIndex: 10, marginBottom: 180, position: 'absolute', width: '120%', height: '100%', marginRight: '35%'}}>
+                                            <TimePicker
+                                                selectedHours={selectedHours}
+                                                selectedMinutes={selectedMinutes}
+                                                onChange={(hours, minutes) => this.setState({ selectedHours: hours, selectedMinutes: minutes })}
+                                            />
+                                            <Button title="færdig" onPress={this.setTime} />
+                                        </View>
+                                    )}
+
+                                </View>
+
+                            </View>
+                        </Modal>
+                    </View>
+                </View>
+            )
+        }
+
     }
 }
 
@@ -412,8 +586,9 @@ const styles = StyleSheet.create({
     },
     inputField: {
         borderWidth: 1,
-        margin: 10,
+        margin: 1,
         padding: 10,
+        width: '90%'
     },
     inputField_time: {
         borderWidth: 1,
@@ -421,7 +596,7 @@ const styles = StyleSheet.create({
         width: '85%'
     },
     eventBox: {
-        height: '50%',
+        height: '70%',
         width: '85%',
         backgroundColor: 'white',
         shadowColor: '#470000',
@@ -430,10 +605,10 @@ const styles = StyleSheet.create({
         elevation: 1,
     },
     description: {
-        borderWidth: 1,
-        padding: 10,
-        width: '85%',
-        height: '55%'
+        borderWidth: 0.5,
+        width: '90%',
+        height: '15%',
+        marginLeft: '5%'
     },
     eventHeader: {
         width: '100%',
@@ -452,140 +627,15 @@ const styles = StyleSheet.create({
     button: {
         alignItems: 'center',
         backgroundColor: '#47525E',
-        width: 250,
-        height: 54,
+        width: '45%',
+        height: '80%',
         padding: 10,
         borderWidth: 1,
         borderRadius: 10,
         marginBottom: 10,
         marginTop:7,
+    },
+    insideModal: {
+
     }
 });
-
-/*             <View>
-    <TouchableOpacity style={[styles.iconButtonsFacebook,]} onPress={this.calendar}>
-        <Text>Google kalender</Text>
-        <Image source={require('./assetsCalendar/GoogleCalendar.png')} style={{ width: 38, height: 38 }}/>
-    </TouchableOpacity>
-            </View>*/
-/*
-*  <ScrollView horizontal={true} style={{width:'100%', height: '40%', borderWidth: 1, borderColor: 'black', backgroundColor: 'b' }}>
-                    {allEvents.map((item, index)=>(
-                        <View style={{marginTop: '20%', borderWidth: 1, borderColor: 'black', width:'10%', justifyContent: 'center', alignItems: 'center', backgroundColor: '#DCDCDC'}} key={index}>
-                            <Text style={{fontSize: 15}}>{Object.values(Object.values(item)[0])[3]}</Text>
-                            <Text style={{fontSize: 15}}> fra {Object.values(Object.values(item)[0])[4]} til {Object.values(Object.values(item)[0])[2]} </Text>
-                            <Text style={{fontSize: 15}}>{Object.values(Object.values(item)[0])[0]}</Text>
-                        </View>
-                    ))}
-                </ScrollView>*/
-/*  <View style={styles.container}>
-
-            </View>
-                <View style={{height: '100%', width: '100%', marginBottom: 100, zIndex: 35, backgroundColor: 'white', justifyContent: 'center', alignItems: 'center'}} >
-                    <CalendarPicker
-                        markedDates={'2020-12-10'}
-                        selectedDayColor="#5FB8B2"
-                        style={{marginTop: 500}} onDateChange={this.onDateChange} />
-                </View>
-                <View style={styles.container}>
-                    <Modal
-                        transparent={true}
-                        animationType="slide"
-                        visible={setEventModalVisible}
-                        onRequestClose={() => {
-                            Alert.alert("Modal has been closed.");
-                        }}>
-
-                        <View style={{ flex: 1, justifyContent: 'center',  alignItems: 'center'}} >
-
-                            <View style={styles.eventBox}>
-                                <View style={styles.eventHeader}>
-                                    <Text style={{fontSize: 25, color: '#fff' }}>{title}</Text>
-                                </View>
-                                <TextInput
-                                    placeholder={startDate.toString()}
-                                    value={startDate.toString()}
-                                    editable={false}
-                                    style={styles.inputField}/>
-                                <Button title={"Vælg Dato"} onPress={this.showCalendar} />
-
-                                <TextInput
-                                    placeholder="Begivenhedens navn"
-                                    value={eventName}
-                                    style={styles.inputField}
-                                    onChangeText={(eventName) => this.setState({ eventName })}/>
-                                <View style={{width: '100%'}}>
-                                    <View style={{flexDirection: 'row', width: '100%'}} >
-                                        <View style={{width: '50%'}} >
-                                            <TextInput
-                                                placeholder="Fra"
-                                                value={chosenStartHours.toString() +chosenStartMinutes.toString() }
-                                                style={[styles.inputField_time, {justifyContent: 'flex-start', marginLeft: '10%'}]}
-                                                editable={false}
-                                            />
-                                        </View>
-                                        <View style={{width: '50%'}}  >
-                                            <TextInput
-                                                placeholder="Til"
-                                                value={chosenEndHours.toString() +chosenEndMinutes.toString() }
-                                                style={[styles.inputField_time,]}
-                                                editable={false}
-                                            />
-                                        </View>
-                                    </View>
-                                    <View style={{flexDirection: 'row', width: '100%'}} >
-                                        <View style={{width: '50%'}} >
-                                            <Button title={"Vælg start"} onPress={() =>this.showTime(1)} />
-                                        </View>
-                                        <View style={{width: '50%'}} >
-                                            <Button title={"Vælg slut"} onPress={() =>this.showTime(2)} />
-                                        </View>
-                                    </View>
-                                </View>
-                                <View>
-                                    <TextInput
-                                        placeholder="Beskrivelse af Begivenhed...."
-                                        value={description}
-                                        style={styles.description}
-                                        onChangeText={(description) => this.setState({ description })}
-                                    />
-                                </View>
-
-                                <View style={styles.modalView}>
-                                    <TouchableHighlight
-                                        style={{ ...styles.openButton, backgroundColor: "#2196F3" }}
-                                        onPress={this.makeEvent}>
-                                        <Text style={styles.textStyle}>Hide Modal</Text>
-                                    </TouchableHighlight>
-                                    <Button title="Set false" onPress={this.makeEvent} />
-                                </View>
-                                {(setTimeVisible &&
-                                    <View style={{backgroundColor: 'white', zIndex: 10, marginBottom: 180, position: 'absolute', width: '120%', height: '100%', marginRight: '35%'}}>
-                                        <TimePicker
-                                            selectedHours={selectedHours}
-                                            selectedMinutes={selectedMinutes}
-                                            onChange={(hours, minutes) => this.setState({ selectedHours: hours, selectedMinutes: minutes })}
-                                        />
-                                        <Button title="færdig" onPress={this.setTime} />
-                                    </View>
-                                )}
-
-                            </View>
-                            <TouchableOpacity
-                                style={styles.button}
-                                onPress={this.createEvent}>
-                                <Text style={styles.buttonText}>Opret begivenhed</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </Modal>
-                </View>
-                <View style={{width: '100%', height: 100, backgroundColor: 'white' }}>
-
-                </View>
-
-                <TouchableOpacity
-                    style={styles.button}
-                    onPress={this.newEvent}>
-                    <Text style={styles.buttonText}>Ny begivenhed</Text>
-                </TouchableOpacity>
-            </View>*/

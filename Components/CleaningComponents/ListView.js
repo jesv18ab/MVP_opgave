@@ -128,30 +128,21 @@ export default class ListView extends React.Component {
             )
         } else
             return (
-                <View style={globalStyles.container}>
-
-
-                    <Text style={[styles.headerText]}>Inkjøpsliste</Text>
-
-
-                        <View style={styles.containerHeader}>
-                        <TextInput
+                <View style={globalStyles.container }>
+                    <Text style={[styles.headerText, {zIndex: 40}]}>Inkjøpsliste</Text>
+                            <View style={{ justifyContent: 'center', alignItems: 'center' ,flexDirection: 'row', marginLeft: '10%'}}>
+                  <View style={{ marginLeft: '5%', flexDirection: 'row',  zIndex: 10, top: '200%'}}>
+                      <TextInput
                             placeholder="Add item"
                             value={this.state.newItem}
                             onChangeText={newItem => this.setState({ newItem })}
                             style={styles.inputField}
                         />
-
-
-
-                        <TouchableOpacity style={styles.addPress} onPress={() =>this.updateList(list, this.state.keyToList)}>
-                            <Ionicons name="ios-add-circle-outline" size={34} color="black" />
-                        </TouchableOpacity>
-
-
-                        </View>
-
-
+                      <TouchableOpacity style={styles.addPress} onPress={() =>this.updateList(list, this.state.keyToList)}>
+                          <Ionicons  name="ios-add-circle-outline" size={35} color="black" />
+                      </TouchableOpacity>
+                  </View>
+                            </View>
 
                     <ScrollView style={styles.scrollView} >
                     {list.map((item, index)=>(
@@ -164,10 +155,6 @@ export default class ListView extends React.Component {
                         )
                     )}
                </ScrollView>
-
-
-
-
 
                 </View>
             );
@@ -185,8 +172,8 @@ const styles = StyleSheet.create({
     },
 
     containerHeader:{
-        position:'absolute',
-        bottom:400,
+        top:'0%',
+        backgroundColor: 'black'
     },
 
     headerText:{
@@ -194,27 +181,23 @@ const styles = StyleSheet.create({
         fontWeight:'bold',
         color:'#5FB8B2',
         top:60,
-
     },
 
     addPress:{
         padding: 5,
         width: 130,
         height:45,
-        marginLeft: '55%',
-        bottom:208,
-        left:25,
+        left:15,
         justifyContent: 'center',
         alignItems:'center',
-
 
     },
 
 
     scrollView:{
         height:30,
-        marginTop:190,
-
+        marginTop:'35%',
+        bottom: '0%'
     },
 
     row: {
@@ -239,18 +222,13 @@ const styles = StyleSheet.create({
         flex: 1 },
 
     inputField: {
-        width: 150,
+        width: '55%',
         fontSize: 15,
         height: 44,
         padding: 10,
         borderWidth: 0.5,
-        margin: '2%',
-        marginLeft: '10%',
         borderRadius: 1,
-
-
         borderColor: 'grey',
-        bottom:155,
         right:50,
     },
 
