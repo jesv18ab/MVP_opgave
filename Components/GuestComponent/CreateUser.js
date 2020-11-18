@@ -9,39 +9,76 @@ import globalStyles from "../GlobalStyles";
 import RNPickerSelect from "react-native-picker-select";
 
 
+const placeholderYear = {
+    label: 'År',
+    value: null,
+    color: '#9EA0A4',
+};
 
-const TabNavigator = createBottomTabNavigator(
-    {
-        /*Navn på Route*/
-        MyInvites: {
-            screen: MyInvites,
-            navigationOptions: {
-                tabBarLabel:"Invitationer",
-                tabBarIcon: ({ tintColor }) => (
-                    <Entypo name="wallet" size={24} color={tintColor} />
-                )
-            },
-        },
-    },
-    /*Generelle label indstillinger. Blot en design metode*/
-    {
-        tabBarOptions: {
-            showIcon: true,
-            labelStyle: {
-                fontSize: 15,
-            },
-            activeTintColor: 'blue',
-            inactiveTintColor: 'gray',
-            size: 40
-        }, initialRouteName: "MyInvites",
-    },
-);
+const placeholderMonth = {
+    label: 'Måned',
+    value: null,
+    color: '#9EA0A4',
+};
 
-const AppBottomNav = createAppContainer(TabNavigator);
+const months =
+    [{label: 'Januar', value: "Januar"},
+        {label: 'Februar', value: "Februar"},
+        {label: 'Marts', value: "Marts"},
+        {label: 'April', value: "April"},
+        {label: 'Maj', value: "Maj"},
+        {label: 'Juni', value: "Juni"},
+        {label: 'Juli', value: "Juli"},
+        {label: 'August', value: "August"},
+        {label: 'September', value: "September"},
+        {label: 'Oktober', value: "Oktober"},
+        {label: 'November', value: "November"},
+        {label: 'December', value: "December"},
+    ];
+
+const days =
+    [{label: '1', value: "1"},
+        {label: '2', value: "2"},
+        {label: '3', value: "3"},
+        {label: '4', value: "4"},
+        {label: '5', value: "5"},
+        {label: '6', value: "6"},
+        {label: '7', value: "8"},
+        {label: '8', value: "8"},
+        {label: '9', value: "9"},
+        {label: '10', value: "10"},
+        {label: '11', value: "11"},
+        {label: '12', value: "12"},
+        {label: '13', value: "13"},
+        {label: '14', value: "14"},
+        {label: '15', value: "15"},
+        {label: '16', value: "16"},
+        {label: '17', value: "17"},
+        {label: '18', value: "18"},
+        {label: '19', value: "19"},
+        {label: '20', value: "20"},
+        {label: '21', value: "21"},
+        {label: '22', value: "22"},
+        {label: '23', value: "23"},
+        {label: '24', value: "24"},
+        {label: '25', value: "25"},
+        {label: '26', value: "26"},
+        {label: '27', value: "27"},
+        {label: '28', value: "28"},
+        {label: '29', value: "29"},
+        {label: '30', value: "30"},
+        {label: '31', value: "31"},
+    ];
+
+const placeholderDay = {
+    label: 'Dag',
+    value: null,
+    color: '#9EA0A4',
+};
+
 
 
 export default class CreateUser extends React.Component {
-
 
     state = {
         email: '',
@@ -53,7 +90,11 @@ export default class CreateUser extends React.Component {
         users: [],
         routename: null,
         isAuthenticated: false,
-        allUsers: null
+        allUsers: null,
+        day:  null,
+        month: null,
+        year: null,
+        name: null
     };
 
     componentDidMount() {
@@ -67,21 +108,7 @@ export default class CreateUser extends React.Component {
             this.setState({currentUser: currentUser});
         });*/
 
-    this.getYears()
     }
-    getYears = () => {
-        let years = [];
-        let n = 1920;
-        years.push(n);
-        var year = new Date().getFullYear();
-        console.log(year)
-        while (n <= year){
-            n = n+1;
-            years.push({label: n, value: n})
-        }
-        this.setState({years: years})
-    };
-
 
     componentWillUnmount() {
     }
@@ -101,15 +128,18 @@ export default class CreateUser extends React.Component {
 
     handleChangeEmail = email => this.setState({ email });
     handleChangePassword = password => this.setState({ password });
+    handleChangeName = name => this.setState({ name });
 
 
     handleSubmit = async () => {
-        const { email, password } = this.state;
+        const { email, password, name, day, month, year  } = this.state;
+        const birthday = {day: day, month: month, year: year};
         const status = false;
         const houseHoldId = "none";
+        console.log(name);
         try {
             const result = await firebase.auth().createUserWithEmailAndPassword(email, password);
-            const reference = firebase.database().ref(`/allUsers/`).push({ email, status, houseHoldId });
+           const reference = firebase.database().ref(`/allUsers/`).push({name, email, status, houseHoldId, birthday  });
 
          //   this.setState({isAuthenticated: true});
            // this.setState({currentUser: true})
@@ -123,12 +153,79 @@ export default class CreateUser extends React.Component {
     };
 
     render () {
-        const { email, password, years } = this.state;
+        const { email, password, name } = this.state;
         return (
             <View style={styles.container}>
 
                 <Text style={styles.headerText}>Join the team!</Text>
-                <Text style={styles.textSubmit}>Submit</Text>
+                <TextInput
+                    placeholder="Fuldt navn"
+                    value={name}
+                    onChangeText={this.handleChangeName}
+                    style={styles.inputField}
+                />
+
+                <View style={{bottom: 83, marginRight: '35%'}} >
+                    <Text style={{fontSize: 20, color:'#5FB8B9',}} y>Fødselsdag</Text>
+                </View>
+                <View style={styles.pickers} >
+                 <View style={{ marginRight: '10%', width: '75%'}} >
+                    <RNPickerSelect
+                    placeholder={placeholderYear}
+                    style={{
+                        ...pickerSelectStyles,
+                        iconContainer: {
+                            top: 20,
+                            right: 10,
+                        },
+                        placeholder: {
+                            color: 'purple',
+                            fontSize: 12,
+                            fontWeight: 'bold',
+                        },
+                    }}
+                    onValueChange={(year) => this.setState({year})}
+                    items={this.props.screenProps.yearsRetrieved}
+                />
+                 </View>
+                    <View style={{ marginRight: '10%', width: '100%'}} >
+                    <RNPickerSelect
+                        placeholder={placeholderMonth}
+                        style={{
+                            ...pickerSelectStyles,
+                            iconContainer: {
+                                top: 20,
+                                right: 10,
+                            },
+                            placeholder: {
+                                color: 'purple',
+                                fontSize: 12,
+                                fontWeight: 'bold',
+                            },
+                        }}
+                        onValueChange={(month) => this.setState({month})}
+                        items={months}/>
+                    </View>
+                        <View style={{ marginRight: '20%'}} >
+                    <RNPickerSelect
+                        placeholder={placeholderDay}
+                        style={{
+                            ...pickerSelectStyles,
+                            iconContainer: {
+                                top: 20,
+                                right: 10,
+                            },
+                            placeholder: {
+                                color: 'purple',
+                                fontSize: 12,
+                                fontWeight: 'bold',
+                            },
+                        }}
+                        onValueChange={(day) => this.setState({day})}
+                        items={days}
+                    />
+                        </View>
+                </View>
 
                 <TextInput
                     placeholder="Email"
@@ -143,7 +240,6 @@ export default class CreateUser extends React.Component {
                     secureTextEntry
                     style={styles.inputField}
                 />
-
 
                 <TouchableOpacity
                     style={styles.button}
@@ -172,8 +268,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         backgroundColor: '#DBF1EE',
     },
-
-
     button: {
         alignItems: 'center',
         backgroundColor: '#47525E',
@@ -209,7 +303,7 @@ const styles = StyleSheet.create({
         fontSize: 50,
         fontWeight:'bold',
         color:'#5FB8B2',
-        bottom:180,
+        bottom:110,
     },
 
     textSubmit:{
@@ -219,14 +313,41 @@ const styles = StyleSheet.create({
         alignItems: 'center',
 
     },
-
     termsText:{
         color:'grey',
         marginTop: 10,
         bottom:60,
-
     },
-
+    pickers: {
+        width: '30%',
+        bottom: 80,
+        marginRight: '30%',
+        flexDirection: 'row',
+        paddingRight: '5%',
+    }
 
 });
 
+const pickerSelectStyles = StyleSheet.create({
+    inputIOS: {
+        height: 50,
+        fontSize: 15,
+        paddingVertical: 12,
+        paddingHorizontal: 10,
+        borderWidth: 1,
+        borderColor: 'gray',
+        borderRadius: 4,
+        color: 'black',
+        paddingRight: 20, // to ensure the text is never behind the icon
+    },
+    inputAndroid: {
+        fontSize: 15,
+        paddingHorizontal: 10,
+        paddingVertical: 8,
+        borderWidth: 0.5,
+        borderColor: 'purple',
+        borderRadius: 8,
+        color: 'black',
+        paddingRight: 30, // to ensure the text is never behind the icon
+    },
+});

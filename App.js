@@ -50,6 +50,7 @@ export default class App extends React.Component {
     stateOfUser: null,
     currentUser: null,
     allUsersInHouseHolds: [],
+    years: []
   };
 
 
@@ -62,6 +63,9 @@ export default class App extends React.Component {
     //this._isMounted && this.makeUsersForComparison();
     this._isMounted && this.getUsers();
     this._isMounted && this.stateChange();
+    this._isMounted && this.getYears();
+
+
   }
 
   getHouseHoldId = () => {
@@ -131,19 +135,29 @@ export default class App extends React.Component {
     });
   this._isMounted && this.setState({allUsersInHouseHolds: allUsersInHouseHolds })
   };*/
+  getYears = () => {
+    let years = [];
+    let n = 1920;
+    var year = new Date().getFullYear();
+    console.log(year)
+    while (n <= year){
+      n = n+1;
+      years.push({label: n.toString(), value: n})
+    }
+    this.setState({years: years})
+  };
 
 
   //Vi instantierer SignInform i vores App.js, da det er her, applikationen skal starte
   render() {
-
     const {currentUser} = this.state;
     if (currentUser ) {
         return (
-            <MainNavigator screenProps={{image: this.state.image, currentUser: this.state.currentUser, allUsers: this.state.allUsers}} />
+            <MainNavigator screenProps={{image: this.state.image, currentUser: this.state.currentUser, allUsers: this.state.allUsers, years: this.state.years}} />
         );
     }else {
       return (
-          <InitialView/>
+          <InitialView  screenProps={{yearsRetrieved: this.state.years}} />
       );
     }
   }
