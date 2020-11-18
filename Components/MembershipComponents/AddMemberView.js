@@ -125,7 +125,7 @@ export default class AddMemberView extends React.Component{
                     <Text style={styles.buttonText}>Invite your friend</Text>
                 </TouchableOpacity>
 
-
+                <Text style={styles.termsText}> By register you agree to the terms</Text>
 
 
             </View>
@@ -154,6 +154,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginBottom: 10,
         marginTop:7,
+        bottom:50,
     },
     buttonText:{
         fontSize: 20,
@@ -165,30 +166,35 @@ const styles = StyleSheet.create({
     input: {
         width: 250,
         fontSize: 15,
-        height: 44,
+        height: 50,
         padding: 10,
         borderWidth: 1,
         borderColor: 'grey',
         marginVertical: 10,
+        bottom:50,
     },
 
     text: {
-        fontSize: 50,
+        fontSize: 35,
+        bottom:190,
         fontWeight:'bold',
+        marginTop:20,
+        marginBottom:20,
         color:'#5FB8B2',
-        bottom:100,
     },
 
     textSubmit:{
-        fontSize: 25,
+        fontSize: 20,
         color:'black',
-        bottom:10,
+        bottom:60,
+        fontWeight:'bold',
         alignItems: 'center',
     },
 
     termsText:{
         color:'grey',
-        marginTop: 10
+        marginTop: 5,
+        bottom:35,
     },
 
 

@@ -6,6 +6,7 @@ import HeaderClass from "./HeaderClass";
 import { AntDesign } from '@expo/vector-icons';
 import {Header} from "react-native-elements";
 import globalStyles from "../GlobalStyles";
+import { Ionicons } from '@expo/vector-icons';
 
 export default class ListView extends React.Component {
     //Oprettelse af boolean til styring af lief cycles
@@ -128,25 +129,46 @@ export default class ListView extends React.Component {
         } else
             return (
                 <View style={globalStyles.container}>
-                    <Text style={[globalStyles.headerText,styles.headerText]}>Inkjøpsliste</Text>
+
+
+                    <Text style={[styles.headerText]}>Inkjøpsliste</Text>
+
+
+                        <View style={styles.containerHeader}>
+                        <TextInput
+                            placeholder="Add item"
+                            value={this.state.newItem}
+                            onChangeText={newItem => this.setState({ newItem })}
+                            style={styles.inputField}
+                        />
+
+
+
+                        <TouchableOpacity style={styles.addPress} onPress={() =>this.updateList(list, this.state.keyToList)}>
+                            <Ionicons name="ios-add-circle-outline" size={34} color="black" />
+                        </TouchableOpacity>
+
+
+                        </View>
+
+
+
+                    <ScrollView style={styles.scrollView} >
                     {list.map((item, index)=>(
                             <View key={index} style={styles.listContainer} >
                                 <Text style={styles.label}>{item}</Text>
                                 <TouchableOpacity style={styles.button} title="Delete" onPress={() => this.removeItem(keys[index])}>
-                                    <AntDesign name="minuscircleo" size={35} color="#CD5C5C"/>
+                                    <AntDesign name="delete" size={24} color="black" />
                                 </TouchableOpacity>
                             </View>
                         )
                     )}
-                    <View>
-                        <TextInput
-                            placeholder="Indsæt varenavn"
-                            value={this.state.newItem}
-                            onChangeText={newItem => this.setState({ newItem })}
-                            style={styles.inputField}                    />
-                        <Button title="Tilføj en vare" onPress={() =>this.updateList(list, this.state.keyToList)}/>
-                    </View>
-                    <Button title="Log ud" onPress={this.handleLogOut}/>
+               </ScrollView>
+
+
+
+
+
                 </View>
             );
     }
@@ -157,14 +179,41 @@ export default class ListView extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        marginTop: 10
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#DBF1EE',
+    },
+
+    containerHeader:{
+        position:'absolute',
+        bottom:400,
     },
 
     headerText:{
-      fontSize:20,
-      right:140,
-      marginBottom: 8,
-      bottom:200,
+        fontSize: 50,
+        fontWeight:'bold',
+        color:'#5FB8B2',
+        top:60,
+
+    },
+
+    addPress:{
+        padding: 5,
+        width: 130,
+        height:45,
+        marginLeft: '55%',
+        bottom:208,
+        left:25,
+        justifyContent: 'center',
+        alignItems:'center',
+
+
+    },
+
+
+    scrollView:{
+        height:30,
+        marginTop:190,
 
     },
 
@@ -182,34 +231,39 @@ const styles = StyleSheet.create({
 
     input: {
         borderWidth: 1,
-        flex: 1 },
+        flex: 1
+    },
 
 
     value: {
         flex: 1 },
 
     inputField: {
-        width: '80%',
-        fontSize: 20,
+        width: 150,
+        fontSize: 15,
         height: 44,
         padding: 10,
-        borderWidth: 0.3,
+        borderWidth: 0.5,
         margin: '2%',
         marginLeft: '10%',
-        borderRadius: 25,
-        backgroundColor: 'white',
+        borderRadius: 1,
+
+
+        borderColor: 'grey',
+        bottom:155,
+        right:50,
     },
+
     listContainer: {
-        height: 55,
         width: '100%',
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 0.3,
-        marginBottom: '2%',
+        marginBottom: 2,
         backgroundColor: 'white',
-        marginTop: '1%',
-        bottom:200,
+        marginTop: 5,
+
     },
     button: {
         padding: 10,
