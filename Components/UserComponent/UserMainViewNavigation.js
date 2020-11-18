@@ -45,7 +45,7 @@ const StackNavigatorNewUsers = createStackNavigator({
 const StackNavigatorCleaningOverView = createStackNavigator(
     {
         Oversigten: {
-            screen: CommonAreaCleaningView,
+            screen: CommonAreaCleaningView
         },
         Laundry: {
             screen:LaundryView
