@@ -18,6 +18,7 @@ import firebase from "firebase";
 import {AntDesign} from "@expo/vector-icons";
 import HeaderNav from "../HeaderNav";
 import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
+import { format } from "date-fns";
 
 
 const title = "Opret Begivenhed"
@@ -49,12 +50,12 @@ export default class CalendarView extends Component {
             houseHoldId: null,
             allHouseHoldEvents: ["Der er ingen begivnheder lige nu"],
             showCalendar: false,
-             dates: []
+            dates: []
         };
         this.onDateChange = this.onDateChange.bind(this);
     }
     componentDidMount() {
-       this.getHouseHoldId()
+        this.getHouseHoldId()
     }
 
     getHouseHoldId = () => {
@@ -66,15 +67,15 @@ export default class CalendarView extends Component {
             }
         });
         firebase.database().ref(`/households/${houseHoldId}/events/`).on('value', snapshot => {
-            let arr = [];
-            console.log(snapshot.val())
-            Object.values(Object.values(Object.values(snapshot.val()))).map((item, index) => {
-                arr.push(Object.values(Object.values(item)[0])[0])
-            });
-           arr =  arr.reduce((c, v) => Object.assign(c, {[v]: {selected: true, endingDay: true, color: 'green', textColor: 'gray'}}), {});
-            this.setState({dates: arr});
-            this.setState({allHouseHoldEvents: snapshot.val()});
-            this.setState({houseHoldId: houseHoldId })
+                let arr = [];
+                console.log(snapshot.val())
+                Object.values(Object.values(Object.values(snapshot.val()))).map((item, index) => {
+                    arr.push(Object.values(Object.values(item)[0])[0])
+                });
+                arr =  arr.reduce((c, v) => Object.assign(c, {[v]: {selected: true, endingDay: true, color: 'green', textColor: 'gray'}}), {});
+                this.setState({dates: arr});
+                this.setState({allHouseHoldEvents: snapshot.val()});
+                this.setState({houseHoldId: houseHoldId })
             }
         );
 
@@ -103,6 +104,8 @@ export default class CalendarView extends Component {
         });
     }
     calendar = () => {
+        console.log("Dette er branch specifik");
+        var testVariabel = "SDFSDFSDF";
         try {
             Linking.openURL('https://calendar.google.com/calendar/u/0/r')
         } catch (e) {
@@ -110,11 +113,18 @@ export default class CalendarView extends Component {
         }
     };
 
-    newEvent = () => {
-        console.log(this.state.day)
-        console.log("this.state.selectedStartDate")
-        console.log(this.state.day)
-        this.setState({setEventModalVisible: true})
+    newEvent = ({day}) => {
+        this.setState({day: day})
+            Alert.alert(
+            'Vil du oprette en ny begivenhed?',
+            '',
+            [
+                {text: 'Cancel'},
+                {text: 'Opret', onPress: () => this.setState({setEventModalVisible: true })},
+            ],
+            { cancelable: false }
+        )
+
     };
 
     showTime = type =>{
@@ -187,15 +197,16 @@ export default class CalendarView extends Component {
             this.setState({chosenEndMinutes: this.state.selectedMinutes})
         }
         this.setState({selectedHours: 12 });
-        this.setState({selectedMinutes: 30 })
+        this.setState({selectedMinutes: 30 });
         this.setState({setTimeVisible: false})
     };
 
     createEvent = () => {
         let startTime = this.state.chosenStartHours + this.state.chosenStartMinutes;
         let endTime = this.state.chosenEndHours + this.state.chosenEndMinutes;
-        const { eventName, description, houseHoldId } = this.state;
+        const { eventName, description, houseHoldId, day } = this.state;
         let event = {
+            date: day.dateString,
             eventName: eventName,
             startTime: startTime,
             endTime: endTime,
@@ -208,21 +219,27 @@ export default class CalendarView extends Component {
     //I render instantieres en CalenderPicker komponent, der fremviser en kalender
     //Kalender har en property, som kan registrere valg af datoer, som forekommer ved tryk på skærmen
     render() {
-        const { selectedHours, selectedMinutes, chosenStartHours, chosenStartMinutes, chosenEndHours, chosenEndMinutes, houseHoldId, showCalendar    } = this.state;
+        const { selectedHours, selectedMinutes, chosenStartHours, chosenStartMinutes, chosenEndHours, chosenEndMinutes, houseHoldId, showCalendar, day    } = this.state;
         const {  setEventModalVisible, setTimeVisible, description, eventName, dates } = this.state;
+        let dayFormatted = null;
+      if (day){
+          let newdate = new Date(day.dateString);
+           dayFormatted = format(newdate, "dd MMMM yyyy ")
+      }
+      console.log(day)
         const allEvents = (Object.values(Object.values(Object.values(this.state.allHouseHoldEvents))));
         const eventKeys = Object.keys(this.state.allHouseHoldEvents);
         return (
             <View style={{flex: 1}}>
-                <View  style={{marginTop: 30}} >
-                    <View style={{marginTop: '8%', width: '100%', height: '5%'}} >
+                <View >
+                    <View style={{marginTop: '3%', width: '100%', height: '5%'}} >
                         <HeaderNav title="Kalender" />
                     </View>
                     <Text style={{zIndex: 10, marginLeft: 140, marginTop: 15, position: 'absolute', fontSize: 20}}>November</Text>
+                   <View style={{padding: '5%', height: '65%', paddingBottom: '1%'}}>
                     <Calendar
                         current={Date()}
-                        onDayPress={(day) => {this.setState({day})}}
-                        onDayLongPress={this.newEvent}
+                        onDayLongPress={(day) => {this.newEvent({day})}}
                         markedDates={dates}
                         monthFormat={'MM'}
                         enableSwipeMonths={true}
@@ -232,10 +249,37 @@ export default class CalendarView extends Component {
                         disableMonthChange={true}
                         firstDay={1}
                         hideDayNames={false}
+                        onDateChange={(day) => {this.setState({day})}}
                         showWeekNumbers={true}
                         onPressArrowLeft={substractMonth => substractMonth()}
                         onPressArrowRight={addMonth => addMonth()}
                     />
+                </View>
+                </View>
+                <View>
+                <View style={{ bottom: '30%'}}>
+                <Text style={{fontWeight: 'bold', fontSize: 32, }}> Kommende begivenheder </Text>
+                </View>
+                <ScrollView horizontal={true} style={{width:'100%', height: '30%', bottom: '15%'}}>
+                    {allEvents.map((item, index)=>(
+                        <View style={{width:'40%', height: '100%', padding: '1%', justifyContent: 'center', alignItems: 'center'}} key={index}>
+                           <View style={{borderWidth: 1, borderColor: 'black', width: '95%', height: '100%', backgroundColor: 'white'}} >
+                           <View style={{backgroundColor: '#3D6DCC', justifyContent: 'center', alignItems: 'center', padding: '5%'}}>
+                            <Text style={{fontSize: 15, fontWeight: 'bold', color: 'white'}}>{Object.values(Object.values(item)[0])[3]}</Text>
+                           </View>
+                               <View style={{padding: '5%', justifyContent: 'center', alignItems: 'center'}}>
+                                   <Text style={{fontWeight: 'bold'}}> Dato og tidspunkt </Text>
+                            <Text style={{fontSize: 15}}> {Object.values(Object.values(item)[0])[4]} til {Object.values(Object.values(item)[0])[2]} </Text>
+                            <Text style={{fontSize: 15}}>  {Object.values(Object.values(item)[0])[0]}</Text>
+                               </View>
+                               <View style={{justifyContent: 'center', alignItems: 'center'}} >
+                                   <Text style={{fontWeight: 'bold'}}> Beskrivelse</Text>
+                                   <Text style={{fontSize: 15, }}> Dato: {Object.values(Object.values(item)[0])[1]}</Text>
+                               </View>
+                           </View>
+                        </View>
+                    ))}
+                </ScrollView>
                 </View>
                 <View style={styles.container}>
                     <Modal
@@ -254,9 +298,9 @@ export default class CalendarView extends Component {
                                 </View>
                                 <TextInput
                                     placeholder="Vælg en dag"
+                                    value={dayFormatted}
                                     editable={false}
                                     style={styles.inputField}/>
-                                <Button title={"Vælg Dato"} onPress={this.showCalendar} />
 
                                 <TextInput
                                     placeholder="Begivenhedens navn"
@@ -299,7 +343,6 @@ export default class CalendarView extends Component {
                                         onChangeText={(description) => this.setState({ description })}
                                     />
                                 </View>
-
                                 <View style={styles.modalView}>
                                     <TouchableHighlight
                                         style={{ ...styles.openButton, backgroundColor: "#2196F3" }}
@@ -307,6 +350,7 @@ export default class CalendarView extends Component {
                                         <Text style={styles.textStyle}>Hide Modal</Text>
                                     </TouchableHighlight>
                                     <Button title="Set false" onPress={this.makeEvent} />
+
                                 </View>
                                 {(setTimeVisible &&
                                     <View style={{backgroundColor: 'white', zIndex: 10, marginBottom: 180, position: 'absolute', width: '120%', height: '100%', marginRight: '35%'}}>
@@ -320,11 +364,7 @@ export default class CalendarView extends Component {
                                 )}
 
                             </View>
-                            <TouchableOpacity
-                                style={styles.button}
-                                onPress={this.createEvent}>
-                                <Text style={styles.buttonText}>Opret begivenhed</Text>
-                            </TouchableOpacity>
+
                         </View>
                     </Modal>
                 </View>
