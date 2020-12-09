@@ -36,7 +36,9 @@ export default class App extends React.Component {
     this.state = {allUsers: null};
     this.state = {currentUser: null};
     this.state = {isNewUser: null};
-    this.state = {isInHouseHold: "no a memeber in houseHold"}
+    this.state = {allHouseHolds: null};
+    this.state = {isInHouseHold: "no a memeber in houseHold"};
+
   this._isMounted = false;
 
   }
@@ -50,7 +52,8 @@ export default class App extends React.Component {
     stateOfUser: null,
     currentUser: null,
     allUsersInHouseHolds: [],
-    years: []
+    years: [],
+    allHouseHolds: []
   };
 
 
@@ -64,6 +67,7 @@ export default class App extends React.Component {
     this._isMounted && this.getUsers();
     this._isMounted && this.stateChange();
     this._isMounted && this.getYears();
+    this._isMounted && this.getHouseholds();
 
 
   }
@@ -88,6 +92,13 @@ export default class App extends React.Component {
   getUsers = async ()=>{
     await firebase.database().ref('allUsers').on('value', snapshot => {
           this._isMounted &&  this.setState({ allUsers: snapshot.val()});
+        }
+    );
+  };
+
+  getHouseholds = async ()=>{
+    await firebase.database().ref('households').on('value', snapshot => {
+          this._isMounted &&  this.setState({ allHouseHolds: snapshot.val()});
         }
     );
   };
@@ -153,7 +164,7 @@ export default class App extends React.Component {
     const {currentUser} = this.state;
     if (currentUser ) {
         return (
-            <MainNavigator screenProps={{image: this.state.image, currentUser: this.state.currentUser, allUsers: this.state.allUsers, years: this.state.years}} />
+            <MainNavigator screenProps={{image: this.state.image, currentUser: this.state.currentUser, allUsers: this.state.allUsers, years: this.state.years, houseHolds: this.state.allHouseHolds}} />
         );
     }else {
       return (

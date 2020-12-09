@@ -129,7 +129,7 @@ export default class ListView extends React.Component {
         } else
             return (
                 <View style={globalStyles.container }>
-                    <Text style={[styles.headerText, {zIndex: 40}]}>Inkjøpsliste</Text>
+                    <Text style={[styles.headerText, {zIndex: 40}]}>Indkøbslisten</Text>
                             <View style={{ justifyContent: 'center', alignItems: 'center' ,flexDirection: 'row', marginLeft: '10%'}}>
                   <View style={{ marginLeft: '5%', flexDirection: 'row',  zIndex: 10, top: '200%'}}>
                       <TextInput

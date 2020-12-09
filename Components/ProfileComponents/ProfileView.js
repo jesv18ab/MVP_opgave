@@ -1,10 +1,10 @@
 import React from 'react';
-import {StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, TextInput} from 'react-native';
+import {StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, TextInput, Linking} from 'react-native';
 import HeaderNav from "../HeaderNav";
-import firebase from "firebase";
+import firebase, {initializeApp} from "firebase";
 import RNPickerSelect from "react-native-picker-select";
+import {WebBrowser} from "expo/build/removed.web";
 //import SignUpView from "../SignInView";
-
 
 export default class ProfileView extends React.Component{
 
@@ -13,6 +13,7 @@ state = {
     currentUser: this.props.screenProps.currentUser,
     houseHasBeenCreated: null,
     userInfo: '',
+    houseHoldName: ''
 };
 
 //Denne metode henter den bruger, som er valideret under login
@@ -30,7 +31,25 @@ state = {
         this._isMounted = true;
         this._isMounted && this.checkIfNewUser();
         this._isMounted && this.stateUser();
+        this._isMounted && this.getHouseHolds();
     }
+
+    getHouseHolds = () => {
+        let houseHoldName = '';
+        console.log("Object.values(this.props.screenProps.houseHolds)[0]");
+        console.log((Object.values(Object.values(Object.values(this.props.screenProps.houseHolds)[0].users))[0]).users);
+        Object.values(this.props.screenProps.houseHolds).map((item, index) => {
+          let arr = (Object.values(Object.values(Object.values(this.props.screenProps.houseHolds)[index].users))[0]).users;
+           let indexOfHouseHold = index;
+            arr.map((item, index) => {
+                let userEmail = this.props.screenProps.currentUser.email;
+                if (userEmail.toUpperCase() === item.toUpperCase()){
+                    houseHoldName = Object.values(this.props.screenProps.houseHolds)[indexOfHouseHold].houseHoldName
+                }
+            });
+        });
+        this.setState({houseHoldName: houseHoldName})
+    };
 
     stateUser = async() =>{
        await firebase.auth().onAuthStateChanged(currentUser => {
@@ -73,11 +92,16 @@ componentWillUnmount() {
 
     render(){
         const currentUser = this.state.currentUser;
-        const {houseHasBeenCreated, userInfo} = this.state;
+        const {houseHasBeenCreated, userInfo, houseHoldName} = this.state;
+        let birthday = null
+        if (userInfo.birthday !=null){
+            const arr = Object.values(userInfo.birthday);
+             birthday = arr[0] + ' ' + [arr[1] + ' ' + ' ' + arr[2]]
+        }
         if (houseHasBeenCreated === true ){
             return (
                 <View style={styles.container}>
-                    <Text style={styles.headerText}>Hej {userInfo.name}!</Text>
+                    <Text style={styles.headerText}>{userInfo.name}!</Text>
                     <TextInput
                             placeholder={userInfo.name}
                             value={userInfo.name}
@@ -85,8 +109,8 @@ componentWillUnmount() {
                             style={styles.inputField}
                         />
                         <TextInput
-                            placeholder={userInfo.email}
-                            value={userInfo.email}
+                            placeholder="No data"
+                            value={houseHoldName}
                             onChangeText={this.handleChangeEmail}
                             style={styles.inputField}
                         />
@@ -97,8 +121,8 @@ componentWillUnmount() {
                         style={styles.inputField}
                     />
                     <TextInput
-                        placeholder={userInfo.email}
-                        value={userInfo.email}
+                        placeholder='No Data'
+                        value={birthday}
                         onChangeText={this.handleChangeEmail}
                         style={styles.inputField}
                     />

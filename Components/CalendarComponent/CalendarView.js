@@ -121,7 +121,7 @@ export default class CalendarView extends Component {
     };
 
     newEvent = ({day}) => {
-        this.setState({day: day})
+        this.setState({day: day});
             Alert.alert(
             'Vil du oprette en ny begivenhed?',
             '',
@@ -257,10 +257,11 @@ export default class CalendarView extends Component {
         if (allEvents[0] === 'Der er ingen begivnheder lige nu'){
             return (
                 <View style={{flex: 1, backgroundColor: 'white' }}>
-                    <View >
+                    <View>
                         <View style={{marginTop: '3%', width: '100%', height: '5%'}} >
                             <HeaderNav title="Kalender" />
                         </View>
+
                         <Text style={{zIndex: 10, marginLeft: '40%', marginTop: '15%', position: 'absolute', fontSize: 20}}></Text>
                         <View style={{ height: '65%', paddingBottom: '1%', marginTop:'3%', backgroundColor: 'white'}}>
                             <Calendar
@@ -279,7 +280,9 @@ export default class CalendarView extends Component {
                                 onPressArrowLeft={substractMonth => substractMonth()}
                                 onPressArrowRight={addMonth => addMonth()}
                             />
+
                         </View>
+
                     </View>
                     <View>
                         <Text>
