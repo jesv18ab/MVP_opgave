@@ -23,17 +23,17 @@ const placeholderMonth = {
 
 const months =
     [{label: 'Januar', value: "Januar"},
-        {label: 'Februar', value: "Februar"},
+        {label: 'Feb', value: "Februar"},
         {label: 'Marts', value: "Marts"},
         {label: 'April', value: "April"},
         {label: 'Maj', value: "Maj"},
         {label: 'Juni', value: "Juni"},
         {label: 'Juli', value: "Juli"},
-        {label: 'August', value: "August"},
-        {label: 'September', value: "September"},
-        {label: 'Oktober', value: "Oktober"},
-        {label: 'November', value: "November"},
-        {label: 'December', value: "December"},
+        {label: 'Aug', value: "August"},
+        {label: 'Sep', value: "September"},
+        {label: 'Okt', value: "Oktober"},
+        {label: 'Nov', value: "November"},
+        {label: 'Dec', value: "December"},
     ];
 
 const days =
@@ -156,7 +156,6 @@ export default class CreateUser extends React.Component {
         const { email, password, name } = this.state;
         return (
             <View style={styles.container}>
-
                 <Text style={styles.headerText}>Join the team!</Text>
                 <TextInput
                     placeholder="Fuldt navn"
@@ -166,10 +165,10 @@ export default class CreateUser extends React.Component {
                 />
 
                 <View style={{bottom: 83, marginRight: '35%'}} >
-                    <Text style={{fontSize: 20, color:'#5FB8B9',}} y>Fødselsdag</Text>
+                    <Text style={styles.bDay} y>Fødselsdag</Text>
                 </View>
                 <View style={styles.pickers} >
-                 <View style={{ marginRight: '10%', width: '75%'}} >
+                 <View style={styles.selectInput} >
                     <RNPickerSelect
                     placeholder={placeholderYear}
                     style={{
@@ -177,18 +176,26 @@ export default class CreateUser extends React.Component {
                         iconContainer: {
                             top: 20,
                             right: 10,
+                            backgroundColor: 'black'
                         },
                         placeholder: {
-                            color: 'purple',
-                            fontSize: 12,
-                            fontWeight: 'bold',
+                            ...Platform.select({
+                                ios: {
+                                    color: 'purple',
+                                    fontSize: 12,
+                                    fontWeight: 'bold',                                },
+                                android: {
+                                    color: 'purple',
+                                    fontWeight: 'bold',
+                                },
+                            })
                         },
                     }}
                     onValueChange={(year) => this.setState({year})}
                     items={this.props.screenProps.yearsRetrieved}
                 />
                  </View>
-                    <View style={{ marginRight: '10%', width: '100%'}} >
+                    <View style={styles.selectInput2} >
                     <RNPickerSelect
                         placeholder={placeholderMonth}
                         style={{
@@ -206,7 +213,7 @@ export default class CreateUser extends React.Component {
                         onValueChange={(month) => this.setState({month})}
                         items={months}/>
                     </View>
-                        <View style={{ marginRight: '20%'}} >
+                        <View style={styles.selectInput3} >
                     <RNPickerSelect
                         placeholder={placeholderDay}
                         style={{
@@ -324,8 +331,62 @@ const styles = StyleSheet.create({
         marginRight: '30%',
         flexDirection: 'row',
         paddingRight: '5%',
-    }
+    },
+    selectInput: {
+        ...Platform.select({
+            ios: {
+                marginRight: '10%',
+                width: '75%'
+            },
+            android: {
+                marginRight: '10%',
+                width: '100%',
+                borderWidth: 1,
+                borderColor: 'black',
+                right: 50
+            },
+        })
+    },selectInput2: {
+        ...Platform.select({
+            ios: {
+                marginRight: '10%',
+                width: '100%'
+            },
+            android: {
+                width: 120,
+                borderWidth: 1,
+                borderColor: 'black',
+                right: 50,
+                fontSize: 5,
 
+            },
+        })
+    },selectInput3: {
+        ...Platform.select({
+            ios: {
+                marginRight: '20%'
+            },
+            android: {
+                width: '100%',
+                borderWidth: 1,
+                borderColor: 'black',
+                right: 40
+            },
+        })
+    },
+    bDay: {
+        ...Platform.select({
+            ios: {
+                fontSize: 20,
+                color:'#5FB8B9',
+            },
+            android: {
+                fontSize: 20,
+                color:'#5FB8B9',
+                left: 65
+            },
+        })
+    },
 });
 
 const pickerSelectStyles = StyleSheet.create({
@@ -340,14 +401,10 @@ const pickerSelectStyles = StyleSheet.create({
         color: 'black',
         paddingRight: 20, // to ensure the text is never behind the icon
     },
+
     inputAndroid: {
-        fontSize: 15,
-        paddingHorizontal: 10,
-        paddingVertical: 8,
-        borderWidth: 0.5,
         borderColor: 'purple',
-        borderRadius: 8,
         color: 'black',
-        paddingRight: 30, // to ensure the text is never behind the icon
+        width: '100%',
     },
 });

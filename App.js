@@ -9,7 +9,7 @@ import ModalView from "./Components/ModalView";
 import globalStyles from "./Components/GlobalStyles";
 import {AntDesign, Entypo} from "@expo/vector-icons";
 import InitialView from "./Components/UserComponent/NewUsersNavigation";
-
+import TestPicker from "./Components/TestPicker";
 
 //Oprettelse af databasekonfiguration
 const fireBaseConfig = {
@@ -160,12 +160,13 @@ export default class App extends React.Component {
 
 
   //Vi instantierer SignInform i vores App.js, da det er her, applikationen skal starte
+
   render() {
     const {currentUser} = this.state;
     if (currentUser ) {
-        return (
-            <MainNavigator screenProps={{image: this.state.image, currentUser: this.state.currentUser, allUsers: this.state.allUsers, years: this.state.years, houseHolds: this.state.allHouseHolds}} />
-        );
+      return (
+          <MainNavigator screenProps={{image: this.state.image, currentUser: this.state.currentUser, allUsers: this.state.allUsers, years: this.state.years, houseHolds: this.state.allHouseHolds}} />
+      );
     }else {
       return (
           <InitialView  screenProps={{yearsRetrieved: this.state.years}} />

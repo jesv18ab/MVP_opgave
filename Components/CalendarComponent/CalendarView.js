@@ -1,16 +1,6 @@
 import React, { Component } from 'react';
-import {StyleSheet, Text,
-    View,
-    Alert,
-    TouchableOpacity,
-    Image,
-    Linking,
-    Modal,
-    TouchableHighlight,
-    TextInput,
-    Button,
-    ScrollView,
-    FlatList
+import {StyleSheet, Text, View, Alert, TouchableOpacity, Image, Linking, Modal,
+    TouchableHighlight, TextInput, Button, ScrollView, FlatList, ActivityIndicator, Platform
 } from 'react-native';
 import CalendarPicker from 'react-native-calendar-picker';
 import HeaderEvents from "./HeaderEvents";
@@ -21,7 +11,8 @@ import HeaderNav from "../HeaderNav";
 import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
 import { format } from "date-fns";
 import { SimpleLineIcons, MaterialCommunityIcons } from '@expo/vector-icons';
-const title = "Opret Begivenhed"
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+const title = "Opret Begivenhed";
 
 //Kalender klassen er en eksternt hentet komponent, som ikek er blevet tilpasset til porjektet endnu
 //Selve designet er under overvejelser, men er ikke fuldstændig fastlagt.
@@ -53,13 +44,59 @@ export default class CalendarView extends Component {
             dates: [],
             startTime: "Fra",
             endTime: 'Til',
-            date: null
+            date: null,
+            isLoading: false,
+            isDatePickerVisibleStart: false,
+            isDatePickerVisibleEnd: false,
+
         };
         this.onDateChange = this.onDateChange.bind(this);
     }
     componentDidMount() {
-        this.getHouseHoldId()
+        this.getHouseHoldId();
     }
+    startLoading = () => this.setState({ isLoading: true });
+    endLoading = () => this.setState({ isLoading: false });
+
+    handleConfirmEnd = (time) => {
+        let minutes = null;
+        let hours = null;
+        if (time.getMinutes() < 10 ){
+            minutes = "0"+time.getMinutes().toString()
+            this.setState({chosenEndMinutes: minutes})
+        } else {
+            minutes = time.getMinutes().toString()
+            this.setState({chosenEndMinutes: minutes})
+        }
+        if (time.getHours() < 10 ){
+            hours = "0"+time.getHours().toString() + ":"
+            this.setState({chosenEndHours: hours})
+
+        } else {
+            hours = time.getHours().toString() + ":"
+            this.setState({chosenEndHours: hours})
+        }
+        this.hideDatePickerEnd();
+    };
+    handleConfirmStart = (time) => {
+        let minutes = null;
+        let hours = null;
+        if (time.getMinutes() < 10 ){
+            minutes = "0"+time.getMinutes().toString()
+            this.setState({chosenStartMinutes: minutes})
+        } else {
+            minutes = time.getMinutes().toString()
+            this.setState({chosenStartMinutes: minutes})
+        }
+        if (time.getHours() < 10 ){
+            hours = "0"+time.getHours().toString() + ":"
+            this.setState({chosenStartHours: hours})
+        } else {
+            hours = time.getHours().toString() + ":"
+            this.setState({chosenStartHours: hours})
+        }
+        this.hideDatePickerStart();
+    };
 
     getHouseHoldId = () => {
         let houseHoldId = null;
@@ -69,11 +106,9 @@ export default class CalendarView extends Component {
                 houseHoldId = item.houseHoldId
             }
         });
-        console.log(houseHoldId);
         firebase.database().ref(`/households/${houseHoldId}/events/`).on('value', snapshot => {
             if (snapshot.val()){
                 let arr = [];
-                console.log(snapshot.val())
                 Object.values(Object.values(Object.values(snapshot.val()))).map((item, index) => {
                     arr.push(Object.values(Object.values(item)[0])[0])
                 });
@@ -111,7 +146,6 @@ export default class CalendarView extends Component {
         });
     }
     calendar = () => {
-        console.log("Dette er branch specifik");
         var testVariabel = "SDFSDFSDF";
         try {
             Linking.openURL('https://calendar.google.com/calendar/u/0/r')
@@ -134,14 +168,41 @@ export default class CalendarView extends Component {
 
     };
 
+
+    showDatePickerStart = () => {
+        this.setState({isDatePickerVisibleStart: true})
+    };
+    hideDatePickerStart = () => {
+        console.log("Test")
+        this.setState({isDatePickerVisibleStart: false})
+    };
+    showDatePickerEnd = () => {
+        this.setState({isDatePickerVisibleEnd: true})
+    };
+    hideDatePickerEnd = () => {
+        this.setState({isDatePickerVisibleEnd: false})
+    };
+
     showTime = type =>{
-        this.setState({type: type})
-        // this.setState({setEventModalVisible: false})
-        if (this.state.setTimeVisible === false){
-            this.setState({setTimeVisible: true})
-        } else if(this.state.setTimeVisible === true) {
-            this.setState({setTimeVisible: false})
+        if (Platform.OS === 'ios')
+        {
+            this.setState({type: type});
+            // this.setState({setEventModalVisible: false})
+            if (this.state.setTimeVisible === false){
+                this.setState({setTimeVisible: true})
+            } else if(this.state.setTimeVisible === true) {
+                this.setState({setTimeVisible: false})
+            }
         }
+        if (Platform.OS === 'android');
+        {
+            if (type === 1){
+                this.showDatePickerStart()
+            }else if ( type === 2){
+                this.showDatePickerEnd()
+            }
+        }
+
     };
 
 
@@ -215,7 +276,7 @@ export default class CalendarView extends Component {
         let newdate = new Date(date);
         let dayFormatted = format(newdate, "dd MMMM yyyy ")
         this.setState({endTime: endTime, date: dayFormatted, description: description, eventName: eventName, startTime: startTime, setEventModalVisible: true })
-    }
+    };
 
     createEvent = () => {
         let startTime = this.state.chosenStartHours + this.state.chosenStartMinutes;
@@ -240,13 +301,11 @@ export default class CalendarView extends Component {
     //Kalender har en property, som kan registrere valg af datoer, som forekommer ved tryk på skærmen
     render() {
         const { selectedHours, selectedMinutes, chosenStartHours, chosenStartMinutes, chosenEndHours, chosenEndMinutes, houseHoldId, showCalendar, day, startTime, endTime, date } = this.state;
-        const {  setEventModalVisible, setTimeVisible, description, eventName, dates } = this.state;
+        const {  setEventModalVisible, setTimeVisible, description, eventName, dates, isDatePickerVisibleStart, isDatePickerVisibleEnd, } = this.state;
         let dayFormatted = null;
       if (day){
-          console.log("day")
-          console.log(day);
+
           let newdate = new Date(day.dateString);
-          console.log(newdate)
            dayFormatted = format(newdate, "dd MMMM yyyy ")
       }
       else if (date){
@@ -257,11 +316,9 @@ export default class CalendarView extends Component {
         if (allEvents[0] === 'Der er ingen begivnheder lige nu'){
             return (
                 <View style={{flex: 1, backgroundColor: 'white' }}>
-                    <View>
-                        <View style={{marginTop: '3%', width: '100%', height: '5%'}} >
-                            <HeaderNav title="Kalender" />
-                        </View>
 
+                    <View>
+                        <Text style={styles.headerText}>Kalender</Text>
                         <Text style={{zIndex: 10, marginLeft: '40%', marginTop: '15%', position: 'absolute', fontSize: 20}}></Text>
                         <View style={{ height: '65%', paddingBottom: '1%', marginTop:'3%', backgroundColor: 'white'}}>
                             <Calendar
@@ -309,7 +366,9 @@ export default class CalendarView extends Component {
                                             placeholder={eventName}
                                             value={eventName}
                                             style={styles.inputField}
-                                            onChangeText={(eventName) => this.setState({ eventName })}/>
+                                            onChangeText={(eventName) => this.setState({ eventName })}
+
+                                        />
                                     </View>
                                     <View style={{paddingTop: '2%', paddingRight: '3%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
                                         <SimpleLineIcons style={{paddingRight: '3%', paddingBottom: '2%'}} name="clock" size={28} color="black" />
@@ -322,7 +381,6 @@ export default class CalendarView extends Component {
                                                     placeholder={startTime}
                                                     value={chosenStartHours.toString() +chosenStartMinutes.toString() }
                                                     style={[styles.inputField_time, {justifyContent: 'flex-start', marginLeft: '10%'}]}
-                                                    editable={true}
                                                     onFocus={() =>this.showTime(1)}
                                                 />
 
@@ -380,24 +438,35 @@ export default class CalendarView extends Component {
                                             <Button title="færdig" onPress={this.setTime} />
                                         </View>
                                     )}
-
                                 </View>
-
                             </View>
+                            <DateTimePickerModal
+                                isVisible={isDatePickerVisibleStart}
+                                mode="time"
+                                onConfirm={this.handleConfirmStart}
+                                onCancel={this.hideDatePickerStart}
+                            />
+                            <DateTimePickerModal
+                                isVisible={isDatePickerVisibleEnd}
+                                mode="time"
+                                onConfirm={this.handleConfirmEnd}
+                                onCancel={this.hideDatePickerEnd}
+                            />
                         </Modal>
                     </View>
-                </View>
 
+
+                </View>
 
             );
 
         } else{
+            const { selectedHours, selectedMinutes, chosenStartHours, chosenStartMinutes, chosenEndHours, chosenEndMinutes, houseHoldId, showCalendar, day, startTime, endTime, date } = this.state;
+            const {  setEventModalVisible, setTimeVisible, description, eventName, dates, isDatePickerVisibleStart, isDatePickerVisibleEnd, } = this.state;
             return(
                 <View style={{flex: 1, backgroundColor: 'white' }}>
-                    <View >
-                        <View style={{marginTop: '3%', width: '100%', height: '5%'}} >
-                            <HeaderNav title="Kalender" />
-                        </View>
+                    <Text style={styles.headerText}>Kalender</Text>
+                    <View>
                         <Text style={{zIndex: 10, marginLeft: '40%', marginTop: '15%', position: 'absolute', fontSize: 20}}></Text>
                         <View style={{ height: '65%', paddingBottom: '1%', marginTop:'3%', backgroundColor: 'white'}}>
                             <Calendar
@@ -545,11 +614,33 @@ export default class CalendarView extends Component {
                             </View>
                         </Modal>
                     </View>
+                    <DateTimePickerModal
+                        isVisible={isDatePickerVisibleStart}
+                        mode="time"
+                        onConfirm={this.handleConfirmStart}
+                        onCancel={this.hideDatePickerStart}
+                    />
+                    <DateTimePickerModal
+                        isVisible={isDatePickerVisibleEnd}
+                        mode="time"
+                        onConfirm={this.handleConfirmEnd}
+                        onCancel={this.hideDatePickerEnd}
+                    />
+                    {this.renderButton()}
                 </View>
             )
         }
-
     }
+    renderButton = () => {
+        const { isLoading } = this.state;
+        if (isLoading) {
+            return <ActivityIndicator/>;
+        }
+        return <View></View> ;
+    };
+
+
+
 }
 
 
@@ -638,7 +729,11 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         marginTop:7,
     },
-    insideModal: {
-
+    headerText: {
+        left: 125,
+        fontSize: 40,
+        fontWeight:'bold',
+        color:'#5FB8B2',
+        top: 20
     }
 });

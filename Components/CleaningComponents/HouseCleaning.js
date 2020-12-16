@@ -55,7 +55,6 @@ export default class HouseCleaning extends React.Component {
                                 </View>
                             ))}
                     </View>
-
             </View>
         )
     }
