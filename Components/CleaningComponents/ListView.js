@@ -1,13 +1,12 @@
-
+//Imports
 import * as React from 'react';
 import {View, Text, FlatList, StyleSheet, Button, Alert, TextInput, TouchableOpacity, ScrollView} from 'react-native';
 import firebase from 'firebase';
-import HeaderClass from "./HeaderClass";
 import { AntDesign } from '@expo/vector-icons';
-import {Header} from "react-native-elements";
 import globalStyles from "../GlobalStyles";
 import { Ionicons } from '@expo/vector-icons';
 
+//Oprettelse af klase til at forsyne brugere med et view over sine inkøbsliste
 export default class ListView extends React.Component {
     //Oprettelse af boolean til styring af lief cycles
     _isMounted = false;
@@ -31,26 +30,25 @@ export default class ListView extends React.Component {
 
     //Der anvendes ComponentDidMount for relevante metoder. Hvortil boolean variabel sættes true
     componentDidMount() {
-            const keyHouseHold = this.props.navigation.getParam('houseHoldKey');
-            const keyToList = this.props.navigation.getParam('specificListKey');
+        //Vi gemmer værdier parset fra det tidligere view
+        const keyHouseHold = this.props.navigation.getParam('houseHoldKey');
+        const keyToList = this.props.navigation.getParam('specificListKey');
 
 
         this._isMounted = true;
+       //Her hentes en række informationer i relation til kollektivet og den fællesindkøbsliste
         firebase.database().ref(`/households/${keyHouseHold}/groceryList/${keyToList}`).on('value', snapshot => {
 
+            //Her gemmes listen med alle varer
            this.setState({list: (Object.values(snapshot.val())[0]) });
+           //Her gemmes alle keys
             this.setState({keys: (Object.keys(Object.values(snapshot.val())[0]))});
+            //Her gemmes household key, der er parset fra overbliks siden
             this.setState({keyHouseHold: keyHouseHold})
+         //Her hentes nøglesn til den pågældende liste
             this.setState({keyToList: keyToList})
         });
-        //  this.loadList(allUsers);
-
-        // Vi udlæser ID fra navgation parametre og loader bilen når komponenten starter
-        // const id = this.props.navigation.getParam('id');
-        // const email = this.props.navigation.getParam('email');
-        // this.loadList(id);
-
-        //   this.updateList;
+        //Her kalder vi den metode, som skal fjerne et element fra listen
         this.removeItem;
     }
     componentWillUnmount() {
@@ -77,13 +75,13 @@ export default class ListView extends React.Component {
 
     };
 
-    //Metoden her tager en lsite og et item med, som skal ferjens fra listen.
-    //Der kører et loop, som finder det valgte item i listen, hvorefter den tilknyttede key bestemmes og anvendes
-    //Til firebase kaldet, der fjerner produktet fra listen
+    //Metoden her tager en lsite og et item med, som skal fjernes fra listen.
     removeItem = (key) =>{
-
+        //Vi henter værdierne
         const keyHouseHold = this.props.navigation.getParam('houseHoldKey');
         const keyToList = this.props.navigation.getParam('specificListKey');
+        //Vi fjerne det element i listen, som er prædefineret ved oprettelse.
+        //Dette elemt oprettes, fordi firebase sletter tomme lister
         firebase.database().ref(`/households/${keyHouseHold}/groceryList/${keyToList}/items/${key}`).remove();
     };
 
@@ -104,10 +102,12 @@ export default class ListView extends React.Component {
     //Med den nye opdaterede liste
     updateList = (listToUpdate, key) => {
 
+        //Vi henter relevante værdier
         const items = this.updateArray(listToUpdate);
         const keyHouseHold = this.props.navigation.getParam('houseHoldKey');
         const keyToList = this.props.navigation.getParam('specificListKey');
 
+        //Her overskriver vi en gamle liste i firebase med en ny liste, der indholder det nye produkt
         firebase.database().ref(`/households/${keyHouseHold}/groceryList/${keyToList}/`).set({items});
     };
 

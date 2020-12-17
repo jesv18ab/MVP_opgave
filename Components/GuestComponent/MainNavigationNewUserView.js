@@ -1,20 +1,27 @@
+
+//Imports
 import React, { Component } from 'react';
 import {Button, View, StyleSheet, Text, TouchableOpacity} from 'react-native';
 import { MaterialCommunityIcons, Entypo, Ionicons } from '@expo/vector-icons';
 
-
+//Vi opretter en klasse for gæstebrugere
 export default class InitalViewNewUsers extends Component {
 
 
-    getHouseHolds = () =>{
+//Dette view skal være en navigationsside, hvor brugerne kan vælge om de vil går til oprettelse af et ny kollektiv
+    //Eller om de vil gå ind og se alle deres invitationer
 
-    }
+   //Metoden fører brugeren ind til oprettelse af et kollektiv
     gotToCreate = () => {
         this.props.navigation.navigate('CreateHouseHold');
     };
+
+    //Metoden fører brugeren ind til alle invitationer
     gotToInvitations = () => {
         this.props.navigation.navigate('MyInvites');
     };
+
+    //I render iobygges siden
     render() {
         return (
             <View style={styles.container}>
@@ -40,6 +47,8 @@ export default class InitalViewNewUsers extends Component {
         );
     }
 }
+
+//Styling til alle komponenter i render
 const styles = StyleSheet.create({
     container: {
         flex: 1,

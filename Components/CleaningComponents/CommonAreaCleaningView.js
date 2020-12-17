@@ -1,7 +1,7 @@
+
+//Imports
 import {Image, StyleSheet, Text, View, SectionList, Platform, Alert, FlatList, TouchableOpacity} from "react-native";
 import React from "react";
-import HeaderClass from "./HeaderClass";
-import AsyncStorage from '@react-native-community/async-storage';
 import firebase from "firebase";
 import HouseCleaning from "./HouseCleaning";
 import globalStyles from "../GlobalStyles";
@@ -12,7 +12,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 
 
-
+//Oprettelse af navigationsklasse for rengøringsoverblikket
 export default class CommonAreaCleaningView extends React.Component {
     _isMounted = false;
     //Her instantieres state variabler
@@ -29,8 +29,8 @@ export default class CommonAreaCleaningView extends React.Component {
     //Når komponenten mounter, skal en array med alle lister hentes
     componentDidMount() {
         this._isMounted = true;
-        var allUsers = [];
 
+        //Her henstes lle brugere fra firebase
         firebase.database().ref('/allUsers/').on('value', snapshot => {
             this.setState({allUsers: snapshot.val()});
         });
@@ -40,40 +40,46 @@ export default class CommonAreaCleaningView extends React.Component {
         this._isMounted = false;
     }
 
-
+    //Metoden herunder henter den pågældende kollektivs fælles indkøbslistes id og sender en bruger
+    //ind til den side, som viser den fælles indkøbsliste
     gotToShoppingList = () => {
-        var specificList= [];
-        var specificListKey= [];
+        //Initialisering af relevante variabler
         let houseHoldKey = null;
         const allUsers = Object.values(this.state.allUsers);
-        console.log(this.props.screenProps.currentUser);
+
+        //Her looper vi igennem alle brugere.
+        //Vi finder den bruger i listen som har en mail, der stemmer overns med den nuværende brugers
+        //Når vi finder et match vil det tilknyttede householdId gemmes i en variabel
         allUsers.map((item, index) => {
             if (item.email.toUpperCase() === this.props.screenProps.currentUser.email.toUpperCase()){
                 this.setState({houseHoldId: item.houseHoldId });
                 houseHoldKey = item.houseHoldId;
             }
-
+            //Ved brug af deovensteånde loop, henter vi nøglen for den fælles inkøbsliste
             firebase.database().ref(`/households/${houseHoldKey}/groceryList`).on('value', snapshot => {
                 if (snapshot.val()){
+                    //Slutteligt navigerer vi ind til indkøbsliste siden og parser de fundenøgler
                     this.props.navigation.navigate('ShoppingList', {houseHoldKey, specificListKey: Object.keys(snapshot.val())[0] }, );
                 }
             });
         });
     };
 
+    //Metoden navigerer brugeren ind til rengæringssiden
     gotToHouseCleaning = () => {
         this.props.navigation.navigate('HouseCleaning');
     };
+    //Metoden navigerer brugeren ind til weShare siden
     gotToEconomy = () => {
         this.props.navigation.navigate('EconomyView');
     };
+    //Metoden navigerer brugeren ind til vaskesiden
     gotToLaundry = () => {
         this.props.navigation.navigate('Laundry');
     };
 
-
+    //I renders opbygges siden me dden knapper, der skal bruges til at sende brugeren videre til diverse sider.
     render(){
-        // Vi skal også bruge alle IDer, så vi tager alle keys også.
         return(
             <View style={globalStyles.container}>
                 <Text style={styles.headerText}> Your private space</Text>
@@ -126,6 +132,8 @@ export default class CommonAreaCleaningView extends React.Component {
     }
 
 }
+
+//Her oprettes stylings til allse komponenterne i render
 const styles = StyleSheet.create({
 
     headerText:{

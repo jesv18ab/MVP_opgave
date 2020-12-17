@@ -1,7 +1,7 @@
+//Imports
 import React from 'react';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {MaterialCommunityIcons} from "@expo/vector-icons";
-import HeaderNav from "../HeaderNav";
 
 export default class WeShareView extends React.Component{
     //I denne klasse er det meningen at der skal være en konfiguration til weShare

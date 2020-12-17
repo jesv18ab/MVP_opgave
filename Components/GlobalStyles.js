@@ -1,6 +1,7 @@
 import {StyleSheet} from "react-native";
 
 
+//Dette er en global styling side, som skal anvendes til de stylings der går i gen i flere klasser
 const globalStyles = StyleSheet.create({
     container: {
         flex: 1,
@@ -51,4 +52,5 @@ const globalStyles = StyleSheet.create({
 
 });
 
+//Her eksporteres komponenter, så vi kan hente den i andre klasser.
 export default globalStyles

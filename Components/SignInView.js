@@ -1,3 +1,4 @@
+//Imports
 import React, { Component } from 'react';
 import {Alert, Text, TouchableOpacity, TextInput, View, StyleSheet, Image, LogBox} from 'react-native';
 import { MaterialIcons, FontAwesome, Entypo, Ionicons, Fontisto } from '@expo/vector-icons'
@@ -7,12 +8,13 @@ import globalStyles from "./GlobalStyles";
 
 
 
-
+//Klasseoprettelse samt constructor oprettelse
 export default class SignInView extends Component {
     constructor(props) {
         super(props);
         this._isMounted = false;
     }
+    //Konrollering af livscyklusser
     _isMounted = false;
 
     //Der oprettes relevante state variabler, heriblandt varibler til håndtering
@@ -31,8 +33,6 @@ export default class SignInView extends Component {
     };
 
 
-    //Der oprettes relevante state variabler, heriblandt varibler til håndtering
-    //af credentials og en variabel, som skal tjekke, hvorvidt en person er logget ind.
 
 
     //login metode. Dette er et asynkront kald, som validerer, hvovidt email og password
@@ -41,10 +41,11 @@ export default class SignInView extends Component {
         const { email, password } = this.state;
         //Vi laver en try/catch i tilfælde af at der går noget galt under det asynkrone kald.
         try {
-            // Here the data is passed to the service and we wait for the result
+            // Her sendes data og vi afventer resultatetet
             const output =  await firebase.auth().signInWithEmailAndPassword(email, password);
-            //Hvis credentials passser, skal state variablen sætte true
-            //Der er ikke oprettet fejlhåndtering endnu
+
+            //Såfremt login oplysningerne temmer, vil isloggedin state variablen blive sat true
+            //Er dette ikke tilfældet, vil variablen live sat false
             this._isMounted && this.setState({ isLoggedIn: true });
         } catch (error) {
            console.log(error.message);
@@ -58,17 +59,21 @@ export default class SignInView extends Component {
         this._isMounted && this.loginUser();
 
     }
+
+    //AFmonteringsmetode
     componentWillUnmount() {
         this._isMounted = false;
     }
+
+    //Metode til at styre navigation ind til SignUp
     willSignUp =() => {
         this.props.navigation.navigate('SignUp');
     };
 
 
-    //I render tester vi status på isLoggedIn state variablen.
-    //er variablen true, skal vi instantiere vores AppBottomNav Komponent
-    //Ellers skal signIn siden fremvises
+    //I render opbygges siden.
+    //Der oprettes tekstinput, til loginoplysninger samt knapper til login eller, hvis man ønsker at
+    //tilgå brugeroprettelsenssiden.
     render() {
             return (
                     <View style={globalStyles.container}>

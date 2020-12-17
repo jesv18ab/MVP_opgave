@@ -1,9 +1,10 @@
+//Imports
 import {createStackNavigator} from "react-navigation-stack";
 import {createAppContainer} from "react-navigation";
 import SignInView from "../SignInView";
 import CreateUser from "../GuestComponent/CreateUser";
 
-
+//Stack navigator for gæster. Indtager signinsiden og signup siden
 const StackNavigatorInitialView = createStackNavigator(
     {
         SignIn: {

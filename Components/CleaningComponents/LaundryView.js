@@ -1,38 +1,40 @@
+//Imports
 import {StyleSheet, Text, View, Button, TextInput, Switch} from "react-native";
 import React from "react";
-import HeaderClass from "./HeaderClass";
-import AsyncStorage from '@react-native-community/async-storage';
-import HeaderEvents from "../CalendarComponent/HeaderEvents";
 import { FontAwesome5, Entypo } from '@expo/vector-icons';
 
-//Der er ikke brugt tid på funktionalitet eller design af denne klasse
-//Klassen vil blive lavet på et senere tidspunkt.
+//Her hardcodes tre status. Grundet manglende vertikal integration hardcodes
 
-
+//Status 1 er en komponents, som skal fremvises, hvis en vask ikke er sat igang endnu
 const Status1 =
     <View style={{alignItems: 'center', backgroundColor: 'white', width: '38%'}}>
         <Text>Ikke sat igang</Text>
         <FontAwesome5 name="smile" size={24} color='green'/>
     </View>
 
+//Status 2 skal fremvises hvis en vask snart startes
 const Status2 =
     <View style={{alignItems: 'center', backgroundColor: 'white', width: '38%'}}>
         <Text>Starter snart </Text>
         <FontAwesome5 name="surprise" size={24} color="yellow" />
     </View>
 
+//Status 3 skal vises hvis en vask er gået igang
 const Status3 =
     <View style={{alignItems: 'center', backgroundColor: 'white', width: '38%'}}>
         <Text>Er sat igang i dag</Text>
         <Entypo name="emoji-sad" size={24} color="red" />
     </View>
 
-
+//Oprettelse af klasse til vaksetøjsplanlægning
 export default class LandryView extends React.Component {
 
+    //Vi Opretter en statearray med tre prædefinerede objekter, som skal printes i render
     state = ({
             switchItems: [{ date: '13:30', name: 'Sarah Hansen', status: Status1}, { date: '12:00', name: 'Hans Hansen', status: Status2}, { date: '09:00', name: 'Signe Emilie', status: Status3}   ] }
                 )
+
+    //I render printes en liste over planlæagte vaske. Listene printes for at eksemplificerer en af hver prædefinerede statusser
                     render(){
         return(
             <View style={styles.container}>
@@ -65,6 +67,7 @@ export default class LandryView extends React.Component {
                     }
 }
 
+//Her oprettes sstyling komponenter for komponenter i render
 const styles = StyleSheet.create({
     container: {
         flex: 1,

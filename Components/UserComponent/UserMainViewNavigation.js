@@ -21,8 +21,8 @@ import Logout from "../Logout";
 import * as firebase from 'firebase';
 import {StyleSheet, Alert} from 'react-native';
 
-//Oprettelse af en drawernavigator, hvori vi placerer tilhørende screens
-
+//Oprettelse af en stacknavigator for nye brugere
+//Her oprettes screens til initial view, et invitationsview og skabesle af et kollektiv
 const StackNavigatorNewUsers = createStackNavigator({
     InitialPage:{
         screen: InitalViewNewUsers, navigationOptions: {
@@ -45,7 +45,8 @@ const StackNavigatorNewUsers = createStackNavigator({
 );
 
 
-
+//Her laver vi en stacknavigator til alle views i rengøringsoverblikket
+//Heri indgår, inkøbsliste, weShare, vasketøj og rengøring
 const StackNavigatorCleaningOverView = createStackNavigator(
     {
         Oversigten: {
@@ -87,6 +88,8 @@ const StackNavigatorCleaningOverView = createStackNavigator(
 );
 
 
+//Her oprettese en tabnavigatorm, der indheolder profilview,kalenderview, en indgang til vores rengøringsoverblik, en logud knap og
+//Et view til hpndtering af tilføjelsen af nye brugere
 const TabNavigator = createBottomTabNavigator(
     {
         Profile: {
@@ -144,7 +147,7 @@ const TabNavigator = createBottomTabNavigator(
 
         }
     },
-/*Generelle label indstillinger. Blot en design metode*/
+/*Generelle  indstillinger for Tab navigatores*/
     {
         tabBarOptions: {
             showIcon: true,
@@ -159,7 +162,8 @@ const TabNavigator = createBottomTabNavigator(
 
 );
 
-
+//Denne stacknavigator binder vores tabnavigator for validerede brugere og gæstebrugere sammen.
+//Meget vigtig for den endelige navigation
 const StackNavigatorOverView = createStackNavigator(
     {
         Tabs: {
@@ -176,12 +180,10 @@ const StackNavigatorOverView = createStackNavigator(
 
 
 
-//Vi instantiere en bottomnavigator, som står for den overordnede navigering i appplikationen.
-//Der  instantieres komponenter i de relevante screens samt oprettes en forbindelse til den oprettede drawernavigator
-//Derudover er der benyttet ikoner
 
 
-//Vi wrapper bottomnavigatoren ind i en appcontainer.
+//Vi wrapper vores stacknavigator, som står for at binde de resterende navigatorer, ind i en appcontainer.
 const MainNavigator = createAppContainer(StackNavigatorOverView);
 
+//Denne eksporteres(Og importeres i vores App klasse)
 export default MainNavigator

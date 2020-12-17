@@ -1,26 +1,23 @@
+//Imports
 import React, { Component } from 'react';
 import {StyleSheet, Text, View, Alert, TouchableOpacity, Image, Linking, Modal,
     TouchableHighlight, TextInput, Button, ScrollView, FlatList, ActivityIndicator, Platform
 } from 'react-native';
-import CalendarPicker from 'react-native-calendar-picker';
-import HeaderEvents from "./HeaderEvents";
 import TimePicker from "react-native-simple-time-picker";
 import firebase from "firebase";
-import {AntDesign} from "@expo/vector-icons";
-import HeaderNav from "../HeaderNav";
 import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
 import { format } from "date-fns";
 import { SimpleLineIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 const title = "Opret Begivenhed";
 
-//Kalender klassen er en eksternt hentet komponent, som ikek er blevet tilpasset til porjektet endnu
-//Selve designet er under overvejelser, men er ikke fuldstændig fastlagt.
+
+//Denne klasse står for at håndtere den interne kalender
 export default class CalendarView extends Component {
 
     //Der oprettes en constructor, der tager props med som argument
-    //Derudocer sættes startværdier for state variablen.
-    //Slutteligt oprettes der metoder til at håndtere skift i datovalg
+    //Derudocer sættes startværdier for state variablerne.
+    // Der er mange states at holde styr på  i denne klasse
     constructor(props) {
         super(props);
         this.state = {
@@ -51,24 +48,37 @@ export default class CalendarView extends Component {
             isDatePickerVisibleEnd: false,
             createEvent: 'Opret'
         };
+        //Står for at olde styr på ændringer i datoen
         this.onDateChange = this.onDateChange.bind(this);
     }
+    //Håndterer de metoder som skal kaldes når komponenter monteres
     componentDidMount() {
         this.getHouseHoldId();
     }
-    startLoading = () => this.setState({ isLoading: true });
-    endLoading = () => this.setState({ isLoading: false });
 
+    //Når der bliver valgt et tidspunkt u vores dateTaimePicker, skal dette tidspunkt formateres
+    //Denne formatering står nedenstående metode for
     handleConfirmEnd = (time) => {
+
+       //Initialisering af relevante variabler
+        //Metoden relaterer sig kun til sluttidspunktet for en begivenhed
         let minutes = null;
         let hours = null;
+
+        //Hvis antallet af valgte minutter er under ti skal dette minuttal formateres
         if (time.getMinutes() < 10 ){
+            //Her foregår formateringen
             minutes = "0"+time.getMinutes().toString()
+        //Efter formateringen gemmes minuttallet i en statevariabel
             this.setState({chosenEndMinutes: minutes})
         } else {
+            //Er minuttallet over 10, hentes minutterne o gemmes i statevariablen
             minutes = time.getMinutes().toString()
             this.setState({chosenEndMinutes: minutes})
         }
+
+        //Herunder formateres der på samme vis, som det blev gjort med minutterne.
+        //Her blot med timer
         if (time.getHours() < 10 ){
             hours = "0"+time.getHours().toString() + ":"
             this.setState({chosenEndHours: hours})
@@ -77,8 +87,11 @@ export default class CalendarView extends Component {
             hours = time.getHours().toString() + ":"
             this.setState({chosenEndHours: hours})
         }
+
+        //slutteligt kaldes den metode, som skal står for at skjule vores dateTimePicker
         this.hideDatePickerEnd();
     };
+    //Denne metode er nøjagtig ens med handleConfirmEnd, blot for starttidspunktet
     handleConfirmStart = (time) => {
         let minutes = null;
         let hours = null;
@@ -99,34 +112,54 @@ export default class CalendarView extends Component {
         this.hideDatePickerStart();
     };
 
+    //I nedenstående metode hentes id'et for det household, som den pågældende bruger er en del af
     getHouseHoldId = () => {
+     //Oprettelse af variabel, som id'et skal gemmes i
         let houseHoldId = null;
+    //Vi henter alle brugere. Disse er parset fra App.js
         const allUsers = Object.values(this.props.screenProps.allUsers);
+
+       //Vi looper igennem alle brugerne. Hvis mail for et bruger objekt er ens med den nuværende brugers
+        //Henter vi household id'et fra brugerobjektet
         allUsers.map((item, index) => {
             if(item.email.toUpperCase() === this.props.screenProps.currentUser.email.toUpperCase()){
                 houseHoldId = item.houseHoldId
             }
         });
+
+        //Vi bruger den fundne household ID ti at det pågældende kollektiv
         firebase.database().ref(`/households/${houseHoldId}/events/`).on('value', snapshot => {
             if (snapshot.val()){
+
+               //Her oprettes et array til alle begivenheder i kollektivet
                 let arr = [];
                 Object.values(Object.values(Object.values(snapshot.val()))).map((item, index) => {
                     arr.push(Object.values(Object.values(item)[0])[0])
                 });
+                //Vi formatere arrayet, på en måde, som muliggør at vi kan markere dagene for begivenhederne i kalenderen
                 arr =  arr.reduce((c, v) => Object.assign(c, {[v]: {selected: true, endingDay: true, color: 'green', textColor: 'gray'}}), {});
+
+                //Datoerne gemmes i et statearray
                 this.setState({dates: arr});
+
+                //Alle events gemmes i en statevariabel
                 this.setState({allHouseHoldEvents: snapshot.val()});
             }
             }
         );
+        //Vi gemmer household Id
         this.setState({houseHoldId: houseHoldId })
 
     };
-    //Alert som kan anvendes, hvis man vælger en dato
-    //Er ikke brugt
+
+    //Metoden herunder står for at fremvise den modalformular, der står fro at hente info om begivenheden
     makeEvent =() =>{
+        //Vi sætter label for opret knappen i formularen
         this.setState({createEvent: 'Opret'})
+      //Vi sørger fo at alle værdier i formularen er nukstillede
         this.reset();
+
+       //Dernæst sættes modalvariablen til at være true, hvis den er false og omvendt
         if (this.state.setEventModalVisible === false){
             this.setState({setEventModalVisible: true})
         } else if(this.state.setEventModalVisible === true) {
@@ -134,6 +167,9 @@ export default class CalendarView extends Component {
         }
     };
     //Metoder som håndtere skiftende datoer
+
+   //MEtoden herunder er anvedt til at styre  hvis en dato ændres
+    //Metoden tager en dato med som parameter
     onDateChange(date) {
         let date_string = date.toString();
         let dateArray = [];
@@ -147,8 +183,9 @@ export default class CalendarView extends Component {
         this.setState({
         });
     }
+
+  //Denne metode når vi implementerer google kalender
     calendar = () => {
-        var testVariabel = "SDFSDFSDF";
         try {
             Linking.openURL('https://calendar.google.com/calendar/u/0/r')
         } catch (e) {
@@ -156,9 +193,15 @@ export default class CalendarView extends Component {
         }
     };
 
+    //DEnne metode står for at lave en alert, der skal have bekræftet, hvorvidt en bruger
+    //ønsker at oprette en begivenhed
+    //MEtoden tager den valgte dag med som parameter
     newEvent = ({day}) => {
+        //parameteren bliver gemt i en statevriabel
         this.setState({day: day});
-            Alert.alert(
+        //Her laves en aler. Trykkes der på opret, vil formularen fremvises
+        //Trykes der cancel, returnerer viewet til sit udganspunkt
+        Alert.alert(
             'Vil du oprette en ny begivenhed?',
             '',
             [
@@ -170,14 +213,20 @@ export default class CalendarView extends Component {
 
     };
 
+    //Følgende metoder står for at håndtere fremvisning af dateTimerPickers. Her både fro start og slut tidspunkter
 
+    //Fremviser start tidspunkt
     showDatePickerStart = () => {
         this.setState({isDatePickerVisibleStart: true})
     };
+
+    //Skjuler, når starttidspunkt er valgt
     hideDatePickerStart = () => {
-        console.log("Test")
         this.setState({isDatePickerVisibleStart: false})
     };
+
+   //De to nedenstående metoder er helt ligmed metoderne for showDatePickerStart & hideDatePickerStart
+    //Her blot for sluttidspunktet
     showDatePickerEnd = () => {
         this.setState({isDatePickerVisibleEnd: true})
     };
@@ -185,7 +234,12 @@ export default class CalendarView extends Component {
         this.setState({isDatePickerVisibleEnd: false})
     };
 
+    //Denne bestemmer om den pågældende bruger er på en IOS enhed eller en android enhed
+    //Bruger vi en IOS enhed, vil der blive vist et view til at vælge tidspunkt
+    //Anvendes der en android enhed, vil der blive vist et andet view til at vælge tidspunkt
     showTime = type =>{
+
+      //IOS enhed
         if (Platform.OS === 'ios')
         {
             this.setState({type: type});
@@ -196,6 +250,8 @@ export default class CalendarView extends Component {
                 this.setState({setTimeVisible: false})
             }
         }
+
+        //Android enhed
         if (Platform.OS === 'android');
         {
             if (type === 1){
@@ -207,31 +263,43 @@ export default class CalendarView extends Component {
 
     };
 
-
+//Denne metode står for at formatere starttidspunktet
     setTimeStartTime = () => {
-        if (this.state.type === 1){
-        }
+     // vi initialiserer værdierfor miutter og timer
         let minutesBelow = 0;
         let hoursBelow = 0;
+
+        //Hvis det valgte antal timer er under 10, skal dette tidspunkt formateres
         if (this.state.selectedHours < 10){
             hoursBelow = hoursBelow.toString()+this.state.selectedHours.toString()+":";
             this.setState({chosenStartHours: hoursBelow})
         }
+        //Ellers gemmer vi blot timetallet i en state variabel
         else {
             this.setState({chosenStartHours: this.state.selectedHours + ":"})
         }
+
+        //Her tjekker vi om det valgte minuttal er under 10.
+
+        //Hvis minuttallet er under 10 skal dette ormateres
         if (this.state.selectedMinutes < 10){
             minutesBelow = minutesBelow.toString()+this.state.selectedMinutes.toString()
             this.setState({chosenStartMinutes: minutesBelow})
         }
+
+        //Ellers gemmer vi blot minuttallet i en statevariabel
         else {
             this.setState({chosenStartMinutes: this.state.selectedMinutes})
         }
+
+        //Vi nulstiller det valgte antal timer, minutter samt skjluer timepickeren
         this.setState({selectedHours: 12 });
         this.setState({selectedMinutes: 30 });
         this.setState({setTimeVisible: false})
     };
 
+    //Metoden her bestemmer, hvorvidt vi vil sætte begivnhedens starttidspunkt eller slut tidspunkt pba.
+    //Den parameter, som er sendt med i metode
     setTime = () => {
         if (this.state.type === 1){
             this.setTimeStartTime()
@@ -243,11 +311,15 @@ export default class CalendarView extends Component {
         }
     };
 
+    //MEd så mange statevariabler, er det belejligt at oprette en metode, som nulstiller dem alle på én gang
+    //Det er netop formålet med reset-metoden
     reset = () => {
         this.setState({day: null, time: 12, selectedHours: 12, selectedMinutes: 30, chosenStartHours: "", chosenStartMinutes: "", chosenEndHours: "", chosenEndMinutes: "", type: null, description: "Beskrivelse af Begivenhed....", eventName: "Angiv begivenhedens navn", setTimeVisible: false, setEventModalVisible: false, startTime: "Fra", endTime: 'Til', date: null, createEvent: 'Opret'
         })
     };
 
+    //Denne metode er i logik fuldstændig ligmed setTimeStartTime
+    //Dog med fokus på sluttidspunktet
     setTimeEndTime = () => {
         let minutesBelow = 0;
         let hoursBelow = 0;
@@ -269,23 +341,41 @@ export default class CalendarView extends Component {
         this.setState({selectedMinutes: 30 });
         this.setState({setTimeVisible: false})
     };
+
+   //Denne metode står for den begivenhed, som en bruger har trykket på nede i det horisontale scrollview i render
+    //Metoden tager et kalender item med samt et id
     showEvent = (item, key) => {
+
+       //Først gemmes en række relevante værdier fra kalender objekten
         const date =  Object.values(Object.values(Object.values(item)[0])[0])[0];
         const description =  Object.values(Object.values(Object.values(item)[0])[0])[1];
         const endTime =   Object.values(Object.values(Object.values(item)[0])[0])[2];
         const eventName =   Object.values(Object.values(Object.values(item)[0])[0])[3];
         const startTime =   Object.values(Object.values(Object.values(item)[0])[0])[4];
+
+      //Dernæst formateres datpen
         let newdate = new Date(date);
         let dayFormatted = format(newdate, "dd MMMM yyyy ")
+
+       //Slutteligt sættes en række state variabler til at være de værdier, som er hentet fra kalender objektet
         this.setState({key: key, endTime: endTime, date: dayFormatted, description: description, eventName: eventName, startTime: startTime, setEventModalVisible: true, createEvent: 'Rediger' })
     };
 
+    //Denne metode står fro at oprette eeller opdatere en begivenhed
     createEvent = () => {
+
+      //Først tester vi om metoden er kaldt i tildfælde af en oprettelse eller en opdatering
         if (this.state.createEvent === "Rediger"){
+
+           //Her ønkser brugeren at opdatere en eksisterende begivenhed
+            //Derfor gemmes en række værider fra objektet
             let { date, description, eventName  } = this.state;
             let startTime = this.state.chosenStartHours + this.state.chosenStartMinutes;
             let endTime = this.state.chosenEndHours + this.state.chosenEndMinutes;
+           //værdierne er inklusiv de opdaterede værider
             try {
+                //MEd alle de nye værdier gemt i variabler, kaledes en update metode på databasen.
+                //Herved opdateres kaledner objektet
                 const reference = firebase.database().ref(`/households/${this.state.houseHoldId}/events/${this.state.key}/event`).update({date: date, description: description, endTime: endTime, eventName:  eventName, startTime: startTime});
                 // Når bilen er ændret, går vi tilbage.
                 Alert.alert("Din info er nu opdateret");
@@ -294,10 +384,14 @@ export default class CalendarView extends Component {
             }
 
         }
+       //I else kodeblokken vil vi oprette en ny begivenhed
+      //Vi starter med at gemme en række relevante værdier
         else {
         let startTime = this.state.chosenStartHours + this.state.chosenStartMinutes;
         let endTime = this.state.chosenEndHours + this.state.chosenEndMinutes;
         const { eventName, description, houseHoldId, day } = this.state;
+
+        //Dernærst oprettes et samlet objekt, som indtager alle værdierne
         let event = {
             date: day.dateString,
             eventName: eventName,
@@ -305,17 +399,22 @@ export default class CalendarView extends Component {
             endTime: endTime,
             description: description,
         };
+
+      //Objektte pushes til firebasen og skaber derved en ny kalender begivenhed
         firebase.database().ref(`/households/${houseHoldId}/events/`).push({event});
         }
+
+       //Slutteligt vil alle værdierne nulstilles
         this.reset()
     };
 
-    test = () => {
-        Alert.alert("TEst");
-    };
 
-    //I render instantieres en CalenderPicker komponent, der fremviser en kalender
-    //Kalender har en property, som kan registrere valg af datoer, som forekommer ved tryk på skærmen
+
+    //I render testes først, hvrvidt der overhovedet er nogle kalender objekter
+    //Hvis ikke der er kalender objekter fremvises et view uden et horisontalt scroll, hvor kalenderen stadig er tilstede
+    //Er der derimod kalender objekter, vil dagene for disse markeres i kalenderen
+    //For hver enkelt kalender objekt udprintes et begivenhedsview, som indsættes i et horisontal scrollview.
+    //Derudover er der en række variabel initialiseringer og styling f de forskellige komponenter
     render() {
         const { selectedHours, selectedMinutes, chosenStartHours, chosenStartMinutes, chosenEndHours, chosenEndMinutes, houseHoldId, showCalendar, day, startTime, endTime, date } = this.state;
         const {  setEventModalVisible, setTimeVisible, description, descriptionPlaceholder, eventName, eventNamePlaceHolder, dates, isDatePickerVisibleStart, isDatePickerVisibleEnd } = this.state;
@@ -668,6 +767,8 @@ export default class CalendarView extends Component {
 }
 
 
+
+//Oprettelse af styling til komponenterne i render
 const styles = StyleSheet.create({
     container: {
         flex: 1,

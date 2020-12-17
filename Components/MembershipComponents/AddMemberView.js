@@ -15,6 +15,7 @@ export default class AddMemberView extends React.Component{
         email: null
     };
 
+    //I componentdidmount henter vi alle brure og alle households
     componentDidMount() {
         this._isMounted = true;
         firebase.database().ref('/allUsers/').on('value', snapshot => {
@@ -26,42 +27,65 @@ export default class AddMemberView extends React.Component{
             }
         );
     }
+
+    //Håndtering af logout
     handleLogOut = async () => {
         await firebase.auth().signOut();
     };
 
+    //Her henter vi householdname
     getHouseHoldName = () => {
+
+        //Vi opretter en liste over alle households og slle keys for households.
+        //DErudover gemmes den nuværende bruger i en const varabel
         const listOfhouseHolds = Object.values(this.state.houseHolds);
         const listOfKeys = Object.keys(this.state.houseHolds);
         const currentUser = this.getCurrentUser();
+
+      //Initialisering af variabler til nøgle og householdname
         var keyFound = null;
         var houseHoldName = null;
+
+       //Vi looper igennem aller households og tester, hvorvidt den nuværende brugers householdId er ligmed det, som findes
+        //I listen af nøgler. Når et match er fundet gemmes nøglen i den præinitialiserede variabel
         listOfhouseHolds.map((item, index) => {
             if (listOfKeys[index] === currentUser.houseHoldId){
                 keyFound = listOfKeys[index];
             }
         });
+
+        //Ved brug af den fundne nøgle hentes householdname
         firebase.database().ref(`/households/${keyFound}`).on('value', snapshot => {
                 houseHoldName = snapshot.val();
             }
         );
+
+        //Kollektivnavnet returneres
         return houseHoldName;
     };
 
+    //Her hentes den nuværende bruger
     getCurrentUser = () => {
+
+        //Initialisering af variable til den nurværende bruger og tilhørende nøgle
         let keyFound = null;
         let currentUser = null;
+        //Vi henter alle brugere og placerer disse i en liste
         const listOfUsers = Object.values(this.state.allUsers);
+        //Vi looper igennem alle brugere og tjekker hvorvidt det enkltes objekt email værdi stemmer overens med den nuværende brugeres
         listOfUsers.map((item, index) => {
             if (item.email.toUpperCase() === this.props.screenProps.currentUser.email.toUpperCase()){
                 currentUser = listOfUsers[index];
             }
         });
+
+        //Her returneres den fundne bruger
         return currentUser
     };
 
     //Metoden står for at gemme data fra en array i min firebase DB
     handleSave = () => {
+       //Vi initialisere en række variabler og gemmer en række værdier, der skal anvendes
         let isValidated = null;
         let isValidatedKey = null;
         var usersFromHouseHold = [];
@@ -71,22 +95,28 @@ export default class AddMemberView extends React.Component{
         const id = currentUser.houseHoldId;
         const houseHoldName = this.getHouseHoldName();
         let checkMail = this.state.email;
-        console.log(checkMail);
+
+        //Vi henter alle brugere i et  og gemmer disse i en state
         firebase.database().ref(`/households/${currentUser.houseHoldId}/users`).on('value', snapshot => {
                 usersFromHouseHold = snapshot.val();
             }
         );
+
         const houseHoldUsers = Object.values(usersFromHouseHold);
+
+        //Vi looper igennem aller brugere
             allUsers.map((item, index) => {
+
+               //Vi en email i listen stemmer overens med den nuværende brugers email, hetnes brugeres og vedkommende nøgle
                 if (item.email.toUpperCase() === checkMail.toUpperCase()){
                     isValidated = allUsers[index];
                     isValidatedKey = keys[index];
-
                 }
             });
+
+            //Her opretter vi en invitation med alle de oplysninger der er fundet ved brug af de ovenstående metoder
             const reference = firebase.database().ref(`/allInvitations/`).push({sender: currentUser.email, receiver: isValidated.email, houseHoldName: houseHoldName.houseHoldName, houseHoldId: currentUser.houseHoldId, status: "not replied"});
         try {
-            // const reference = firebase.database().ref(`/households/${id}`).set({houseHoldName, users});
         } catch (error) {
             Alert.alert(`Error: ${error.message}`);
         }
@@ -97,7 +127,7 @@ export default class AddMemberView extends React.Component{
         this._isMounted = false;
     }
 
-    //her er kun design utviklet enn så lenge - ikke logikk. Lager input felt, som skal ta vare på fremtidige nye brukere.
+    //I render opbygges siden.
     render() {
         return (
             <View style={styles.container}>
@@ -113,8 +143,6 @@ export default class AddMemberView extends React.Component{
                     placeholderTextColor = 'grey'
                     style={styles.input}
                 />
-
-
 
                 <TouchableOpacity
                     style={styles.button}

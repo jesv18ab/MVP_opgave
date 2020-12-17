@@ -1,13 +1,16 @@
+//Imports
 import React, { Component } from 'react';
 import {StyleSheet, View, Text, TextInput, Switch, ScrollView, TouchableOpacity, KeyboardAvoidingView, Keyboard} from 'react-native';
 import Modal from 'react-native-modal'; // 2.4.0
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
-//Der er ikke brugt tid på funktionalitet eller design af denne klasse
-//Klassen vil blive lavet på et senere tidspunkt.
 
-
+//Denne klasse står for at administrerer rengøringsplanlægningen
 export default class HouseCleaning extends React.Component {
+
+ //Her er hardcodet tre præefinerede objekter, som printes i render. Nogle objekter skal angive at rengøringen er foregået
+    //MEns andre fremviser, hvordan det ser ud for en planlagt vask
+    //Derudover oprettes statevariabler, som skal styre visnignen af et modal view og dataTimePickers
     state = (
         {
             switchItems: [ {isEnabled: true, date: 'Udført: 20-10-2020', name: 'Sarah Hansen' }, {isEnabled: false, date: '20-10-2020', name: 'Søren Andersen' }, {isEnabled: false, date: '20-10-2020', name: 'Mads Klausen'},
@@ -20,62 +23,93 @@ export default class HouseCleaning extends React.Component {
         }
     );
 
+
+    //I denne metode opdateres et objekt i listen, som konsekvens af en aktivitet i vores switch komponent
+    //Metoden tager en status med fra det pågældende objet der skal ændres på
+    //Derudover hentes det index, som objektet har i listen
     setSwitch = (status, index) => {
+
+     //Initialisering af relevante variabler
         let date = new Date().getDate();
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
+      //Formatering af datoer
         let currentDate ="Udført: " + date + "-"+ month + "-" + year
         let currentDate2 ="Opdateret: " + date + "-"+ month + "-" + year
         let arr = this.state.switchItems;
+
+        //Der oprettes et if-else statement til at styre den hpndtering der skal foregår, hvis
+        //Objekt i frovejen er markeret som færdiglavet eller ej
         if (status){
+          //Er opgaven udført, skal dette annulleres og aktiviteten sættes til at være opdateret og ikke udført
             arr[index].isEnabled = false;
             arr[index].date = currentDate2;
             this.setState({switchItems: arr})
         }else{
+            //Her sættes opgaven til at være udført
             arr[index].isEnabled = true;
             console.log(arr[index].date);
             arr[index].date = currentDate;
             this.setState({switchItems: arr})}
     };
 
-
+//Denne metode står for at håndere, når en dato er valgt i datepickeren.
     handleConfirm = (date) => {
+       //Initialisering af relevante variabler
         let newDate = new Date(date);
         let month = newDate.getMonth()+1;
         let day = null;
+
+        //Hvis den valgte dag er i starten af måneden, skal ydeligere formatering udføres
         if (newDate.getDay() < 10)
         {
+            //Vi tilføjer et nul i datoen
             day = "0"+newDate.getDay()
         }
         else {
+            //Hvis datoen ikke er i starten af måneden gemmes den valgte dag blot
             day = newDate.getDay()
         }
+        //Samme procedure for måneder som for dage
         if (month < 10)
         {
             month = "0"+month
         }
+       //Slutteligt sammenæsttes dagm månedog år i en formateret dato.
         newDate = day + "-" + month + "-" + newDate.getFullYear();
         this.setState({date: newDate})
+
+        //Her kalder vi den metode, som skal gemme dateTimePicker komponenten
         this.hideDatePicker();
     };
 
+    //Metoden sætter en state værdi, der vil betyde at datepickeren bliver fremvist
     showDatePicker = () => {
         this.setState({isDatePickerVisible: true})
     };
+    //Metoden sætter en state værdi, der vil betyde at datepickeren bliver skjult
     hideDatePicker = () => {
         this.setState({isDatePickerVisible: false})
     };
 
+    //Metpden står fro at oprette et nyt rengøringsobjekt
     createCleaning = () => {
-       let arr = [];
+       //Vi opretter og gemmer relevanteværdier og vriabler
+        let arr = [];
        arr = this.state.switchItems;
+     //Her oprettes det nye rengæringsobjekt
        let item= {isEnabled: false, date: "Planlagt: " +  this.state.date, name: this.state.name}
+      //Objektet gemmes i en liste over alle rengæringsobjekter
        arr.push(item);
+      //Vi overskriver den gamle liste med en nye liste samt sætter vores modealvarablen null,
+        //Således vores modalview gemmes igen.
         this.setState({switchItems: arr, visibleModal: null })
         this.setState({visibleModal: null})
     };
 
 
+    //I render opbygges siden, hvortil relevante komponenter er sat idrift for at kunne håndtere de handlinger
+    //som en bruger ønsker at kunne udføære
     render(){
         const {isDatePickerVisible, date} = this.state
         return(
@@ -153,6 +187,8 @@ export default class HouseCleaning extends React.Component {
     }
 
 }
+
+//Relevant styling til komponenterne er vist herunder
 const styles = StyleSheet.create({
     container: {
         flex: 1,

@@ -1,3 +1,5 @@
+
+//Imports
 import * as React from 'react';
 import {Button, Text, View, TextInput, ActivityIndicator, StyleSheet, Alert, TouchableOpacity,} from 'react-native';
 import firebase from "firebase";
@@ -8,19 +10,21 @@ import {Entypo, FontAwesome, Fontisto, MaterialIcons} from "@expo/vector-icons";
 import globalStyles from "../GlobalStyles";
 import RNPickerSelect from "react-native-picker-select";
 
-
+//Her oprettes en år-variabel, der indeholder et label med en værdi og en styling
 const placeholderYear = {
     label: 'År',
     value: null,
     color: '#9EA0A4',
 };
 
+//Oprettelse af en månned-variabel med en værdi og farve
 const placeholderMonth = {
     label: 'Måned',
     value: null,
     color: '#9EA0A4',
 };
 
+//Her oprettelse en array med alle måender på et år
 const months =
     [{label: 'Januar', value: "Januar"},
         {label: 'Feb', value: "Februar"},
@@ -36,6 +40,7 @@ const months =
         {label: 'Dec', value: "December"},
     ];
 
+//Her oprettes en liste med alle dage på en måned
 const days =
     [{label: '1', value: "1"},
         {label: '2', value: "2"},
@@ -70,6 +75,7 @@ const days =
         {label: '31', value: "31"},
     ];
 
+//Oprettelse af en variael til en dag
 const placeholderDay = {
     label: 'Dag',
     value: null,
@@ -77,9 +83,10 @@ const placeholderDay = {
 };
 
 
-
+//Oprettelse af en klass
 export default class CreateUser extends React.Component {
 
+    //Operettelse af relevante statevariabler
     state = {
         email: '',
         password: '',
@@ -97,54 +104,39 @@ export default class CreateUser extends React.Component {
         name: null
     };
 
+    //ComponentDidmount metode
     componentDidMount() {
-        /* firebase.database().ref('/usersNotApartOFAHousehold/').on('value', snapshot => {
-             this.setState({ users: snapshot.val() });
-     });*/
+       //her hentes alle brugeren fra firebase
         firebase.database().ref('/allUsers/').on('value', snapshot => {
             this.setState({allUsers: snapshot.val()})
         });
-       /* firebase.auth().onAuthStateChanged(currentUser => {
-            this.setState({currentUser: currentUser});
-        });*/
+
 
     }
 
     componentWillUnmount() {
     }
 
-// Dene fremviser at vi loader. Når en operation idriftsættes, skal der vises en spinner
-    startLoading = () => this.setState({ isLoading: true });
-    // Når vores loading er færdig, kaldes denne metode til at fjerne spinneren
-    endLoading = () => this.setState({ isLoading: false });
-// Denne vises, når vi skal præsentere en fejlsbesked
-    setError = errorMessage => this.setState({ errorMessage });
-// Denne kaldes, når vi afprøver en operation igen og skal fjerne fejlbeskeden.
-    clearError = () => this.setState({ errorMessage: null });
 
-// EStår for at opdatere værdierne af vores inputfields, når der bliver skrevet i disse.
+// Metoderne står for at opdatere værdierne af vores inputfields, når der bliver skrevet i disse.
     handleChangeHouseHold = houseHoldName => this.setState({ houseHoldName });
-    //   handleChangePassword = password => this.setState({ password });
-
     handleChangeEmail = email => this.setState({ email });
     handleChangePassword = password => this.setState({ password });
     handleChangeName = name => this.setState({ name });
 
-
+//Denne metode håndterer oprettelseaf en bruger. Dete er en asynkron metode
     handleSubmit = async () => {
+        //Inoitialisering af variabler
         const { email, password, name, day, month, year  } = this.state;
         const birthday = {day: day, month: month, year: year};
         const status = false;
         const houseHoldId = "none";
-        console.log(name);
         try {
+          //Vi opretter en bruger vha. en prædefineret metode fra firebase
             const result = await firebase.auth().createUserWithEmailAndPassword(email, password);
+         //Brugeren oprettes i vores realtime database
            const reference = firebase.database().ref(`/allUsers/`).push({name, email, status, houseHoldId, birthday  });
 
-         //   this.setState({isAuthenticated: true});
-           // this.setState({currentUser: true})
-            // const reference = firebase.database().ref(`/households/`).push({houseHoldName});
-            // const updateReference = reference.toString().replace("https://reactnativedbtrial.firebaseio.com", "");
         } catch (error) {
             // Vi sender `message` feltet fra den error der modtages, videre.
             this.setError(error.message);
@@ -152,6 +144,8 @@ export default class CreateUser extends React.Component {
         }
     };
 
+    //I render opbygges siden med relevante inputfelter og knapper der aktiverer nødvendige metoder
+    //Her er der ydermere anvendt stylings pba. det OS, som den pågæældende enhed anvender
     render () {
         const { email, password, name } = this.state;
         return (
@@ -264,6 +258,7 @@ export default class CreateUser extends React.Component {
 }
 
 
+//Styling for alle komponetner i rende
 const styles = StyleSheet.create({
     error: {
         color: 'red',

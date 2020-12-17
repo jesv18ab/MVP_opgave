@@ -1,13 +1,11 @@
 import {StyleSheet, Text, View} from "react-native";
 import React from "react";
-import HeaderClass from "./HeaderClass";
-import AsyncStorage from '@react-native-community/async-storage';
 import WeShareView from "../EconomyComponents/WeShareView";
 
-//Der er ikke brugt tid på funktionalitet eller design af denne klasse
-//Klassen vil blive lavet på et senere tidspunkt.
+//Dette vire er udelukkende opretet for at vise vores weShareView
 export default class EconomyView extends React.Component {
 
+    //I render kaldes weShare View
     render(){
         return(
           <WeShareView/>
@@ -15,6 +13,7 @@ export default class EconomyView extends React.Component {
     }
 
 }
+//Stlyings er ikke anvendt
 const styles = StyleSheet.create({
     container: {
         flex: 1,
