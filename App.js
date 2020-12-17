@@ -5,7 +5,6 @@ import SignInView from "./Components/SignInView";
 import * as firebase from 'firebase';
 import MainNavigator from "./Components/UserComponent/UserMainViewNavigation";
 import CreateUser from "./Components/GuestComponent/CreateUser";
-import ModalView from "./Components/ModalView";
 import globalStyles from "./Components/GlobalStyles";
 import {AntDesign, Entypo} from "@expo/vector-icons";
 import InitialView from "./Components/UserComponent/NewUsersNavigation";
