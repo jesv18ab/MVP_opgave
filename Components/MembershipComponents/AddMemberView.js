@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Alert, Button, Text, TouchableOpacity, TextInput, View, StyleSheet } from 'react-native';
 import * as firebase from 'firebase';
+import { AntDesign } from '@expo/vector-icons';
+
 export default class AddMemberView extends React.Component{
     _isMounted = false;
 
@@ -100,8 +102,9 @@ export default class AddMemberView extends React.Component{
         return (
             <View style={styles.container}>
                 <Text style={styles.text}>Invite your friend!</Text>
-                <Text style={styles.textSubmit}>Submit</Text>
-
+               <View style={{ bottom: 80}} >
+                <AntDesign name="addusergroup" size={110} color="purple" />
+               </View>
                 <TextInput
                     value={this.state.email}
                     keyboardType = 'email-address'
@@ -169,11 +172,10 @@ const styles = StyleSheet.create({
     },
 
     text: {
-        fontSize: 35,
-        bottom:190,
+        fontSize: 45,
+        bottom:120,
         fontWeight:'bold',
-        marginTop:20,
-        marginBottom:20,
+        marginBottom:5,
         color:'#5FB8B2',
     },
 

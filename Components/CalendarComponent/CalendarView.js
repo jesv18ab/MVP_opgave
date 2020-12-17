@@ -24,6 +24,7 @@ export default class CalendarView extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            key: null,
             day: null,
             setEventModalVisible: false,
             setTimeVisible: false,
@@ -48,7 +49,7 @@ export default class CalendarView extends Component {
             isLoading: false,
             isDatePickerVisibleStart: false,
             isDatePickerVisibleEnd: false,
-
+            createEvent: 'Opret'
         };
         this.onDateChange = this.onDateChange.bind(this);
     }
@@ -124,6 +125,7 @@ export default class CalendarView extends Component {
     //Alert som kan anvendes, hvis man vælger en dato
     //Er ikke brugt
     makeEvent =() =>{
+        this.setState({createEvent: 'Opret'})
         this.reset();
         if (this.state.setEventModalVisible === false){
             this.setState({setEventModalVisible: true})
@@ -242,7 +244,7 @@ export default class CalendarView extends Component {
     };
 
     reset = () => {
-        this.setState({day: null, time: 12, selectedHours: 12, selectedMinutes: 30, chosenStartHours: "", chosenStartMinutes: "", chosenEndHours: "", chosenEndMinutes: "", type: null, description: "Beskrivelse af Begivenhed....", eventName: "Angiv begivenhedens navn", setTimeVisible: false, setEventModalVisible: false, startTime: "Fra", endTime: 'Til', date: null
+        this.setState({day: null, time: 12, selectedHours: 12, selectedMinutes: 30, chosenStartHours: "", chosenStartMinutes: "", chosenEndHours: "", chosenEndMinutes: "", type: null, description: "Beskrivelse af Begivenhed....", eventName: "Angiv begivenhedens navn", setTimeVisible: false, setEventModalVisible: false, startTime: "Fra", endTime: 'Til', date: null, createEvent: 'Opret'
         })
     };
 
@@ -267,7 +269,7 @@ export default class CalendarView extends Component {
         this.setState({selectedMinutes: 30 });
         this.setState({setTimeVisible: false})
     };
-    showEvent = item => {
+    showEvent = (item, key) => {
         const date =  Object.values(Object.values(Object.values(item)[0])[0])[0];
         const description =  Object.values(Object.values(Object.values(item)[0])[0])[1];
         const endTime =   Object.values(Object.values(Object.values(item)[0])[0])[2];
@@ -275,10 +277,24 @@ export default class CalendarView extends Component {
         const startTime =   Object.values(Object.values(Object.values(item)[0])[0])[4];
         let newdate = new Date(date);
         let dayFormatted = format(newdate, "dd MMMM yyyy ")
-        this.setState({endTime: endTime, date: dayFormatted, description: description, eventName: eventName, startTime: startTime, setEventModalVisible: true })
+        this.setState({key: key, endTime: endTime, date: dayFormatted, description: description, eventName: eventName, startTime: startTime, setEventModalVisible: true, createEvent: 'Rediger' })
     };
 
     createEvent = () => {
+        if (this.state.createEvent === "Rediger"){
+            let { date, description, eventName  } = this.state;
+            let startTime = this.state.chosenStartHours + this.state.chosenStartMinutes;
+            let endTime = this.state.chosenEndHours + this.state.chosenEndMinutes;
+            try {
+                const reference = firebase.database().ref(`/households/${this.state.houseHoldId}/events/${this.state.key}/event`).update({date: date, description: description, endTime: endTime, eventName:  eventName, startTime: startTime});
+                // Når bilen er ændret, går vi tilbage.
+                Alert.alert("Din info er nu opdateret");
+            } catch (error) {
+                Alert.alert(`Error: ${error.message}`);
+            }
+
+        }
+        else {
         let startTime = this.state.chosenStartHours + this.state.chosenStartMinutes;
         let endTime = this.state.chosenEndHours + this.state.chosenEndMinutes;
         const { eventName, description, houseHoldId, day } = this.state;
@@ -290,6 +306,7 @@ export default class CalendarView extends Component {
             description: description,
         };
         firebase.database().ref(`/households/${houseHoldId}/events/`).push({event});
+        }
         this.reset()
     };
 
@@ -301,7 +318,7 @@ export default class CalendarView extends Component {
     //Kalender har en property, som kan registrere valg af datoer, som forekommer ved tryk på skærmen
     render() {
         const { selectedHours, selectedMinutes, chosenStartHours, chosenStartMinutes, chosenEndHours, chosenEndMinutes, houseHoldId, showCalendar, day, startTime, endTime, date } = this.state;
-        const {  setEventModalVisible, setTimeVisible, description, eventName, dates, isDatePickerVisibleStart, isDatePickerVisibleEnd, } = this.state;
+        const {  setEventModalVisible, setTimeVisible, description, descriptionPlaceholder, eventName, eventNamePlaceHolder, dates, isDatePickerVisibleStart, isDatePickerVisibleEnd } = this.state;
         let dayFormatted = null;
       if (day){
 
@@ -316,7 +333,6 @@ export default class CalendarView extends Component {
         if (allEvents[0] === 'Der er ingen begivnheder lige nu'){
             return (
                 <View style={{flex: 1, backgroundColor: 'white' }}>
-
                     <View>
                         <Text style={styles.headerText}>Kalender</Text>
                         <Text style={{zIndex: 10, marginLeft: '40%', marginTop: '15%', position: 'absolute', fontSize: 20}}></Text>
@@ -367,7 +383,8 @@ export default class CalendarView extends Component {
                                             value={eventName}
                                             style={styles.inputField}
                                             onChangeText={(eventName) => this.setState({ eventName })}
-
+                                            clearTextOnFocus={true}
+                                            onFocus= {() => this.setState({eventName : ''})}
                                         />
                                     </View>
                                     <View style={{paddingTop: '2%', paddingRight: '3%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
@@ -411,7 +428,9 @@ export default class CalendarView extends Component {
                                         placeholder={description}
                                         value={description}
                                         style={styles.description}
+                                        onFocus= {() => this.setState({description : ''})}
                                         onChangeText={(description) => this.setState({ description })}
+                                        clearTextOnFocus={true}
                                     />
                                     <View style={{ paddingTop: '8%'}}>
                                         <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
@@ -424,7 +443,7 @@ export default class CalendarView extends Component {
                                             <TouchableOpacity
                                                 style={styles.button}
                                                 onPress={this.createEvent}>
-                                                <Text style={styles.buttonText}>Opret</Text>
+                                                <Text style={styles.buttonText}>{this.state.createEvent}</Text>
                                             </TouchableOpacity>
                                         </View>
                                     </View>
@@ -462,7 +481,7 @@ export default class CalendarView extends Component {
 
         } else{
             const { selectedHours, selectedMinutes, chosenStartHours, chosenStartMinutes, chosenEndHours, chosenEndMinutes, houseHoldId, showCalendar, day, startTime, endTime, date } = this.state;
-            const {  setEventModalVisible, setTimeVisible, description, eventName, dates, isDatePickerVisibleStart, isDatePickerVisibleEnd, } = this.state;
+            const {  setEventModalVisible, setTimeVisible, description, descriptionPlaceholder, eventName, eventNamePlaceHolder, dates, isDatePickerVisibleStart, isDatePickerVisibleEnd } = this.state;
             return(
                 <View style={{flex: 1, backgroundColor: 'white' }}>
                     <Text style={styles.headerText}>Kalender</Text>
@@ -493,7 +512,7 @@ export default class CalendarView extends Component {
                         </View>
                         <ScrollView  horizontal={true}  style={{width:'100%', height: '30%', bottom: '20%', backgroundColor: 'white'}}>
                             {allEvents.map((item, index)=>(
-                                <TouchableOpacity onPress={() => this.showEvent ({item})} style={{width: 190, height: '100%'}}>
+                                <TouchableOpacity key={index} onPress={() => this.showEvent ({item}, eventKeys[index])} style={{width: 190, height: '100%'}}>
                                     <View style={{ padding: '0%', justifyContent: 'center', alignItems: 'center'}} key={index}>
                                         <View style={{borderWidth: 1, borderColor: 'black', width: '95%', height: '100%', backgroundColor: 'white'}} >
                                             <View style={{backgroundColor: '#5FB8B2', justifyContent: 'center', alignItems: 'center', padding: '5%'}}>
@@ -537,7 +556,10 @@ export default class CalendarView extends Component {
                                             placeholder={eventName}
                                             value={eventName}
                                             style={styles.inputField}
-                                            onChangeText={(eventName) => this.setState({ eventName })}/>
+                                            onChangeText={(eventName) => this.setState({ eventName })}
+                                            onFocus= {() => this.setState({eventName : ''})}
+                                            clearTextOnFocus={true}
+                                        />
                                     </View>
                                     <View style={{paddingTop: '2%', paddingRight: '3%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
                                         <SimpleLineIcons style={{paddingRight: '3%', paddingBottom: '2%'}} name="clock" size={28} color="black" />
@@ -580,8 +602,10 @@ export default class CalendarView extends Component {
                                     <TextInput
                                         placeholder={description}
                                         value={description}
+                                        onFocus= {() => this.setState({description : ''})}
                                         style={styles.description}
                                         onChangeText={(description) => this.setState({ description })}
+                                        clearTextOnFocus={true}
                                     />
                                     <View style={{ paddingTop: '8%'}}>
                                         <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
@@ -594,7 +618,7 @@ export default class CalendarView extends Component {
                                             <TouchableOpacity
                                                 style={styles.button}
                                                 onPress={this.createEvent}>
-                                                <Text style={styles.buttonText}>Opret</Text>
+                                                <Text style={styles.buttonText}>{this.state.createEvent}</Text>
                                             </TouchableOpacity>
                                         </View>
                                     </View>

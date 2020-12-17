@@ -17,8 +17,12 @@ import MyInvites from "../GuestComponent/MyInvites";
 import CreateHouseHold from "../GuestComponent/CreateHouseHold";
 import InitalViewNewUsers from "../GuestComponent/MainNavigationNewUserView";
 import HeaderNavigation from "./HeaderNavigation";
+import Logout from "../Logout";
+import * as firebase from 'firebase';
+import {StyleSheet, Alert} from 'react-native';
 
 //Oprettelse af en drawernavigator, hvori vi placerer tilhørende screens
+
 const StackNavigatorNewUsers = createStackNavigator({
     InitialPage:{
         screen: InitalViewNewUsers, navigationOptions: {
@@ -45,19 +49,38 @@ const StackNavigatorNewUsers = createStackNavigator({
 const StackNavigatorCleaningOverView = createStackNavigator(
     {
         Oversigten: {
-            screen: CommonAreaCleaningView
+            screen: CommonAreaCleaningView,
+            navigationOptions: {
+                headerTitleStyle: { alignSelf: 'center' },
+            },
         },
         Laundry: {
-            screen:LaundryView
+            screen:LaundryView,
+            navigationOptions: {
+                headerTitleStyle: { left: 65 },
+                title: 'Vasketøjslisten',
+            },
         },
         ShoppingList: {
-            screen: ListView
+            screen: ListView,
+            navigationOptions: {
+                headerTitleStyle: { left: 100 },
+                title: 'Indkøb',
+            },
         },
         HouseCleaning: {
-            screen: HouseCleaning
+            screen: HouseCleaning,
+            navigationOptions: {
+                headerTitleStyle: { left: 75 },
+                title: 'Rengøringen',
+            },
         },
         EconomyView: {
-            screen: EcononyView
+            screen: EcononyView,
+            navigationOptions: {
+                headerTitleStyle: { left: 90 },
+                title: 'WeShare',
+            },
         },
     },
     { initialRouteKey: 'Oversigten'  }
@@ -74,23 +97,6 @@ const TabNavigator = createBottomTabNavigator(
                     <AntDesign name="setting" size={24} color="black" />                 )
             },
         },
-        CleaningOverview: {
-            screen: StackNavigatorCleaningOverView, navigationOptions: {
-                tabBarLabel:"Home Page", tabBarIcon: ({ tintColor }) => (
-                    <AntDesign name="home" size={24} color="black"  />
-                )
-            },
-        },
-        /*Navn på Route*/
-        Weshare: {
-            screen: WeShareView,
-            navigationOptions: {
-                tabBarLabel:"WeShare",
-                tabBarIcon: ({ tintColor }) => (
-                    <AntDesign name="wallet" size={24} color="black" />
-                )
-            },
-        },
         Calendar: {
             screen: CalendarView,
             navigationOptions: {
@@ -99,6 +105,15 @@ const TabNavigator = createBottomTabNavigator(
                     <AntDesign name="calendar" size={24} color="black" />               )
             },
         },
+        CleaningOverview: {
+            screen: StackNavigatorCleaningOverView, navigationOptions: {
+                tabBarLabel:"Overblikket", tabBarIcon: ({ tintColor }) => (
+                    <AntDesign name="home" size={24} color="black"  />
+                )
+            },
+        },
+        /*Navn på Route*/
+
         Members: {
             screen: AddMemberView,
             navigationOptions: {
@@ -107,8 +122,29 @@ const TabNavigator = createBottomTabNavigator(
                     <AntDesign name="adduser" size={24} color="black" />)
             },
         },
+        Logout: {
+            screen: Logout, navigationOptions: ({navigation}) => ({
+                tabBarIcon: ({ tintColor }) => (
+                    <AntDesign name="logout" size={24} color="black" />),
+                tabBarOnPress: (scene, jumpToIndex) => {
+                    return Alert.alert(   // Shows up the alert without redirecting anywhere
+                        'Bekræftelse'
+                        , 'Er du sikker på at du vil logge ud?'
+                        , [
+                            {
+                                text: 'Log ud', onPress: () => {
+                                    firebase.auth().signOut()
+                                }
+                            },
+                            {text: 'annuller'}
+                        ]
+                    );
+                },
+            })
+
+        }
     },
-    /*Generelle label indstillinger. Blot en design metode*/
+/*Generelle label indstillinger. Blot en design metode*/
     {
         tabBarOptions: {
             showIcon: true,
@@ -120,6 +156,7 @@ const TabNavigator = createBottomTabNavigator(
             size: 40,
         }, initialRouteName: "Profile"
     },
+
 );
 
 

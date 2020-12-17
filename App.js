@@ -9,7 +9,6 @@ import ModalView from "./Components/ModalView";
 import globalStyles from "./Components/GlobalStyles";
 import {AntDesign, Entypo} from "@expo/vector-icons";
 import InitialView from "./Components/UserComponent/NewUsersNavigation";
-import TestPicker from "./Components/TestPicker";
 
 //Oprettelse af databasekonfiguration
 const fireBaseConfig = {
