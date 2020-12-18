@@ -10,7 +10,6 @@ export default class ProfileView extends React.Component{
 
     //Oprettelse af livscykluskontrollør
     _isMounted = false;
-
     //Oprettelse af state variabler
     state = {
     currentUser: this.props.screenProps.currentUser,
@@ -130,6 +129,7 @@ componentWillUnmount() {
     render(){
         const currentUser = this.state.currentUser;
         const {houseHasBeenCreated, userInfo, houseHoldName} = this.state;
+
         let birthday = null;
         if (userInfo.birthday !=null){
             const arr = Object.values(userInfo.birthday);

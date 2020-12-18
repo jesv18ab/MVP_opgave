@@ -1,6 +1,7 @@
 //Imports
 import * as React from 'react';
-import {Button,Text, View, TextInput, ActivityIndicator, StyleSheet, Alert, ActivityIndicatorComponent
+import {
+    Button, Text, View, TextInput, ActivityIndicator, StyleSheet, Alert, ActivityIndicatorComponent, TouchableOpacity
 } from 'react-native';
 import firebase from "firebase";
 
@@ -156,12 +157,15 @@ export default class CreateHouseHold extends React.Component {
     render()  {
         const { errorMessage, houseHoldName, isCompleted } = this.state;
         return (
-            <View>
-                <Text style={styles.header}>Her oprettet vi et nyt kollektiv</Text>
+            <View style={styles.container}>
+                <Text style={styles.headerText}>Opret dit kollektiv </Text>
                 <TextInput placeholder="Navngiv jeres kollektiv" value={houseHoldName} onChangeText={this.handleChangehouseHoldName} style={styles.inputField}/>
-                <Button onPress={this.handleSubmit} title="Opret jeres hus"/>
+                <TouchableOpacity onPress={this.handleSubmit} style={styles.button3} >
+                    <View>
+                        <Text style={{color: 'white', fontSize: 15, fontWeight: 'bold'}}>Opret</Text>
+                    </View>
+                </TouchableOpacity>
                 <Button onPress={this.handleLogOut} title="Log ud"/>
-                <Button onPress={this.profile} title="profile"/>
             </View>
         );
     }
@@ -176,6 +180,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: '#DBF1EE',
+        width: '100%',
+        height: '100%'
     },
     error: {
         color: 'red',
@@ -184,8 +190,31 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         margin: 10,
         padding: 10,
+        bottom: 100,
+        width: '90%',
+        height: '8%'
     },
     header: {
         fontSize: 40,
     },
+    headerText: {
+        fontSize: 50,
+        fontWeight:'bold',
+        color:'#5FB8B2',
+        bottom: 190
+    },
+    button3: {
+        backgroundColor: '#47525E',
+        padding: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 4,
+        borderColor: 'rgba(0, 0, 0, 0.1)',
+        width: '70%',
+        height: '9%',
+        marginLeft: '3%',
+        alignSelf: 'center',
+        bottom: 80
+
+    }
 });
