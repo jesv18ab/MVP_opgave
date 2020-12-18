@@ -73,8 +73,6 @@ export default class App extends React.Component {
     this._isMounted && this.stateChange();
     this._isMounted && this.getYears();
     this._isMounted && this.getHouseholds();
-
-
   }
 
 

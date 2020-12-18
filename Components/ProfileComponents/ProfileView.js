@@ -44,8 +44,6 @@ export default class ProfileView extends React.Component{
     //Her hentes all households fra firebase
     getHouseHolds = () => {
         let houseHoldName = '';
-
-
        //Vi laver det der svarer til et foreach loop med værdierne i householdlisten der  er parset fra App.js
         Object.values(this.props.screenProps.houseHolds).map((item, index) => {
             //Vi bruger Objectvalues, når vi vil ind og oprette en array fra en javascript objekt.
@@ -83,25 +81,31 @@ export default class ProfileView extends React.Component{
     //Denne metode skal teste, hvorvidt en bruger en er en del af et kollektiv eller ej
     //Der er jo brugere, som har en account uden at være en del af et kollektiv. Dette testes i denne metode
     checkIfNewUser = async () => {
-
         //Initial værdi af status sættes til at være null
         var status = null;
+        let userInfo2 = null;
+        let houseHoldName = null;
 
         //Vi henter alle brugere fra firebase og placerer disse i en state variabel
         await firebase.database().ref('allUsers').on('value', snapshot => {
             if (snapshot.val()){
-
                 //Vi looper igennem alle brugere og tester den attibut, der angiver deres nuværende bolig status
                 Object.values(snapshot.val()).map((item, index) => {
                     if (item.email.toUpperCase() === this.props.screenProps.currentUser.email.toUpperCase()){
                         this._isMounted && this.setState({houseHasBeenCreated: item.status})
                         status = item.status;
                         this.setState({userInfo: item})
+                        userInfo2 = item
                     //Hvis status er false eller null betyder dette at brugere ikke er en del af et kollekt, hvorfor vedkommende bliver vist ind til
                         //Et andet view, der er dedikeret til denne bruger type
                         if (!item.status && item.status != null)
                         {
                             this.props.navigation.navigate('NewUser');
+                        }
+                    else if(this.state.houseHoldName === '')  {
+                        firebase.database().ref(`households/${userInfo2.houseHoldId}`).on('value', snapshot => {
+                              this.setState({houseHoldName: snapshot.val().houseHoldName })
+                            });
                         }
                     }
                 }

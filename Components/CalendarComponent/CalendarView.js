@@ -432,10 +432,10 @@ export default class CalendarView extends Component {
         if (allEvents[0] === 'Der er ingen begivnheder lige nu'){
             return (
                 <View style={{flex: 1, backgroundColor: 'white' }}>
+                    <Text style={styles.headerText}>Kalender</Text>
                     <View>
-                        <Text style={styles.headerText}>Kalender</Text>
                         <Text style={{zIndex: 10, marginLeft: '40%', marginTop: '15%', position: 'absolute', fontSize: 20}}></Text>
-                        <View style={{ height: '65%', paddingBottom: '1%', marginTop:'3%', backgroundColor: 'white'}}>
+                        <View style={{ height: '65%', paddingBottom: '1%', marginTop:'5%', backgroundColor: 'white'}}>
                             <Calendar
                                 current={Date()}
                                 onDayLongPress={(day) => {this.newEvent({day})}}
@@ -855,10 +855,11 @@ const styles = StyleSheet.create({
         marginTop:7,
     },
     headerText: {
-        left: 125,
-        fontSize: 40,
+        left: 135,
+        fontSize: 35,
         fontWeight:'bold',
         color:'#5FB8B2',
-        top: 20
+        top: 30,
+        height: '7%'
     }
 });

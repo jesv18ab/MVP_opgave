@@ -136,6 +136,7 @@ export default class CreateHouseHold extends React.Component {
               //Nu er kollektivet oprettet og brugerens profil er opdateret
                 //Derfor skal brugeren nu sendes ind i den side, der er målrettet for brugere,  der er en
                 //del af et kollektiv
+
                 this.props.navigation.navigate('Profile');
             } catch (error) {
                 // Vi sender `message` feltet fra den error der modtages, videre.
