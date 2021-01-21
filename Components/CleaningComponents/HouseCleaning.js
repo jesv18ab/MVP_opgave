@@ -1,27 +1,61 @@
 //Imports
 import React, { Component } from 'react';
-import {StyleSheet, View, Text, TextInput, Switch, ScrollView, TouchableOpacity, KeyboardAvoidingView, Keyboard} from 'react-native';
+import {StyleSheet, View, Text, TextInput, Switch, ScrollView, TouchableOpacity, KeyboardAvoidingView, Keyboard, Platform} from 'react-native';
 import Modal from 'react-native-modal'; // 2.4.0
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-
+import firebase from "firebase";
+import {Picker} from '@react-native-picker/picker';
+import withDimensions from "react-navigation-tabs/src/utils/withDimensions";
+const users = ["Java", "Script"]
 
 //Denne klasse står for at administrerer rengøringsplanlægningen
 export default class HouseCleaning extends React.Component {
 
- //Her er hardcodet tre præefinerede objekter, som printes i render. Nogle objekter skal angive at rengøringen er foregået
+    //Her er hardcodet tre præefinerede objekter, som printes i render. Nogle objekter skal angive at rengøringen er foregået
     //MEns andre fremviser, hvordan det ser ud for en planlagt vask
     //Derudover oprettes statevariabler, som skal styre visnignen af et modal view og dataTimePickers
     state = (
         {
             switchItems: [ {isEnabled: true, date: 'Udført: 20-10-2020', name: 'Sarah Hansen' }, {isEnabled: false, date: '20-10-2020', name: 'Søren Andersen' }, {isEnabled: false, date: '20-10-2020', name: 'Mads Klausen'},
                 {isEnabled: false, date: '20-10-2020', name: 'Lone Hansen' },
-             ],
+            ],
+            namesOfUsers: [ {name: 'Sarah Hansen' }, { name: 'Søren Andersen' }, { name: 'Mads Klausen'},
+                {name: 'Lone Hansen' },
+            ],
             visibleModal: null,
             isDatePickerVisible: false,
             date: '',
-            name: null
+            name: null,
+            userInfo: '',
+            language: 'java',
         }
     );
+
+    componentDidMount() {
+        this.findUser()
+    }
+
+    findUser = async () => {
+        //Initial værdi af status sættes til at være null
+        var status = null;
+        let userInfo2 = null;
+        let houseHoldName = null;
+
+        //Vi henter alle brugere fra firebase og placerer disse i en state variabel
+        await firebase.database().ref('allUsers').on('value', snapshot => {
+            if (snapshot.val()){
+                //Vi looper igennem alle brugere og tester den attibut, der angiver deres nuværende bolig status
+                Object.values(snapshot.val()).map((item, index) => {
+                        if (item.email.toUpperCase() === this.props.screenProps.currentUser.email.toUpperCase()){
+                            this.setState({userInfo: item})
+                            //Hvis status er false eller null betyder dette at brugere ikke er en del af et kollekt, hvorfor vedkommende bliver vist ind til
+                            //Et andet view, der er dedikeret til denne bruger type
+                        }
+                    }
+                )
+            }
+        });
+    };
 
 
     //I denne metode opdateres et objekt i listen, som konsekvens af en aktivitet i vores switch komponent
@@ -29,11 +63,11 @@ export default class HouseCleaning extends React.Component {
     //Derudover hentes det index, som objektet har i listen
     setSwitch = (status, index) => {
 
-     //Initialisering af relevante variabler
+        //Initialisering af relevante variabler
         let date = new Date().getDate();
         let month = new Date().getMonth() + 1;
         let year = new Date().getFullYear();
-      //Formatering af datoer
+        //Formatering af datoer
         let currentDate ="Udført: " + date + "-"+ month + "-" + year
         let currentDate2 ="Opdateret: " + date + "-"+ month + "-" + year
         let arr = this.state.switchItems;
@@ -41,7 +75,7 @@ export default class HouseCleaning extends React.Component {
         //Der oprettes et if-else statement til at styre den hpndtering der skal foregår, hvis
         //Objekt i frovejen er markeret som færdiglavet eller ej
         if (status){
-          //Er opgaven udført, skal dette annulleres og aktiviteten sættes til at være opdateret og ikke udført
+            //Er opgaven udført, skal dette annulleres og aktiviteten sættes til at være opdateret og ikke udført
             arr[index].isEnabled = false;
             arr[index].date = currentDate2;
             this.setState({switchItems: arr})
@@ -55,27 +89,27 @@ export default class HouseCleaning extends React.Component {
 
 //Denne metode står for at håndere, når en dato er valgt i datepickeren.
     handleConfirm = (date) => {
-       //Initialisering af relevante variabler
+        //Initialisering af relevante variabler
         let newDate = new Date(date);
         let month = newDate.getMonth()+1;
         let day = null;
 
         //Hvis den valgte dag er i starten af måneden, skal ydeligere formatering udføres
-        if (newDate.getDay() < 10)
+        if (newDate.getDate() < 10)
         {
             //Vi tilføjer et nul i datoen
-            day = "0"+newDate.getDay()
+            day = "0"+newDate.getDate()
         }
         else {
             //Hvis datoen ikke er i starten af måneden gemmes den valgte dag blot
-            day = newDate.getDay()
+            day = newDate.getDate()
         }
         //Samme procedure for måneder som for dage
         if (month < 10)
         {
             month = "0"+month
         }
-       //Slutteligt sammenæsttes dagm månedog år i en formateret dato.
+        //Slutteligt sammenæsttes dagm månedog år i en formateret dato.
         newDate = day + "-" + month + "-" + newDate.getFullYear();
         this.setState({date: newDate})
 
@@ -94,43 +128,98 @@ export default class HouseCleaning extends React.Component {
 
     //Metpden står fro at oprette et nyt rengøringsobjekt
     createCleaning = () => {
-       //Vi opretter og gemmer relevanteværdier og vriabler
+        //Vi opretter og gemmer relevanteværdier og vriabler
         let arr = [];
-       arr = this.state.switchItems;
-     //Her oprettes det nye rengæringsobjekt
-       let item= {isEnabled: false, date: "Planlagt: " +  this.state.date, name: this.state.name}
-      //Objektet gemmes i en liste over alle rengæringsobjekter
-       arr.push(item);
-      //Vi overskriver den gamle liste med en nye liste samt sætter vores modealvarablen null,
+        arr = this.state.switchItems;
+        //Her oprettes det nye rengæringsobjekt
+        let item= {isEnabled: false, date: "Planlagt: " +  this.state.date, name: this.state.name}
+        //Objektet gemmes i en liste over alle rengæringsobjekter
+        arr.push(item);
+        //Vi overskriver den gamle liste med en nye liste samt sætter vores modealvarablen null,
         //Således vores modalview gemmes igen.
+        this.setState({name: this.state.userInfo.name});
+        this.setState({date: ''})
         this.setState({switchItems: arr, visibleModal: null })
-        this.setState({visibleModal: null})
+        this.setState({visibleModal: null});
+    };
+
+    dismiss = () => {
+        //Vi opretter og gemmer relevanteværdier og vriabler
+        this.setState({name: this.state.userInfo.name});
+        this.setState({date: ''});
+        this.setState({visibleModal: null })
     };
 
 
     //I render opbygges siden, hvortil relevante komponenter er sat idrift for at kunne håndtere de handlinger
     //som en bruger ønsker at kunne udføære
     render(){
-        const {isDatePickerVisible, date} = this.state
+        const {isDatePickerVisible, date, switchItems, namesOfUsers} = this.state;
+        const name = this.state.userInfo.name;
         return(
             <View style={styles.container}>
                 <Text style={styles.headerText}>Crazy cleaning !</Text>
-                <Modal isVisible={this.state.visibleModal === 1}>
+
+                <View style={{ flex: 1, flexDirection: 'row', top: '5%'}}>
+                    <View style={styles.row} >
+                        <Text>Person</Text>
+                    </View>
+                    <View style={styles.row} >
+                        <Text>Dato</Text>
+                    </View>
+                    <View style={styles.row}>
+                        <Text> Fuldført</Text>
+                    </View>
+
+                </View>
+                <View style={{  height: '50%', bottom: 190 }}>
+                    {this.state.switchItems.map((item, index) => (
+                        <View style={{ flexDirection: 'row', width: "90%",  alignItems: 'center'  }}>
+                            <TextInput value={item.name} style={item.isEnabled ? styles.jobDoneStyleInPut1 : styles.jobWaitingStyleInPut1}  />
+                            <TextInput value={item.date} style={item.isEnabled ? styles.jobDoneStyleInPut2 : styles.jobWaitingStyleInPut2} />
+                            <Switch
+                                trackColor={{ false: '#767577', true: '#81b0ff' }}
+                                thumbColor={item.isEnabled ? '#f5dd4b' : '#f4f3f4'}
+                                ios_backgroundColor="#3e3e3e"
+                                onValueChange={() => this.setSwitch(item.isEnabled, index)}
+                                value={item.isEnabled}
+                            />
+                        </View>
+                    ))}
+                    <TouchableOpacity style={{marginTop: '10%'}} onPress={() => this.setState({ visibleModal: 1} )}>
+                        <View style={styles.button}>
+                            <Text>Planlæg her</Text>
+                        </View>
+                    </TouchableOpacity>
+                </View>
+                <Modal isVisible={this.state.visibleModal === 1}
+                       backdropOpacity= {1}
+                >
                     <View style={styles.modalContent}>
                         <Text style={styles.headerText2}>Planlæg rengøring!!</Text>
                         <Text style={styles.text3}>Navn</Text>
-                        <TextInput
-                            placeholder={"Skriv navn her........."}
-                            style={{ height: 40, borderColor: 'gray', borderWidth: 1, width: '80%' }}
-                            onChangeText={(name) => this.setState({ name })}
-                        />
+                        <View style={{width: '100%', borderColor: 'black', borderWidth: 1}} />
+                        <Picker
+                            selectedValue={this.state.name}
+                            style={{height: 50, width: "70%", left: '31%'}}
+                            itemStyle={{textAlign: 'center'}}
+                            onValueChange={(itemValue, itemIndex) =>
+                                this.setState({name: itemValue})
+                            }>
+                            <Picker.Item label={name} value={name} />
+                            {namesOfUsers.map((item, index) => (
+                                <Picker.Item label={item.name} value={item.name} />
+                            ))}
+                        </Picker>
+                        <View style={{width: '100%', borderColor: 'black', borderWidth: 1}} />
+
                         <TouchableOpacity style={styles.button2} onPress={this.showDatePicker} >
                             <View>
                                 <Text>Vælg dato</Text>
                             </View>
                         </TouchableOpacity>
                         <View style={{ flexDirection: 'row'}} >
-                            <TouchableOpacity style={styles.button3} onPress={() => this.setState({ visibleModal: null}) }>
+                            <TouchableOpacity style={styles.button3} onPress={this.dismiss}>
                                 <View>
                                     <Text style={{color: 'white', fontSize: 15, fontWeight: 'bold'}}>Annuller</Text>
                                 </View>
@@ -147,41 +236,9 @@ export default class HouseCleaning extends React.Component {
                         mode="date"
                         onConfirm={this.handleConfirm}
                         onCancel={this.hideDatePicker}
-                        />
-                        <Text style={{ width: '60%', height: '5%', alignSelf: 'center', textAlign: 'center', fontSize: 15, fontWeight: 'bold', bottom: 90}} >{date}</Text>
+                    />
+                    <Text style={{ width: '60%', height: '5%', alignSelf: 'center', textAlign: 'center', fontSize: 20, fontWeight: 'bold', bottom: 1, right: 8}} >{date}</Text>
                 </Modal>
-                <View style={{ flex: 1, flexDirection: 'row', top: '5%'}}>
-                    <View style={styles.row} >
-                        <Text>Person</Text>
-                    </View>
-                    <View style={styles.row} >
-                        <Text>Dato</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text> Fuldført</Text>
-                    </View>
-
-                </View>
-                    <View style={{  height: '50%', bottom: 190 }}>
-                            {this.state.switchItems.map((item, index) => (
-                                <View style={{ flexDirection: 'row', width: "90%",  alignItems: 'center'  }}>
-                                    <TextInput value={item.name} style={item.isEnabled ? styles.jobDoneStyleInPut1 : styles.jobWaitingStyleInPut1}  />
-                                    <TextInput value={item.date} style={item.isEnabled ? styles.jobDoneStyleInPut2 : styles.jobWaitingStyleInPut2} />
-                                    <Switch
-                                    trackColor={{ false: '#767577', true: '#81b0ff' }}
-                                    thumbColor={item.isEnabled ? '#f5dd4b' : '#f4f3f4'}
-                                    ios_backgroundColor="#3e3e3e"
-                                    onValueChange={() => this.setSwitch(item.isEnabled, index)}
-                                    value={item.isEnabled}
-                                />
-                                </View>
-                            ))}
-                        <TouchableOpacity style={{marginTop: '10%'}} onPress={() => this.setState({ visibleModal: 1} )}>
-                            <View style={styles.button}>
-                                <Text>Planlæg her</Text>
-                            </View>
-                        </TouchableOpacity>
-                    </View>
             </View>
         )
     }
@@ -196,7 +253,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         backgroundColor: '#DBF1EE',
         width: '100%',
-        height: '100%'
+        height: 10
     },
     headerText: {
         fontSize: 50,
@@ -301,17 +358,14 @@ const styles = StyleSheet.create({
         marginTop: '15%'
     },
     modalContent: {
-        bottom: '50%',
+        bottom: '30%',
         backgroundColor: 'white',
         padding: 22,
         borderRadius: 4,
         borderColor: 'rgba(0, 0, 0, 0.1)',
-        height: '40%',
+        height: '50%',
         position: 'absolute',
-    },
-    bottomModal: {
-        justifyContent: 'flex-end',
-        margin: 0,
+
     },
 
 });

@@ -8,6 +8,7 @@ import CreateUser from "./Components/GuestComponent/CreateUser";
 import globalStyles from "./Components/GlobalStyles";
 import {AntDesign, Entypo} from "@expo/vector-icons";
 import InitialView from "./Components/UserComponent/NewUsersNavigation";
+
 //Oprettelse af konfiguration til firebase
 const fireBaseConfig = {
   apiKey: "AIzaSyAhRw12K9lOP1p72bY_Pqpol5VjohVULAM",
@@ -239,8 +240,6 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     bottom:60,
-
-
 
   }
 });

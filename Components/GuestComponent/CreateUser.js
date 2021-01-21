@@ -1,7 +1,17 @@
 
 //Imports
 import * as React from 'react';
-import {Button, Text, View, TextInput, ActivityIndicator, StyleSheet, Alert, TouchableOpacity,} from 'react-native';
+import {
+    Button,
+    Text,
+    View,
+    TextInput,
+    ActivityIndicator,
+    StyleSheet,
+    Alert,
+    TouchableOpacity,
+    Platform
+} from 'react-native';
 import firebase from "firebase";
 import {createBottomTabNavigator} from "react-navigation-tabs";
 import {createAppContainer} from "react-navigation";
@@ -106,7 +116,7 @@ export default class CreateUser extends React.Component {
 
     //ComponentDidmount metode
     componentDidMount() {
-       //her hentes alle brugeren fra firebase
+        //her hentes alle brugeren fra firebase
         firebase.database().ref('/allUsers/').on('value', snapshot => {
             this.setState({allUsers: snapshot.val()})
         });
@@ -132,10 +142,10 @@ export default class CreateUser extends React.Component {
         const status = false;
         const houseHoldId = "none";
         try {
-          //Vi opretter en bruger vha. en prædefineret metode fra firebase
+            //Vi opretter en bruger vha. en prædefineret metode fra firebase
             const result = await firebase.auth().createUserWithEmailAndPassword(email, password);
-         //Brugeren oprettes i vores realtime database
-           const reference = firebase.database().ref(`/allUsers/`).push({name, email, status, houseHoldId, birthday  });
+            //Brugeren oprettes i vores realtime database
+            const reference = firebase.database().ref(`/allUsers/`).push({name, email, status, houseHoldId, birthday  });
 
         } catch (error) {
             // Vi sender `message` feltet fra den error der modtages, videre.
@@ -162,70 +172,70 @@ export default class CreateUser extends React.Component {
                     <Text style={styles.bDay} y>Fødselsdag</Text>
                 </View>
                 <View style={styles.pickers} >
-                 <View style={styles.selectInput} >
-                    <RNPickerSelect
-                    placeholder={placeholderYear}
-                    style={{
-                        ...pickerSelectStyles,
-                        iconContainer: {
-                            top: 20,
-                            right: 10,
-                            backgroundColor: 'black'
-                        },
-                        placeholder: {
-                            ...Platform.select({
-                                ios: {
+                    <View style={styles.selectInput} >
+                        <RNPickerSelect
+                            placeholder={placeholderYear}
+                            style={{
+                                ...pickerSelectStyles,
+                                iconContainer: {
+                                    top: 20,
+                                    right: 10,
+                                    backgroundColor: 'black'
+                                },
+                                placeholder: {
+                                    ...Platform.select({
+                                        ios: {
+                                            color: 'purple',
+                                            fontSize: 12,
+                                            fontWeight: 'bold',                                },
+                                        android: {
+                                            color: 'purple',
+                                            fontWeight: 'bold',
+                                        },
+                                    })
+                                },
+                            }}
+                            onValueChange={(year) => this.setState({year})}
+                            items={this.props.screenProps.yearsRetrieved}
+                        />
+                    </View>
+                    <View style={styles.selectInput2} >
+                        <RNPickerSelect
+                            placeholder={placeholderMonth}
+                            style={{
+                                ...pickerSelectStyles,
+                                iconContainer: {
+                                    top: 20,
+                                    right: 10,
+                                },
+                                placeholder: {
                                     color: 'purple',
                                     fontSize: 12,
-                                    fontWeight: 'bold',                                },
-                                android: {
-                                    color: 'purple',
                                     fontWeight: 'bold',
                                 },
-                            })
-                        },
-                    }}
-                    onValueChange={(year) => this.setState({year})}
-                    items={this.props.screenProps.yearsRetrieved}
-                />
-                 </View>
-                    <View style={styles.selectInput2} >
-                    <RNPickerSelect
-                        placeholder={placeholderMonth}
-                        style={{
-                            ...pickerSelectStyles,
-                            iconContainer: {
-                                top: 20,
-                                right: 10,
-                            },
-                            placeholder: {
-                                color: 'purple',
-                                fontSize: 12,
-                                fontWeight: 'bold',
-                            },
-                        }}
-                        onValueChange={(month) => this.setState({month})}
-                        items={months}/>
+                            }}
+                            onValueChange={(month) => this.setState({month})}
+                            items={months}/>
                     </View>
-                        <View style={styles.selectInput3} >
-                    <RNPickerSelect
-                        placeholder={placeholderDay}
-                        style={{
-                            ...pickerSelectStyles,
-                            iconContainer: {
-                                top: 20,
-                                right: 10,
-                            },
-                            placeholder: {
-                                color: 'purple',
-                                fontSize: 12,
-                                fontWeight: 'bold',
-                            },
-                        }}
-                        onValueChange={(day) => this.setState({day})}
-                        items={days}
-                    />
-                        </View>
+                    <View style={styles.selectInput3} >
+                        <RNPickerSelect
+                            placeholder={placeholderDay}
+                            style={{
+                                ...pickerSelectStyles,
+                                iconContainer: {
+                                    top: 20,
+                                    right: 10,
+                                },
+                                placeholder: {
+                                    color: 'purple',
+                                    fontSize: 12,
+                                    fontWeight: 'bold',
+                                },
+                            }}
+                            onValueChange={(day) => this.setState({day})}
+                            items={days}
+                        />
+                    </View>
                 </View>
 
                 <TextInput
